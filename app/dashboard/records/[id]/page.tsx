@@ -67,14 +67,14 @@ export default function RecordDetailPage() {
   return (
     <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
       {/* Header */}
-      <div className="bg-white border-b px-4 py-3 flex items-center gap-3 shrink-0">
-        <button onClick={() => router.back()} className="p-1 hover:bg-gray-100 rounded">
+      <div className="bg-red-600 text-white border-b px-4 py-3 flex items-center gap-3 shrink-0">
+        <button onClick={() => router.back()} className="p-1 hover:bg-red-700 rounded">
           <ArrowLeft size={20} />
         </button>
         <div className="flex-1">
-          <h1 className="text-lg font-semibold">{fd.lastName || "Bez jména"}</h1>
+          <h1 className="text-lg font-semibold">🔥 NOVÁ VERZE 🔥 {fd.lastName || "Bez jména"}</h1>
         </div>
-        <div className="text-sm text-gray-500">{new Date(record.created_at).toLocaleDateString("cs-CZ")}</div>
+        <div className="text-sm text-white">{new Date(record.created_at).toLocaleDateString("cs-CZ")}</div>
       </div>
 
       {/* Main content - 3 columns */}
