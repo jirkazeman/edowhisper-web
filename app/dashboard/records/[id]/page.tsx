@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ZoomIn, ZoomOut } from "lucide-react";
 import type { ParoRecord } from "@/lib/types";
+import DentalChartWithImage from "@/components/DentalChartWithImage";
 
 export default function RecordDetailPage() {
   const params = useParams();
@@ -11,6 +12,7 @@ export default function RecordDetailPage() {
   const [record, setRecord] = useState<ParoRecord | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [fontSize, setFontSize] = useState(100); // 100% = default
 
   useEffect(() => {
     async function loadRecord() {
@@ -68,58 +70,50 @@ export default function RecordDetailPage() {
 
   const fd = record.form_data;
 
-  // Tooth numbers for dental chart
-  const upperTeeth = [
-    ["18", "17", "16", "15", "14", "13", "12", "11"],
-    ["21", "22", "23", "24", "25", "26", "27", "28"]
-  ];
-  const lowerTeeth = [
-    ["48", "47", "46", "45", "44", "43", "42", "41"],
-    ["31", "32", "33", "34", "35", "36", "37", "38"]
-  ];
-
-  const ToothBox = ({ num }: { num: string }) => {
-    const tooth = fd.dentalCross?.[num];
-    const hasData = tooth && (tooth.status || tooth.note || tooth.hasCaries);
-    
-    return (
-      <div 
-        className={`h-12 border border-gray-300 flex items-center justify-center text-xs font-medium ${
-          hasData ? 'bg-blue-50 border-blue-400' : 'bg-white'
-        }`}
-        title={tooth?.note || undefined}
-      >
-        {num}
-      </div>
-    );
-  };
-
   return (
     <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
       {/* Header */}
-      <div className="bg-red-600 text-white border-b px-4 py-3 flex items-center gap-3 shrink-0">
-        <button onClick={() => router.back()} className="p-1 hover:bg-red-700 rounded">
+      <div className="bg-white border-b px-4 py-3 flex items-center gap-3 shrink-0">
+        <button onClick={() => router.back()} className="p-1 hover:bg-gray-100 rounded">
           <ArrowLeft size={20} />
         </button>
         <div className="flex-1">
-          <h1 className="text-lg font-semibold">🔥 NOVÁ VERZE 🔥 {fd.lastName || "Bez jména"}</h1>
+          <h1 className="text-lg font-semibold text-gray-900">{fd.lastName || "Bez jména"}</h1>
         </div>
-        <div className="text-sm text-white">{new Date(record.created_at).toLocaleDateString("cs-CZ")}</div>
+        
+        {/* Zoom controls */}
+        <div className="flex items-center gap-2 border-l pl-3">
+          <button 
+            onClick={() => setFontSize(Math.max(70, fontSize - 10))}
+            className="p-1.5 hover:bg-gray-100 rounded"
+            title="Zmenšit text"
+          >
+            <ZoomOut size={18} />
+          </button>
+          <span className="text-xs text-gray-600 w-10 text-center">{fontSize}%</span>
+          <button 
+            onClick={() => setFontSize(Math.min(150, fontSize + 10))}
+            className="p-1.5 hover:bg-gray-100 rounded"
+            title="Zvětšit text"
+          >
+            <ZoomIn size={18} />
+          </button>
+        </div>
+        
+        <div className="text-sm text-gray-500">{new Date(record.created_at).toLocaleDateString("cs-CZ")}</div>
       </div>
 
       {/* Main content - 3 columns */}
-      <div className="flex-1 grid grid-cols-[350px_1fr_400px] gap-3 p-3 min-h-0">
+      <div 
+        className="flex-1 grid grid-cols-[350px_1fr_400px] gap-3 p-3 min-h-0"
+        style={{ fontSize: `${fontSize}%` }}
+      >
         
         {/* LEFT COLUMN */}
         <div className="space-y-3 overflow-y-auto">
           {/* Základní informace */}
           <div className="bg-white rounded-lg shadow-sm p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-6 h-6 bg-gray-100 rounded flex items-center justify-center">
-                <span className="text-sm">≡</span>
-              </div>
-              <h3 className="font-semibold text-sm">Základní informace</h3>
-            </div>
+            <h3 className="font-semibold text-sm mb-3">Základní informace</h3>
             
             <div className="space-y-3">
               <div>
@@ -148,12 +142,7 @@ export default function RecordDetailPage() {
 
           {/* Anamnéza */}
           <div className="bg-white rounded-lg shadow-sm p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
-                <span className="text-sm text-blue-600">📋</span>
-              </div>
-              <h3 className="font-semibold text-sm">Anamnéza</h3>
-            </div>
+            <h3 className="font-semibold text-sm mb-3">Anamnéza</h3>
             
             <div className="space-y-3">
               <div>
@@ -176,40 +165,18 @@ export default function RecordDetailPage() {
         <div className="space-y-3 overflow-y-auto">
           {/* Stav chrupu (zubní kříž) */}
           <div className="bg-white rounded-lg shadow-sm p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center">
-                <span className="text-sm text-white">🦷</span>
-              </div>
-              <h3 className="font-semibold text-sm">Stav chrupu (zubní kříž)</h3>
-            </div>
+            <h3 className="font-semibold text-sm mb-3">Stav chrupu (zubní kříž)</h3>
             
-            {/* Upper teeth */}
-            <div className="grid grid-cols-16 gap-px mb-1">
-              {upperTeeth[0].map(num => <ToothBox key={num} num={num} />)}
-              {upperTeeth[1].map(num => <ToothBox key={num} num={num} />)}
-            </div>
-            
-            {/* Lower teeth */}
-            <div className="grid grid-cols-16 gap-px mb-3">
-              {lowerTeeth[0].map(num => <ToothBox key={num} num={num} />)}
-              {lowerTeeth[1].map(num => <ToothBox key={num} num={num} />)}
-            </div>
-
-            {/* Manuální záznam ke kříži */}
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">Manuální záznam ke kříži</label>
-              <textarea value={fd.dentalCrossNotes || ""} readOnly rows={3} className="w-full px-3 py-2 border border-gray-300 rounded text-sm resize-none" />
-            </div>
+            {/* Dental chart with image background */}
+            <DentalChartWithImage 
+              teeth={fd.dentalCross}
+              notes={fd.dentalCrossNotes}
+            />
           </div>
 
           {/* Záznam o ošetření */}
           <div className="bg-white rounded-lg shadow-sm p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-6 h-6 bg-gray-100 rounded flex items-center justify-center">
-                <span className="text-sm">✏️</span>
-              </div>
-              <h3 className="font-semibold text-sm">Záznam o ošetření</h3>
-            </div>
+            <h3 className="font-semibold text-sm mb-3">Záznam o ošetření</h3>
             <textarea value={fd.treatmentRecord || ""} readOnly rows={4} className="w-full px-3 py-2 border border-gray-300 rounded text-sm resize-none" />
           </div>
         </div>
@@ -218,12 +185,7 @@ export default function RecordDetailPage() {
         <div className="space-y-3 overflow-y-auto">
           {/* Vyšetření */}
           <div className="bg-white rounded-lg shadow-sm p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-6 h-6 bg-gray-100 rounded flex items-center justify-center">
-                <span className="text-sm">🔍</span>
-              </div>
-              <h3 className="font-semibold text-sm">Vyšetření</h3>
-            </div>
+            <h3 className="font-semibold text-sm mb-3">Vyšetření</h3>
             
             <div className="space-y-2">
               {[
@@ -242,12 +204,7 @@ export default function RecordDetailPage() {
 
           {/* Indexy (BOP/PBI, CPITN) */}
           <div className="bg-white rounded-lg shadow-sm p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-6 h-6 bg-gray-100 rounded flex items-center justify-center">
-                <span className="text-sm">≡</span>
-              </div>
-              <h3 className="font-semibold text-sm">Indexy (BOP/PBI, CPITN)</h3>
-            </div>
+            <h3 className="font-semibold text-sm mb-3">Indexy (BOP/PBI, CPITN)</h3>
             
             <div className="space-y-3">
               <div>
