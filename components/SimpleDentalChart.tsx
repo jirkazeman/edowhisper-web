@@ -104,7 +104,10 @@ export default function SimpleDentalChart({ teeth = {}, notes, isChildTeeth = fa
   const [isFullscreen, setIsFullscreen] = useState(false);
   
   // Velikost tečky podle zoom (3× větší než původní 5px = 15px)
-  const markerSize = (15 * fontSize) / 100;
+  // Minimální zoom pro prvky - při 70% zoom jsou prvky stále 85%
+  const minZoom = 85;
+  const effectiveZoom = Math.max(minZoom, fontSize);
+  const markerSize = (15 * effectiveZoom) / 100;
 
   const getToothColor = (toothId: string) => {
     const tooth = teeth[toothId];

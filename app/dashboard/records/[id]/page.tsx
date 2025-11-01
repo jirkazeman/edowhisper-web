@@ -76,10 +76,12 @@ export default function RecordDetailPage() {
     return value !== null && value !== undefined && value !== '' && value !== 'N/A';
   };
   
-  // Helper pro získání input classy s přeškrtnutím chybějících polí
+  // Helper pro získání input classy s korálově ohraničením prázdných polí
   const getInputClass = (value: any, baseClass: string = "w-full px-3 py-2 border border-gray-300 rounded text-sm") => {
-    if (!showFieldStatus || isFieldFilled(value)) return baseClass;
-    return `${baseClass} line-through decoration-orange-400 decoration-2`;
+    if (!showFieldStatus) return baseClass;
+    if (isFieldFilled(value)) return baseClass;
+    // Korálová červená z mobilní app (#FF6B6B)
+    return baseClass.replace('border-gray-300', 'border-[#FF6B6B]');
   };
   
   // Komponenta pro status ikonu u labelu - inverzní (kruh barevný, symbol bílý)
@@ -93,7 +95,7 @@ export default function RecordDetailPage() {
         </svg>
       </span>
     ) : (
-      <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-orange-400 ml-1">
+      <span className="inline-flex items-center justify-center w-4 h-4 rounded-full ml-1" style={{ backgroundColor: '#FF6B6B' }}>
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="text-white">
           <path d="M2.5 2.5L7.5 7.5M7.5 2.5L2.5 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
         </svg>
