@@ -27,9 +27,14 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
 
 # vercel
 .vercel
+
+# sensitive documentation
+documents/AUTH_CONNECTION_CODE.md
+scripts/test-service-role.ts
 
 # typescript
 *.tsbuildinfo
