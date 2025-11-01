@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Copy, Check } from "lucide-react";
 import type { ParoRecord } from "@/lib/types";
-import DentalChartWithBackground from "@/components/DentalChartWithBackground";
+import DentalChartProfessional from "@/components/DentalChartProfessional";
 
 export default function RecordDetailPage() {
   const params = useParams();
@@ -18,22 +18,15 @@ export default function RecordDetailPage() {
       try {
         const response = await fetch("/api/records");
         const result = await response.json();
-
-        if (result.error) {
-          throw new Error(result.error);
-        }
-
+        if (result.error) throw new Error(result.error);
         const foundRecord = result.data?.find((r: ParoRecord) => r.id === params.id);
-        if (foundRecord) {
-          setRecord(foundRecord);
-        }
+        if (foundRecord) setRecord(foundRecord);
       } catch (error) {
         console.error("Failed to load record:", error);
       } finally {
         setLoading(false);
       }
     }
-
     loadRecord();
   }, [params.id]);
 
@@ -47,169 +40,134 @@ export default function RecordDetailPage() {
     }
   };
 
-  if (loading) {
+  if (loading || !record) {
     return (
       <div className="h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  if (!record) {
-    return (
-      <div className="h-screen flex items-center justify-center">
-        <p className="text-gray-500">Záznam nenalezen</p>
+        <div className="w-6 h-6 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   const fd = record.form_data;
 
-  const Field = ({ label, value, className = "" }: { label: string; value?: string | null; className?: string }) => (
-    <div className={className}>
-      <span className="text-gray-500 text-[10px]">{label}:</span>{" "}
-      <span className="font-medium text-xs">{value || "-"}</span>
+  const F = ({ l, v }: { l: string; v?: string | null }) => (
+    <div className="flex gap-1 text-[9px]">
+      <span className="text-gray-500 shrink-0">{l}:</span>
+      <span className="font-medium truncate">{v || "-"}</span>
     </div>
   );
 
-  const Section = ({ title, children, copyText }: { title: string; children: React.ReactNode; copyText?: string }) => (
-    <div className="bg-white rounded p-2 shadow-sm">
-      <div className="flex items-center justify-between mb-1.5">
-        <h3 className="text-xs font-semibold text-gray-700">{title}</h3>
-        {copyText && (
-          <button
-            onClick={() => copyToClipboard(copyText, title)}
-            className="p-1 hover:bg-gray-100 rounded transition"
-            title="Kopírovat do schránky"
-          >
-            {copiedField === title ? (
-              <Check size={14} className="text-green-600" />
-            ) : (
-              <Copy size={14} className="text-gray-400" />
-            )}
+  const S = ({ title, children, copy }: { title: string; children: React.ReactNode; copy?: string }) => (
+    <div className="bg-white rounded p-1.5 shadow-sm border border-gray-100">
+      <div className="flex items-center justify-between mb-1">
+        <h4 className="text-[10px] font-semibold text-gray-700">{title}</h4>
+        {copy && (
+          <button onClick={() => copyToClipboard(copy, title)} className="p-0.5 hover:bg-gray-100 rounded">
+            {copiedField === title ? <Check size={10} className="text-green-600" /> : <Copy size={10} className="text-gray-400" />}
           </button>
         )}
       </div>
-      <div className="space-y-0.5 text-xs">{children}</div>
+      {children}
     </div>
   );
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
-      {/* Ultra-compact header */}
-      <div className="bg-white border-b border-gray-200 px-3 py-1.5 flex items-center gap-3">
-        <button
-          onClick={() => router.back()}
-          className="p-1 hover:bg-gray-100 rounded"
-        >
-          <ArrowLeft size={18} />
+    <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
+      {/* Minimal header */}
+      <div className="bg-white border-b px-2 py-1 flex items-center gap-2 shrink-0">
+        <button onClick={() => router.back()} className="p-0.5 hover:bg-gray-100 rounded">
+          <ArrowLeft size={16} />
         </button>
-        <div>
-          <h1 className="text-sm font-semibold text-gray-900">
-            {fd.lastName || "Bez jména"} • {fd.personalIdNumber || "N/A"}
-          </h1>
+        <div className="flex-1 min-w-0">
+          <div className="text-xs font-semibold truncate">{fd.lastName || "Bez jména"} • {fd.personalIdNumber || "N/A"}</div>
         </div>
-        <div className="ml-auto text-[10px] text-gray-500">
-          {new Date(record.created_at).toLocaleDateString("cs-CZ", { 
-            day: "2-digit", 
-            month: "2-digit", 
-            year: "numeric" 
-          })}
-        </div>
+        <div className="text-[9px] text-gray-500">{new Date(record.created_at).toLocaleDateString("cs-CZ")}</div>
       </div>
 
-      {/* Main content - 3 columns with 97% space utilization */}
-      <div className="flex-1 grid grid-cols-[minmax(200px,1fr)_minmax(400px,2fr)_minmax(200px,1fr)] gap-1.5 p-1.5 overflow-hidden">
+      {/* Main content - NO SCROLLING, 100% screen usage */}
+      <div className="flex-1 grid grid-cols-[200px_1fr_200px] gap-1 p-1 min-h-0">
         
-        {/* LEFT COLUMN - Patient Info & Anamnesis */}
-        <div className="space-y-1.5 overflow-y-auto pr-1">
-          <Section title="Pacient">
-            <Field label="Příjmení" value={fd.lastName} />
-            <Field label="Rodné číslo" value={fd.personalIdNumber} />
-            <Field label="Kuřák" value={fd.isSmoker === "yes" ? "Ano" : fd.isSmoker === "no" ? "Ne" : "-"} />
-          </Section>
-
-          <Section title="Anamnéza">
-            <Field label="Obecná" value={fd.generalAnamnesis} className="leading-tight" />
-            <Field label="Alergie" value={fd.allergies} className="leading-tight" />
-            <Field label="Medikace" value={fd.permanentMedication} className="leading-tight" />
-            <Field label="Stomatologická" value={fd.stomatologicalAnamnesis} className="leading-tight" />
-          </Section>
-
-          <Section title="Vyšetření">
-            <Field label="Hygiena" value={fd.hygiene} />
-            <Field label="Dásně" value={fd.gingiva} />
-            <Field label="Zubní kámen" value={fd.tartar} />
-            <Field label="Pomůcky" value={fd.tools} />
-            <Field label="Kaz" value={fd.caries} />
-            <Field label="Sliznice" value={fd.mucosa} />
-            <Field label="Jazyk" value={fd.tongue} />
-            <Field label="Uzdičky" value={fd.frenulum} />
-            <Field label="Okluze" value={fd.occlusion} />
-            <Field label="Ortodoncie" value={fd.orthodonticAnomaly} />
-          </Section>
-
-          <Section title="PBI">
-            <Field label="Datum" value={fd.pbiDate} />
-            <Field label="Výsledek" value={fd.pbiResult} />
-            <Field label="Pomůcky" value={fd.pbiTools} />
-          </Section>
-
-          <Section title="CPITN">
-            <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
-              <Field label="HR" value={fd.cpitnUpperRight} />
-              <Field label="HL" value={fd.cpitnUpperLeft} />
-              <Field label="DL" value={fd.cpitnLowerLeft} />
-              <Field label="DR" value={fd.cpitnLowerRight} />
+        {/* LEFT */}
+        <div className="space-y-1 overflow-y-auto">
+          <S title="Pacient">
+            <div className="space-y-0.5">
+              <F l="Příjmení" v={fd.lastName} />
+              <F l="RČ" v={fd.personalIdNumber} />
+              <F l="Kuřák" v={fd.isSmoker === "yes" ? "Ano" : fd.isSmoker === "no" ? "Ne" : "-"} />
             </div>
-          </Section>
+          </S>
+
+          <S title="Anamnéza">
+            <div className="space-y-0.5">
+              <F l="Obecná" v={fd.generalAnamnesis} />
+              <F l="Alergie" v={fd.allergies} />
+              <F l="Medikace" v={fd.permanentMedication} />
+              <F l="Stomato" v={fd.stomatologicalAnamnesis} />
+            </div>
+          </S>
+
+          <S title="Vyšetření">
+            <div className="space-y-0.5">
+              <F l="Hygiena" v={fd.hygiene} />
+              <F l="Dásně" v={fd.gingiva} />
+              <F l="Kámen" v={fd.tartar} />
+              <F l="Pomůcky" v={fd.tools} />
+              <F l="Kaz" v={fd.caries} />
+              <F l="Sliznice" v={fd.mucosa} />
+              <F l="Jazyk" v={fd.tongue} />
+            </div>
+          </S>
+
+          <S title="PBI/CPITN">
+            <div className="space-y-0.5">
+              <F l="PBI" v={fd.pbiResult} />
+              <F l="HR" v={fd.cpitnUpperRight} />
+              <F l="HL" v={fd.cpitnUpperLeft} />
+              <F l="DL" v={fd.cpitnLowerLeft} />
+              <F l="DR" v={fd.cpitnLowerRight} />
+            </div>
+          </S>
         </div>
 
-        {/* CENTER COLUMN - Dental Chart + Main Info */}
-        <div className="space-y-1.5 overflow-y-auto pr-1">
-          {/* Dental Chart - LARGEST ELEMENT */}
-          <DentalChartWithBackground 
-            teeth={fd.dentalCross} 
-            notes={fd.dentalCrossNotes}
-          />
+        {/* CENTER */}
+        <div className="space-y-1 overflow-y-auto">
+          <DentalChartProfessional teeth={fd.dentalCross} notes={fd.dentalCrossNotes} />
 
-          {/* Treatment Record */}
-          <Section title="Záznam o ošetření">
-            <div className="whitespace-pre-wrap text-xs leading-snug bg-gray-50 p-2 rounded">
+          <S title="Záznam o ošetření">
+            <div className="text-[9px] leading-tight bg-gray-50 p-1 rounded max-h-[80px] overflow-y-auto">
               {fd.treatmentRecord || "-"}
             </div>
-          </Section>
+          </S>
 
-          {/* Examination Summary with COPY */}
-          <Section title="Přehled o ošetření" copyText={fd.examinationSummary || ""}>
-            <div className="whitespace-pre-wrap text-xs leading-snug bg-blue-50 p-2 rounded border border-blue-200">
+          <S title="Přehled o ošetření" copy={fd.examinationSummary || ""}>
+            <div className="text-[9px] leading-tight bg-blue-50 p-1 rounded border border-blue-200 max-h-[100px] overflow-y-auto">
               {fd.examinationSummary || "-"}
             </div>
-          </Section>
+          </S>
         </div>
 
-        {/* RIGHT COLUMN - Notes & Transcript */}
-        <div className="space-y-1.5 overflow-y-auto pr-1">
-          <Section title="Poznámky uživatele">
-            <div className="whitespace-pre-wrap text-xs leading-snug bg-gray-50 p-2 rounded min-h-[60px]">
+        {/* RIGHT */}
+        <div className="space-y-1 overflow-y-auto">
+          <S title="Poznámky">
+            <div className="text-[9px] leading-tight bg-gray-50 p-1 rounded min-h-[40px] max-h-[100px] overflow-y-auto">
               {fd.userNotes || "-"}
             </div>
-          </Section>
+          </S>
 
-          <Section title="Poznámky k zubnímu kříži">
-            <div className="whitespace-pre-wrap text-xs leading-snug bg-gray-50 p-2 rounded min-h-[60px]">
+          <S title="Poznámky ke kříži">
+            <div className="text-[9px] leading-tight bg-gray-50 p-1 rounded min-h-[40px] max-h-[80px] overflow-y-auto">
               {fd.dentalCrossNotes || "-"}
             </div>
-          </Section>
+          </S>
 
-          {/* Full Transcript with COPY */}
-          <Section title="Celý přepis" copyText={fd.fullTranscript || ""}>
-            <div className="whitespace-pre-wrap text-[11px] leading-tight bg-gray-50 p-2 rounded max-h-[400px] overflow-y-auto font-mono">
+          <S title="Celý přepis" copy={fd.fullTranscript || ""}>
+            <div className="text-[8px] leading-tight bg-gray-50 p-1 rounded font-mono max-h-[200px] overflow-y-auto">
               {fd.fullTranscript || "-"}
             </div>
-          </Section>
+          </S>
         </div>
       </div>
     </div>
   );
 }
+
