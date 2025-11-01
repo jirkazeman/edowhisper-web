@@ -227,7 +227,7 @@ export default function RecordsPage() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         {isEditing ? (
                           <input
-                            type="text"
+                            type="password"
                             value={editValues.personalIdNumber || ""}
                             onChange={(e) =>
                               setEditValues({
@@ -238,8 +238,8 @@ export default function RecordsPage() {
                             className="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                           />
                         ) : (
-                          <span className="text-sm text-gray-500">
-                            {record.personalIdNumber}
+                          <span className="text-sm text-gray-500 font-mono">
+                            {"••••••/••••"}
                           </span>
                         )}
                       </td>
