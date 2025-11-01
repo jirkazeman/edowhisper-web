@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, ZoomIn, ZoomOut, Eye, EyeOff, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowLeft, ZoomIn, ZoomOut, Eye, EyeOff, Sparkles, UserCheck } from "lucide-react";
 import type { ParoRecord } from "@/lib/types";
-import ProfessionalDentalChart from "@/components/ProfessionalDentalChart";
+import SimpleDentalChart from "@/components/SimpleDentalChart";
 
 export default function RecordDetailPage() {
   const params = useParams();
@@ -76,14 +76,28 @@ export default function RecordDetailPage() {
     return value !== null && value !== undefined && value !== '' && value !== 'N/A';
   };
   
-  // Komponenta pro status ikonu u labelu
+  // Helper pro získání input classy s přeškrtnutím chybějících polí
+  const getInputClass = (value: any, baseClass: string = "w-full px-3 py-2 border border-gray-300 rounded text-sm") => {
+    if (!showFieldStatus || isFieldFilled(value)) return baseClass;
+    return `${baseClass} line-through decoration-orange-400 decoration-2`;
+  };
+  
+  // Komponenta pro status ikonu u labelu - inverzní (kruh barevný, symbol bílý)
   const FieldStatusIcon = ({ value }: { value: any }) => {
     if (!showFieldStatus) return null;
     
     return isFieldFilled(value) ? (
-      <CheckCircle2 size={14} className="text-green-500 inline ml-1" />
+      <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-green-500 ml-1">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="text-white">
+          <path d="M8.5 2.5L3.75 7.25L1.5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </span>
     ) : (
-      <XCircle size={14} className="text-orange-400 inline ml-1" />
+      <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-orange-400 ml-1">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="text-white">
+          <path d="M2.5 2.5L7.5 7.5M7.5 2.5L2.5 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      </span>
     );
   };
 
@@ -100,11 +114,29 @@ export default function RecordDetailPage() {
         
         {/* Controls */}
         <div className="flex items-center gap-2 border-l pl-3">
+          {/* LLM tuning (nefunkční zatím) */}
+          <button
+            className="p-1.5 rounded transition hover:bg-purple-50 text-purple-600 opacity-50 cursor-not-allowed"
+            title="Ladění LLM (brzy k dispozici)"
+            disabled
+          >
+            <Sparkles size={18} />
+          </button>
+          
+          {/* Hygienist correction (nefunkční zatím) */}
+          <button
+            className="p-1.5 rounded transition hover:bg-blue-50 text-blue-600 opacity-50 cursor-not-allowed"
+            title="Oprava hygienistkou (brzy k dispozici)"
+            disabled
+          >
+            <UserCheck size={18} />
+          </button>
+          
           {/* Field status toggle */}
           <button
             onClick={() => setShowFieldStatus(!showFieldStatus)}
             className={`p-1.5 rounded transition ${showFieldStatus ? 'bg-green-50 text-green-600' : 'hover:bg-gray-100 text-gray-600'}`}
-            title={showFieldStatus ? "Skrýt barevné ohraničení" : "Zobrazit barevné ohraničení"}
+            title={showFieldStatus ? "Skrýt status polí" : "Zobrazit status polí"}
           >
             {showFieldStatus ? <Eye size={18} /> : <EyeOff size={18} />}
           </button>
@@ -150,14 +182,14 @@ export default function RecordDetailPage() {
                   Příjmení
                   <FieldStatusIcon value={fd.lastName} />
                 </label>
-                <input type="text" value={fd.lastName || ""} readOnly className="w-full px-3 py-2 border border-gray-300 rounded text-sm" />
+                <input type="text" value={fd.lastName || ""} readOnly className={getInputClass(fd.lastName)} />
               </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">
                   Rodné číslo (RČ)
                   <FieldStatusIcon value={fd.personalIdNumber} />
                 </label>
-                <input type="text" value={fd.personalIdNumber || ""} readOnly className="w-full px-3 py-2 border border-gray-300 rounded text-sm" />
+                <input type="text" value={fd.personalIdNumber || ""} readOnly className={getInputClass(fd.personalIdNumber)} />
               </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">Kuřák</label>
@@ -185,21 +217,21 @@ export default function RecordDetailPage() {
                   Všeobecná anamnéza
                   <FieldStatusIcon value={fd.generalAnamnesis} />
                 </label>
-                <textarea value={fd.generalAnamnesis || ""} readOnly rows={2} className="w-full px-3 py-2 border border-gray-300 rounded text-sm resize-none" />
+                <textarea value={fd.generalAnamnesis || ""} readOnly rows={2} className={getInputClass(fd.generalAnamnesis, "w-full px-3 py-2 border border-gray-300 rounded text-sm resize-none")} />
               </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">
                   Alergie
                   <FieldStatusIcon value={fd.allergies} />
                 </label>
-                <textarea value={fd.allergies || ""} readOnly rows={2} className="w-full px-3 py-2 border border-gray-300 rounded text-sm resize-none" />
+                <textarea value={fd.allergies || ""} readOnly rows={2} className={getInputClass(fd.generalAnamnesis, "w-full px-3 py-2 border border-gray-300 rounded text-sm resize-none")} />
               </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">
                   Stomatologická anamnéza
                   <FieldStatusIcon value={fd.stomatologicalAnamnesis} />
                 </label>
-                <textarea value={fd.stomatologicalAnamnesis || ""} readOnly rows={2} className="w-full px-3 py-2 border border-gray-300 rounded text-sm resize-none" />
+                <textarea value={fd.stomatologicalAnamnesis || ""} readOnly rows={2} className={getInputClass(fd.generalAnamnesis, "w-full px-3 py-2 border border-gray-300 rounded text-sm resize-none")} />
               </div>
             </div>
           </div>
@@ -207,18 +239,16 @@ export default function RecordDetailPage() {
 
         {/* CENTER COLUMN */}
         <div className="space-y-3 overflow-y-auto">
-          {/* Stav chrupu (zubní kříž) - PROFESIONÁLNÍ */}
-          <div className="col-span-3">
-            <ProfessionalDentalChart 
-              data={{ teeth: fd.dentalCross || {}, date: record.created_at }}
-              readOnly={true}
-            />
-          </div>
+          {/* Stav chrupu (zubní kříž) - JEDNODUCHÝ S OBRÁZKEM */}
+          <SimpleDentalChart 
+            teeth={fd.dentalCross || {}}
+            notes={fd.dentalCrossNotes}
+          />
 
           {/* Záznam o ošetření */}
           <div className="bg-white rounded-lg shadow-sm p-4">
             <h3 className="font-semibold text-sm mb-3">Záznam o ošetření</h3>
-            <textarea value={fd.treatmentRecord || ""} readOnly rows={4} className="w-full px-3 py-2 border border-gray-300 rounded text-sm resize-none" />
+            <textarea value={fd.treatmentRecord || ""} readOnly rows={4} className={getInputClass(fd.generalAnamnesis, "w-full px-3 py-2 border border-gray-300 rounded text-sm resize-none")} />
           </div>
         </div>
 
