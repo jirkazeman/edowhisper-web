@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Copy, Check } from "lucide-react";
 import type { ParoRecord } from "@/lib/types";
-import DentalChart from "@/components/DentalChart";
+import DentalChartWithBackground from "@/components/DentalChartWithBackground";
 
 export default function RecordDetailPage() {
   const params = useParams();
@@ -168,7 +168,7 @@ export default function RecordDetailPage() {
         {/* CENTER COLUMN - Dental Chart + Main Info */}
         <div className="space-y-1.5 overflow-y-auto pr-1">
           {/* Dental Chart - LARGEST ELEMENT */}
-          <DentalChart 
+          <DentalChartWithBackground 
             teeth={fd.dentalCross} 
             notes={fd.dentalCrossNotes}
           />
