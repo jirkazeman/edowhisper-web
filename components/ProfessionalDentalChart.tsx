@@ -222,8 +222,8 @@ export default function ProfessionalDentalChart({ data, onUpdate, readOnly = tru
           <span><strong>{stats.bleedingPercent} %</strong> Bleeding on Probing</span>
         </div>
         
-        {/* DOLNÍ ČELIST - pouze když showLowerJaw = true (dětské zuby) */}
-        {showLowerJaw && <div className="mt-6">
+        {/* DOLNÍ ČELIST */}
+        <div className="mt-6">
           {/* Gingival Margin Palatal */}
           <div className="mb-1">
             <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${activeLowerTeeth.length}, minmax(0, 1fr))` }}>
@@ -310,7 +310,7 @@ export default function ProfessionalDentalChart({ data, onUpdate, readOnly = tru
               </div>
             </div>
           </div>
-        </div>}
+        </div>
       </div>
   );
   
