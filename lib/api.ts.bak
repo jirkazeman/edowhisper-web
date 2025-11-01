@@ -1,0 +1,213 @@
+import { supabaseAdmin } from "./supabase";
+import type { ParoRecord, RecordFormData, AIRole } from "./types";
+
+// Records API (uses admin client to see all records)
+export const recordsAPI = {
+  // Get all records
+  getAll: async (): Promise<ParoRecord[]> => {
+    const { data, error } = await supabaseAdmin
+      .from("paro_records")
+      .select("*")
+      .eq("deleted", false)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching records:", error);
+      throw error;
+    }
+
+    return data || [];
+  },
+
+  // Get single record by ID
+  getById: async (id: string): Promise<ParoRecord | null> => {
+    const { data, error } = await supabase
+      .from("paro_records")
+      .select("*")
+      .eq("id", id)
+      .eq("deleted", false)
+      .single();
+
+    if (error) {
+      console.error("Error fetching record:", error);
+      return null;
+    }
+
+    return data;
+  },
+
+  // Create new record
+  create: async (formData: RecordFormData, userId: string): Promise<ParoRecord | null> => {
+    const { data, error } = await supabase
+      .from("paro_records")
+      .insert({
+        user_id: userId,
+        form_data: formData,
+        timestamp: new Date().toISOString(),
+        deleted: false,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error creating record:", error);
+      throw error;
+    }
+
+    return data;
+  },
+
+  // Update record
+  update: async (id: string, formData: Partial<RecordFormData>): Promise<void> => {
+    const { error } = await supabase
+      .from("paro_records")
+      .update({
+        form_data: formData,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id);
+
+    if (error) {
+      console.error("Error updating record:", error);
+      throw error;
+    }
+  },
+
+  // Soft delete record
+  delete: async (id: string): Promise<void> => {
+    const { error } = await supabase
+      .from("paro_records")
+      .update({ deleted: true })
+      .eq("id", id);
+
+    if (error) {
+      console.error("Error deleting record:", error);
+      throw error;
+    }
+  },
+};
+
+// AI Roles API
+export const aiRolesAPI = {
+  // Get all AI roles
+  getAll: async (): Promise<AIRole[]> => {
+    const { data, error } = await supabase
+      .from("ai_roles")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching AI roles:", error);
+      throw error;
+    }
+
+    return data || [];
+  },
+
+  // Get single AI role by ID
+  getById: async (id: string): Promise<AIRole | null> => {
+    const { data, error } = await supabase
+      .from("ai_roles")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      console.error("Error fetching AI role:", error);
+      return null;
+    }
+
+    return data;
+  },
+
+  // Create new AI role
+  create: async (name: string, systemPrompt: string, userId: string): Promise<AIRole | null> => {
+    const { data, error } = await supabase
+      .from("ai_roles")
+      .insert({
+        user_id: userId,
+        name,
+        system_prompt: systemPrompt,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error creating AI role:", error);
+      throw error;
+    }
+
+    return data;
+  },
+
+  // Update AI role
+  update: async (id: string, name: string, systemPrompt: string): Promise<void> => {
+    const { error } = await supabase
+      .from("ai_roles")
+      .update({
+        name,
+        system_prompt: systemPrompt,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id);
+
+    if (error) {
+      console.error("Error updating AI role:", error);
+      throw error;
+    }
+  },
+
+  // Delete AI role
+  delete: async (id: string): Promise<void> => {
+    const { error } = await supabase.from("ai_roles").delete().eq("id", id);
+
+    if (error) {
+      console.error("Error deleting AI role:", error);
+      throw error;
+    }
+  },
+};
+
+// Auth helpers
+export const authAPI = {
+  // Sign in with email/password
+  signIn: async (email: string, password: string) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      console.error("Error signing in:", error);
+      throw error;
+    }
+
+    return data;
+  },
+
+  // Sign out
+  signOut: async () => {
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      console.error("Error signing out:", error);
+      throw error;
+    }
+  },
+
+  // Get current user
+  getCurrentUser: async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    return user;
+  },
+
+  // Get session
+  getSession: async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    return session;
+  },
+};

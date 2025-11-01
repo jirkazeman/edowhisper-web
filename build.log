@@ -1,0 +1,42 @@
+
+> edowhisper-web@0.1.0 build
+> next build
+
+   ▲ Next.js 15.5.6
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 2.6s
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/13) ...
+   Generating static pages (3/13) 
+   Generating static pages (6/13) 
+   Generating static pages (9/13) 
+ ✓ Generating static pages (13/13)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ○ /                                     2.8 kB         153 kB
+├ ○ /_not-found                            997 B         103 kB
+├ ƒ /api/ai-roles                          126 B         102 kB
+├ ƒ /api/fine-tuning/export                126 B         102 kB
+├ ƒ /api/records                           126 B         102 kB
+├ ○ /dashboard                           2.39 kB         153 kB
+├ ○ /dashboard/ai-roles                  4.67 kB         155 kB
+├ ○ /dashboard/fine-tuning               5.58 kB         107 kB
+├ ƒ /dashboard/fine-tuning/[id]          5.35 kB         107 kB
+├ ○ /dashboard/records                   4.31 kB         155 kB
+├ ƒ /dashboard/records/[id]              4.43 kB         106 kB
+├ ○ /dashboard/settings                  2.11 kB         104 kB
+└ ○ /dashboard/tv-display                4.29 kB         155 kB
++ First Load JS shared by all             102 kB
+  ├ chunks/255-cf2e1d3491ac955b.js       45.8 kB
+  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB
+  └ other shared chunks (total)          1.92 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

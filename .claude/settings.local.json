@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(killall:*)",
+      "Bash(npx create-next-app:*)",
+      "Bash(npx create-next-app@latest:*)",
+      "Bash(npx tsx:*)",
+      "Bash(SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkbmlzaGJhbmhpd2pucHBoZnZsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MTMzNzkzNSwiZXhwIjoyMDc2OTEzOTM1fQ.UKp3iKR_lBbC9xMIWupiT3fihtLv4DzPReDhrXOEGNU npx tsx scripts/check-deleted.ts)",
+      "Bash(awk:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
