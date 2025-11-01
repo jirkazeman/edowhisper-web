@@ -39,6 +39,7 @@ interface Props {
 export default function ProfessionalDentalChart({ data, onUpdate, readOnly = true }: Props) {
   const [chartData, setChartData] = useState<DentalChartData>(data || { teeth: {} });
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showLowerJaw, setShowLowerJaw] = useState(false); // Pro budoucnost - dětské zuby
   
   // FDI notation - horní a dolní čelist
   const upperTeeth = ["18", "17", "16", "15", "14", "13", "12", "11", "21", "22", "23", "24", "25", "26", "27", "28"];
@@ -212,8 +213,8 @@ export default function ProfessionalDentalChart({ data, onUpdate, readOnly = tru
           <span><strong>{stats.bleedingPercent} %</strong> Bleeding on Probing</span>
         </div>
         
-        {/* DOLNÍ ČELIST - stejná struktura */}
-        <div className="mt-6">
+        {/* DOLNÍ ČELIST - pouze když showLowerJaw = true (dětské zuby) */}
+        {showLowerJaw && <div className="mt-6">
           {/* Gingival Margin Palatal */}
           <div className="mb-1">
             <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${lowerTeeth.length}, minmax(0, 1fr))` }}>
@@ -300,7 +301,7 @@ export default function ProfessionalDentalChart({ data, onUpdate, readOnly = tru
               </div>
             </div>
           </div>
-        </div>
+        </div>}
       </div>
   );
   
