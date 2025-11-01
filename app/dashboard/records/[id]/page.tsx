@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, ZoomIn, ZoomOut } from "lucide-react";
 import type { ParoRecord } from "@/lib/types";
-import DentalChartWithImage from "@/components/DentalChartWithImage";
+import ProfessionalDentalChart from "@/components/ProfessionalDentalChart";
 
 export default function RecordDetailPage() {
   const params = useParams();
@@ -106,7 +106,7 @@ export default function RecordDetailPage() {
       {/* Main content - 3 columns */}
       <div 
         className="flex-1 grid grid-cols-[350px_1fr_400px] gap-3 p-3 min-h-0"
-        style={{ fontSize: `${fontSize}%` }}
+        style={{ transform: `scale(${fontSize / 100})`, transformOrigin: 'top left', width: `${100 / (fontSize / 100)}%`, height: `${100 / (fontSize / 100)}%` }}
       >
         
         {/* LEFT COLUMN */}
@@ -163,14 +163,11 @@ export default function RecordDetailPage() {
 
         {/* CENTER COLUMN */}
         <div className="space-y-3 overflow-y-auto">
-          {/* Stav chrupu (zubní kříž) */}
-          <div className="bg-white rounded-lg shadow-sm p-4">
-            <h3 className="font-semibold text-sm mb-3">Stav chrupu (zubní kříž)</h3>
-            
-            {/* Dental chart with image background */}
-            <DentalChartWithImage 
-              teeth={fd.dentalCross}
-              notes={fd.dentalCrossNotes}
+          {/* Stav chrupu (zubní kříž) - PROFESIONÁLNÍ */}
+          <div className="col-span-3">
+            <ProfessionalDentalChart 
+              data={{ teeth: fd.dentalCross || {}, date: record.created_at }}
+              readOnly={true}
             />
           </div>
 
