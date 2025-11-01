@@ -22,24 +22,24 @@ interface SimpleDentalChartProps {
 // Pozice každého zubu na obrázku (v procentech)
 // Tyto pozice jsou odhadnuté a budou se muset přesně doladit podle skutečného obrázku
 const toothPositions: { [key: string]: { x: number; y: number; view: 'buccal-upper' | 'occlusal-upper' | 'occlusal-lower' | 'buccal-lower' } } = {
-  // HORNÍ ČELIST - Buccal view (korunky) - řada 1
-  "18": { x: 6, y: 12, view: 'buccal-upper' },
-  "17": { x: 12, y: 12, view: 'buccal-upper' },
-  "16": { x: 18, y: 12, view: 'buccal-upper' },
-  "15": { x: 24, y: 12, view: 'buccal-upper' },
-  "14": { x: 30, y: 12, view: 'buccal-upper' },
-  "13": { x: 36, y: 12, view: 'buccal-upper' },
-  "12": { x: 42, y: 12, view: 'buccal-upper' },
-  "11": { x: 47, y: 12, view: 'buccal-upper' },
+  // HORNÍ ČELIST - Buccal view (korunky) - řada 1 (zobrazujeme jen tuto řadu nahoře)
+  "18": { x: 6, y: 30, view: 'buccal-upper' },
+  "17": { x: 12, y: 30, view: 'buccal-upper' },
+  "16": { x: 18, y: 30, view: 'buccal-upper' },
+  "15": { x: 24, y: 30, view: 'buccal-upper' },
+  "14": { x: 30, y: 30, view: 'buccal-upper' },
+  "13": { x: 36, y: 30, view: 'buccal-upper' },
+  "12": { x: 42, y: 30, view: 'buccal-upper' },
+  "11": { x: 47, y: 30, view: 'buccal-upper' },
   
-  "21": { x: 53, y: 12, view: 'buccal-upper' },
-  "22": { x: 58, y: 12, view: 'buccal-upper' },
-  "23": { x: 64, y: 12, view: 'buccal-upper' },
-  "24": { x: 70, y: 12, view: 'buccal-upper' },
-  "25": { x: 76, y: 12, view: 'buccal-upper' },
-  "26": { x: 82, y: 12, view: 'buccal-upper' },
-  "27": { x: 88, y: 12, view: 'buccal-upper' },
-  "28": { x: 94, y: 12, view: 'buccal-upper' },
+  "21": { x: 53, y: 30, view: 'buccal-upper' },
+  "22": { x: 58, y: 30, view: 'buccal-upper' },
+  "23": { x: 64, y: 30, view: 'buccal-upper' },
+  "24": { x: 70, y: 30, view: 'buccal-upper' },
+  "25": { x: 76, y: 30, view: 'buccal-upper' },
+  "26": { x: 82, y: 30, view: 'buccal-upper' },
+  "27": { x: 88, y: 30, view: 'buccal-upper' },
+  "28": { x: 94, y: 30, view: 'buccal-upper' },
   
   // HORNÍ ČELIST - Occlusal view (žvýkací plochy) - řada 2
   "18-o": { x: 6, y: 30, view: 'occlusal-upper' },
@@ -60,54 +60,35 @@ const toothPositions: { [key: string]: { x: number; y: number; view: 'buccal-upp
   "27-o": { x: 88, y: 30, view: 'occlusal-upper' },
   "28-o": { x: 94, y: 30, view: 'occlusal-upper' },
   
-  // DOLNÍ ČELIST - Occlusal view - řada 3
-  "48-o": { x: 6, y: 55, view: 'occlusal-lower' },
-  "47-o": { x: 12, y: 55, view: 'occlusal-lower' },
-  "46-o": { x: 18, y: 55, view: 'occlusal-lower' },
-  "45-o": { x: 24, y: 55, view: 'occlusal-lower' },
-  "44-o": { x: 30, y: 55, view: 'occlusal-lower' },
-  "43-o": { x: 36, y: 55, view: 'occlusal-lower' },
-  "42-o": { x: 42, y: 55, view: 'occlusal-lower' },
-  "41-o": { x: 47, y: 55, view: 'occlusal-lower' },
+  // DOLNÍ ČELIST - Buccal view (kořeny) - řada 4 (zobrazujeme jen tuto řadu dole, posunuto o 3× kolečko dolů)
+  "48": { x: 6, y: 70, view: 'buccal-lower' },
+  "47": { x: 12, y: 70, view: 'buccal-lower' },
+  "46": { x: 18, y: 70, view: 'buccal-lower' },
+  "45": { x: 24, y: 70, view: 'buccal-lower' },
+  "44": { x: 30, y: 70, view: 'buccal-lower' },
+  "43": { x: 36, y: 70, view: 'buccal-lower' },
+  "42": { x: 42, y: 70, view: 'buccal-lower' },
+  "41": { x: 47, y: 70, view: 'buccal-lower' },
   
-  "31-o": { x: 53, y: 55, view: 'occlusal-lower' },
-  "32-o": { x: 58, y: 55, view: 'occlusal-lower' },
-  "33-o": { x: 64, y: 55, view: 'occlusal-lower' },
-  "34-o": { x: 70, y: 55, view: 'occlusal-lower' },
-  "35-o": { x: 76, y: 55, view: 'occlusal-lower' },
-  "36-o": { x: 82, y: 55, view: 'occlusal-lower' },
-  "37-o": { x: 88, y: 55, view: 'occlusal-lower' },
-  "38-o": { x: 94, y: 55, view: 'occlusal-lower' },
-  
-  // DOLNÍ ČELIST - Buccal view (kořeny) - řada 4
-  "48": { x: 6, y: 88, view: 'buccal-lower' },
-  "47": { x: 12, y: 88, view: 'buccal-lower' },
-  "46": { x: 18, y: 88, view: 'buccal-lower' },
-  "45": { x: 24, y: 88, view: 'buccal-lower' },
-  "44": { x: 30, y: 88, view: 'buccal-lower' },
-  "43": { x: 36, y: 88, view: 'buccal-lower' },
-  "42": { x: 42, y: 88, view: 'buccal-lower' },
-  "41": { x: 47, y: 88, view: 'buccal-lower' },
-  
-  "31": { x: 53, y: 88, view: 'buccal-lower' },
-  "32": { x: 58, y: 88, view: 'buccal-lower' },
-  "33": { x: 64, y: 88, view: 'buccal-lower' },
-  "34": { x: 70, y: 88, view: 'buccal-lower' },
-  "35": { x: 76, y: 88, view: 'buccal-lower' },
-  "36": { x: 82, y: 88, view: 'buccal-lower' },
-  "37": { x: 88, y: 88, view: 'buccal-lower' },
-  "38": { x: 94, y: 88, view: 'buccal-lower' },
+  "31": { x: 53, y: 70, view: 'buccal-lower' },
+  "32": { x: 58, y: 70, view: 'buccal-lower' },
+  "33": { x: 64, y: 70, view: 'buccal-lower' },
+  "34": { x: 70, y: 70, view: 'buccal-lower' },
+  "35": { x: 76, y: 70, view: 'buccal-lower' },
+  "36": { x: 82, y: 70, view: 'buccal-lower' },
+  "37": { x: 88, y: 70, view: 'buccal-lower' },
+  "38": { x: 94, y: 70, view: 'buccal-lower' },
 };
 
 export default function SimpleDentalChart({ teeth = {}, notes, isChildTeeth = false, fontSize = 100 }: SimpleDentalChartProps) {
   const [hoveredTooth, setHoveredTooth] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   
-  // Velikost tečky podle zoom (3× větší než původní 5px = 15px)
+  // Velikost tečky podle zoom (30px pro optimální viditelnost)
   // Minimální zoom pro prvky - při 70% zoom jsou prvky stále 85%
   const minZoom = 85;
   const effectiveZoom = Math.max(minZoom, fontSize);
-  const markerSize = (15 * effectiveZoom) / 100;
+  const markerSize = (30 * effectiveZoom) / 100;
 
   const getToothColor = (toothId: string) => {
     const tooth = teeth[toothId];
