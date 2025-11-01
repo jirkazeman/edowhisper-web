@@ -14,8 +14,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="cs" className={GeistSans.className}>
-      <body>
+    <html lang="cs" suppressHydrationWarning>
+      <body className={GeistSans.className}>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

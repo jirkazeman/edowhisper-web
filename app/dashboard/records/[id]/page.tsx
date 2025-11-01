@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, ZoomIn, ZoomOut, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, ZoomIn, ZoomOut, Eye, EyeOff, CheckCircle2, XCircle } from "lucide-react";
 import type { ParoRecord } from "@/lib/types";
 import ProfessionalDentalChart from "@/components/ProfessionalDentalChart";
 
@@ -71,16 +71,20 @@ export default function RecordDetailPage() {
 
   const fd = record.form_data;
   
-  // Helper pro získání border classy podle vyplněnosti pole
-  const getFieldBorderClass = (value: any) => {
-    if (!showFieldStatus) return 'border-gray-300';
+  // Helper pro kontrolu jestli je pole vyplněné
+  const isFieldFilled = (value: any) => {
+    return value !== null && value !== undefined && value !== '' && value !== 'N/A';
+  };
+  
+  // Komponenta pro status ikonu u labelu
+  const FieldStatusIcon = ({ value }: { value: any }) => {
+    if (!showFieldStatus) return null;
     
-    // Kontrola jestli je pole vyplněné
-    const isFilled = value !== null && value !== undefined && value !== '' && value !== 'N/A';
-    
-    return isFilled 
-      ? 'border-green-500 focus:ring-green-500' // Zelená - naše barva
-      : 'border-orange-400 focus:ring-orange-400'; // Korálová
+    return isFieldFilled(value) ? (
+      <CheckCircle2 size={14} className="text-green-500 inline ml-1" />
+    ) : (
+      <XCircle size={14} className="text-orange-400 inline ml-1" />
+    );
   };
 
   return (
@@ -142,12 +146,18 @@ export default function RecordDetailPage() {
             
             <div className="space-y-3">
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Příjmení</label>
-                <input type="text" value={fd.lastName || ""} readOnly className={`w-full px-3 py-2 border ${getFieldBorderClass(fd.lastName)} rounded text-sm`} />
+                <label className="block text-xs text-gray-600 mb-1">
+                  Příjmení
+                  <FieldStatusIcon value={fd.lastName} />
+                </label>
+                <input type="text" value={fd.lastName || ""} readOnly className="w-full px-3 py-2 border border-gray-300 rounded text-sm" />
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Rodné číslo (RČ)</label>
-                <input type="text" value={fd.personalIdNumber || ""} readOnly className={`w-full px-3 py-2 border ${getFieldBorderClass(fd.personalIdNumber)} rounded text-sm`} />
+                <label className="block text-xs text-gray-600 mb-1">
+                  Rodné číslo (RČ)
+                  <FieldStatusIcon value={fd.personalIdNumber} />
+                </label>
+                <input type="text" value={fd.personalIdNumber || ""} readOnly className="w-full px-3 py-2 border border-gray-300 rounded text-sm" />
               </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">Kuřák</label>
@@ -171,16 +181,25 @@ export default function RecordDetailPage() {
             
             <div className="space-y-3">
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Všeobecná anamnéza</label>
-                <textarea value={fd.generalAnamnesis || ""} readOnly rows={2} className={`w-full px-3 py-2 border ${getFieldBorderClass(fd.generalAnamnesis)} rounded text-sm resize-none`} />
+                <label className="block text-xs text-gray-600 mb-1">
+                  Všeobecná anamnéza
+                  <FieldStatusIcon value={fd.generalAnamnesis} />
+                </label>
+                <textarea value={fd.generalAnamnesis || ""} readOnly rows={2} className="w-full px-3 py-2 border border-gray-300 rounded text-sm resize-none" />
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Alergie</label>
-                <textarea value={fd.allergies || ""} readOnly rows={2} className={`w-full px-3 py-2 border ${getFieldBorderClass(fd.allergies)} rounded text-sm resize-none`} />
+                <label className="block text-xs text-gray-600 mb-1">
+                  Alergie
+                  <FieldStatusIcon value={fd.allergies} />
+                </label>
+                <textarea value={fd.allergies || ""} readOnly rows={2} className="w-full px-3 py-2 border border-gray-300 rounded text-sm resize-none" />
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Stomatologická anamnéza</label>
-                <textarea value={fd.stomatologicalAnamnesis || ""} readOnly rows={2} className={`w-full px-3 py-2 border ${getFieldBorderClass(fd.stomatologicalAnamnesis)} rounded text-sm resize-none`} />
+                <label className="block text-xs text-gray-600 mb-1">
+                  Stomatologická anamnéza
+                  <FieldStatusIcon value={fd.stomatologicalAnamnesis} />
+                </label>
+                <textarea value={fd.stomatologicalAnamnesis || ""} readOnly rows={2} className="w-full px-3 py-2 border border-gray-300 rounded text-sm resize-none" />
               </div>
             </div>
           </div>
@@ -217,8 +236,11 @@ export default function RecordDetailPage() {
                 { label: "Pomůcky", value: fd.tools }
               ].map(({ label, value }) => (
                 <div key={label}>
-                  <label className="block text-xs text-gray-600 mb-1">{label}</label>
-                  <input type="text" value={value || ""} readOnly className={`w-full px-3 py-1.5 border ${getFieldBorderClass(value)} rounded text-sm`} />
+                  <label className="block text-xs text-gray-600 mb-1">
+                    {label}
+                    <FieldStatusIcon value={value} />
+                  </label>
+                  <input type="text" value={value || ""} readOnly className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm" />
                 </div>
               ))}
             </div>
@@ -233,18 +255,27 @@ export default function RecordDetailPage() {
                 <label className="block text-xs text-gray-600 mb-1">BOP / PBI Protokol</label>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-[10px] text-gray-500 mb-1">Datum</label>
-                    <input type="date" value={fd.pbiDate || ""} readOnly className={`w-full px-2 py-1 border ${getFieldBorderClass(fd.pbiDate)} rounded text-xs`} />
+                    <label className="block text-[10px] text-gray-500 mb-1">
+                      Datum
+                      <FieldStatusIcon value={fd.pbiDate} />
+                    </label>
+                    <input type="date" value={fd.pbiDate || ""} readOnly className="w-full px-2 py-1 border border-gray-300 rounded text-xs" />
                   </div>
                   <div>
-                    <label className="block text-[10px] text-gray-500 mb-1">Výsledek</label>
-                    <input type="text" value={fd.pbiResult || ""} readOnly className={`w-full px-2 py-1 border ${getFieldBorderClass(fd.pbiResult)} rounded text-xs`} />
+                    <label className="block text-[10px] text-gray-500 mb-1">
+                      Výsledek
+                      <FieldStatusIcon value={fd.pbiResult} />
+                    </label>
+                    <input type="text" value={fd.pbiResult || ""} readOnly className="w-full px-2 py-1 border border-gray-300 rounded text-xs" />
                   </div>
                 </div>
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Pomůcky</label>
-                <input type="text" value={fd.pbiTools || ""} readOnly className={`w-full px-3 py-1.5 border ${getFieldBorderClass(fd.pbiTools)} rounded text-sm`} />
+                <label className="block text-xs text-gray-600 mb-1">
+                  Pomůcky
+                  <FieldStatusIcon value={fd.pbiTools} />
+                </label>
+                <input type="text" value={fd.pbiTools || ""} readOnly className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm" />
               </div>
             </div>
           </div>
