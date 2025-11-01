@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, ZoomIn, ZoomOut } from "lucide-react";
+import { ArrowLeft, ZoomIn, ZoomOut, Eye, EyeOff } from "lucide-react";
 import type { ParoRecord } from "@/lib/types";
 import ProfessionalDentalChart from "@/components/ProfessionalDentalChart";
 
@@ -13,6 +13,7 @@ export default function RecordDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [fontSize, setFontSize] = useState(100); // 100% = default
+  const [showFieldStatus, setShowFieldStatus] = useState(true); // Zelené/korálové ohraničení
 
   useEffect(() => {
     async function loadRecord() {
@@ -69,6 +70,18 @@ export default function RecordDetailPage() {
   }
 
   const fd = record.form_data;
+  
+  // Helper pro získání border classy podle vyplněnosti pole
+  const getFieldBorderClass = (value: any) => {
+    if (!showFieldStatus) return 'border-gray-300';
+    
+    // Kontrola jestli je pole vyplněné
+    const isFilled = value !== null && value !== undefined && value !== '' && value !== 'N/A';
+    
+    return isFilled 
+      ? 'border-green-500 focus:ring-green-500' // Zelená - naše barva
+      : 'border-orange-400 focus:ring-orange-400'; // Korálová
+  };
 
   return (
     <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
@@ -81,23 +94,35 @@ export default function RecordDetailPage() {
           <h1 className="text-lg font-semibold text-gray-900">{fd.lastName || "Bez jména"}</h1>
         </div>
         
-        {/* Zoom controls */}
+        {/* Controls */}
         <div className="flex items-center gap-2 border-l pl-3">
-          <button 
-            onClick={() => setFontSize(Math.max(70, fontSize - 10))}
-            className="p-1.5 hover:bg-gray-100 rounded"
-            title="Zmenšit text"
+          {/* Field status toggle */}
+          <button
+            onClick={() => setShowFieldStatus(!showFieldStatus)}
+            className={`p-1.5 rounded transition ${showFieldStatus ? 'bg-green-50 text-green-600' : 'hover:bg-gray-100 text-gray-600'}`}
+            title={showFieldStatus ? "Skrýt barevné ohraničení" : "Zobrazit barevné ohraničení"}
           >
-            <ZoomOut size={18} />
+            {showFieldStatus ? <Eye size={18} /> : <EyeOff size={18} />}
           </button>
-          <span className="text-xs text-gray-600 w-10 text-center">{fontSize}%</span>
-          <button 
-            onClick={() => setFontSize(Math.min(150, fontSize + 10))}
-            className="p-1.5 hover:bg-gray-100 rounded"
-            title="Zvětšit text"
-          >
-            <ZoomIn size={18} />
-          </button>
+          
+          {/* Zoom controls */}
+          <div className="flex items-center gap-1 border-l pl-2">
+            <button 
+              onClick={() => setFontSize(Math.max(70, fontSize - 10))}
+              className="p-1.5 hover:bg-gray-100 rounded"
+              title="Zmenšit text"
+            >
+              <ZoomOut size={18} />
+            </button>
+            <span className="text-xs text-gray-600 w-10 text-center">{fontSize}%</span>
+            <button 
+              onClick={() => setFontSize(Math.min(150, fontSize + 10))}
+              className="p-1.5 hover:bg-gray-100 rounded"
+              title="Zvětšit text"
+            >
+              <ZoomIn size={18} />
+            </button>
+          </div>
         </div>
         
         <div className="text-sm text-gray-500">{new Date(record.created_at).toLocaleDateString("cs-CZ")}</div>
@@ -118,11 +143,11 @@ export default function RecordDetailPage() {
             <div className="space-y-3">
               <div>
                 <label className="block text-xs text-gray-600 mb-1">Příjmení</label>
-                <input type="text" value={fd.lastName || ""} readOnly className="w-full px-3 py-2 border border-gray-300 rounded text-sm" />
+                <input type="text" value={fd.lastName || ""} readOnly className={`w-full px-3 py-2 border ${getFieldBorderClass(fd.lastName)} rounded text-sm`} />
               </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">Rodné číslo (RČ)</label>
-                <input type="text" value={fd.personalIdNumber || ""} readOnly className="w-full px-3 py-2 border border-gray-300 rounded text-sm" />
+                <input type="text" value={fd.personalIdNumber || ""} readOnly className={`w-full px-3 py-2 border ${getFieldBorderClass(fd.personalIdNumber)} rounded text-sm`} />
               </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">Kuřák</label>
@@ -147,15 +172,15 @@ export default function RecordDetailPage() {
             <div className="space-y-3">
               <div>
                 <label className="block text-xs text-gray-600 mb-1">Všeobecná anamnéza</label>
-                <textarea value={fd.generalAnamnesis || ""} readOnly rows={2} className="w-full px-3 py-2 border border-gray-300 rounded text-sm resize-none" />
+                <textarea value={fd.generalAnamnesis || ""} readOnly rows={2} className={`w-full px-3 py-2 border ${getFieldBorderClass(fd.generalAnamnesis)} rounded text-sm resize-none`} />
               </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">Alergie</label>
-                <textarea value={fd.allergies || ""} readOnly rows={2} className="w-full px-3 py-2 border border-gray-300 rounded text-sm resize-none" />
+                <textarea value={fd.allergies || ""} readOnly rows={2} className={`w-full px-3 py-2 border ${getFieldBorderClass(fd.allergies)} rounded text-sm resize-none`} />
               </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">Stomatologická anamnéza</label>
-                <textarea value={fd.stomatologicalAnamnesis || ""} readOnly rows={2} className="w-full px-3 py-2 border border-gray-300 rounded text-sm resize-none" />
+                <textarea value={fd.stomatologicalAnamnesis || ""} readOnly rows={2} className={`w-full px-3 py-2 border ${getFieldBorderClass(fd.stomatologicalAnamnesis)} rounded text-sm resize-none`} />
               </div>
             </div>
           </div>
@@ -193,7 +218,7 @@ export default function RecordDetailPage() {
               ].map(({ label, value }) => (
                 <div key={label}>
                   <label className="block text-xs text-gray-600 mb-1">{label}</label>
-                  <input type="text" value={value || ""} readOnly className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm" />
+                  <input type="text" value={value || ""} readOnly className={`w-full px-3 py-1.5 border ${getFieldBorderClass(value)} rounded text-sm`} />
                 </div>
               ))}
             </div>
@@ -209,17 +234,17 @@ export default function RecordDetailPage() {
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="block text-[10px] text-gray-500 mb-1">Datum</label>
-                    <input type="date" value={fd.pbiDate || ""} readOnly className="w-full px-2 py-1 border border-gray-300 rounded text-xs" />
+                    <input type="date" value={fd.pbiDate || ""} readOnly className={`w-full px-2 py-1 border ${getFieldBorderClass(fd.pbiDate)} rounded text-xs`} />
                   </div>
                   <div>
                     <label className="block text-[10px] text-gray-500 mb-1">Výsledek</label>
-                    <input type="text" value={fd.pbiResult || ""} readOnly className="w-full px-2 py-1 border border-gray-300 rounded text-xs" />
+                    <input type="text" value={fd.pbiResult || ""} readOnly className={`w-full px-2 py-1 border ${getFieldBorderClass(fd.pbiResult)} rounded text-xs`} />
                   </div>
                 </div>
               </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">Pomůcky</label>
-                <input type="text" value={fd.pbiTools || ""} readOnly className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm" />
+                <input type="text" value={fd.pbiTools || ""} readOnly className={`w-full px-3 py-1.5 border ${getFieldBorderClass(fd.pbiTools)} rounded text-sm`} />
               </div>
             </div>
           </div>

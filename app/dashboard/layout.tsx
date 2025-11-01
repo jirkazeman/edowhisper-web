@@ -24,6 +24,13 @@ export default function DashboardLayout({
   const { user, loading, signOut } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
+  // Auto-collapse sidebar on record detail pages
+  useEffect(() => {
+    if (pathname.startsWith('/dashboard/records/') && pathname !== '/dashboard/records') {
+      setIsCollapsed(true);
+    }
+  }, [pathname]);
+
   // Protect route - redirect to login if not authenticated
   useEffect(() => {
     if (!loading && !user) {

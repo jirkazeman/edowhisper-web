@@ -39,11 +39,20 @@ interface Props {
 export default function ProfessionalDentalChart({ data, onUpdate, readOnly = true }: Props) {
   const [chartData, setChartData] = useState<DentalChartData>(data || { teeth: {} });
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showLowerJaw, setShowLowerJaw] = useState(false); // Pro budoucnost - dětské zuby
+  const [isChildTeeth, setIsChildTeeth] = useState(false); // Přepínač: Dospělí / Děti
   
-  // FDI notation - horní a dolní čelist
+  // FDI notation
+  // Dospělí (permanentní zuby)
   const upperTeeth = ["18", "17", "16", "15", "14", "13", "12", "11", "21", "22", "23", "24", "25", "26", "27", "28"];
   const lowerTeeth = ["48", "47", "46", "45", "44", "43", "42", "41", "31", "32", "33", "34", "35", "36", "37", "38"];
+  
+  // Děti (dočasné/mléčné zuby)
+  const upperChildTeeth = ["55", "54", "53", "52", "51", "61", "62", "63", "64", "65"];
+  const lowerChildTeeth = ["85", "84", "83", "82", "81", "71", "72", "73", "74", "75"];
+  
+  // Aktivní sada zubů podle přepínače
+  const activeUpperTeeth = isChildTeeth ? upperChildTeeth : upperTeeth;
+  const activeLowerTeeth = isChildTeeth ? lowerChildTeeth : lowerTeeth;
   
   // Výpočet statistik
   const calculateStats = () => {
@@ -112,10 +121,10 @@ export default function ProfessionalDentalChart({ data, onUpdate, readOnly = tru
         <div className="mb-6">
           {/* Horní tabulka */}
           <div className="mb-2">
-            <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${upperTeeth.length}, minmax(0, 1fr))` }}>
+            <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${activeUpperTeeth.length}, minmax(0, 1fr))` }}>
               {/* Čísla zubů */}
-              <div className="col-span-full grid gap-px" style={{ gridTemplateColumns: `repeat(${upperTeeth.length}, minmax(0, 1fr))` }}>
-                {upperTeeth.map(tooth => (
+              <div className="col-span-full grid gap-px" style={{ gridTemplateColumns: `repeat(${activeUpperTeeth.length}, minmax(0, 1fr))` }}>
+                {activeUpperTeeth.map(tooth => (
                   <div key={tooth} className="border border-gray-400 bg-gray-100 h-6 flex items-center justify-center text-[11px] font-semibold">
                     {tooth}
                   </div>
@@ -123,36 +132,36 @@ export default function ProfessionalDentalChart({ data, onUpdate, readOnly = tru
               </div>
               
               {/* Mobility */}
-              <div className="col-span-full grid gap-px" style={{ gridTemplateColumns: `repeat(${upperTeeth.length}, minmax(0, 1fr))` }}>
-                {upperTeeth.map(tooth => (
+              <div className="col-span-full grid gap-px" style={{ gridTemplateColumns: `repeat(${activeUpperTeeth.length}, minmax(0, 1fr))` }}>
+                {activeUpperTeeth.map(tooth => (
                   <TableCell key={tooth} value={chartData.teeth[tooth]?.mobility} />
                 ))}
               </div>
               
               {/* Implant */}
-              <div className="col-span-full grid gap-px" style={{ gridTemplateColumns: `repeat(${upperTeeth.length}, minmax(0, 1fr))` }}>
-                {upperTeeth.map(tooth => (
+              <div className="col-span-full grid gap-px" style={{ gridTemplateColumns: `repeat(${activeUpperTeeth.length}, minmax(0, 1fr))` }}>
+                {activeUpperTeeth.map(tooth => (
                   <TableCell key={tooth} value={chartData.teeth[tooth]?.implant} />
                 ))}
               </div>
               
               {/* Furcation */}
-              <div className="col-span-full grid gap-px" style={{ gridTemplateColumns: `repeat(${upperTeeth.length}, minmax(0, 1fr))` }}>
-                {upperTeeth.map(tooth => (
+              <div className="col-span-full grid gap-px" style={{ gridTemplateColumns: `repeat(${activeUpperTeeth.length}, minmax(0, 1fr))` }}>
+                {activeUpperTeeth.map(tooth => (
                   <TableCell key={tooth} value={chartData.teeth[tooth]?.furcation} />
                 ))}
               </div>
               
               {/* Bleeding on Probing */}
-              <div className="col-span-full grid gap-px" style={{ gridTemplateColumns: `repeat(${upperTeeth.length}, minmax(0, 1fr))` }}>
-                {upperTeeth.map(tooth => (
+              <div className="col-span-full grid gap-px" style={{ gridTemplateColumns: `repeat(${activeUpperTeeth.length}, minmax(0, 1fr))` }}>
+                {activeUpperTeeth.map(tooth => (
                   <TableCell key={tooth} value={chartData.teeth[tooth]?.bleedingOnProbing} />
                 ))}
               </div>
               
               {/* Plaque */}
-              <div className="col-span-full grid gap-px" style={{ gridTemplateColumns: `repeat(${upperTeeth.length}, minmax(0, 1fr))` }}>
-                {upperTeeth.map(tooth => (
+              <div className="col-span-full grid gap-px" style={{ gridTemplateColumns: `repeat(${activeUpperTeeth.length}, minmax(0, 1fr))` }}>
+                {activeUpperTeeth.map(tooth => (
                   <TableCell key={tooth} value={chartData.teeth[tooth]?.plaque} />
                 ))}
               </div>
@@ -161,8 +170,8 @@ export default function ProfessionalDentalChart({ data, onUpdate, readOnly = tru
           
           {/* Gingival Margin */}
           <div className="mb-1">
-            <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${upperTeeth.length}, minmax(0, 1fr))` }}>
-              {upperTeeth.map(tooth => (
+            <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${activeUpperTeeth.length}, minmax(0, 1fr))` }}>
+              {activeUpperTeeth.map(tooth => (
                 <MeasurementRow key={tooth} values={chartData.teeth[tooth]?.gingivalMargin} />
               ))}
             </div>
@@ -170,8 +179,8 @@ export default function ProfessionalDentalChart({ data, onUpdate, readOnly = tru
           
           {/* Probing Depth */}
           <div className="mb-2">
-            <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${upperTeeth.length}, minmax(0, 1fr))` }}>
-              {upperTeeth.map(tooth => (
+            <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${activeUpperTeeth.length}, minmax(0, 1fr))` }}>
+              {activeUpperTeeth.map(tooth => (
                 <MeasurementRow key={tooth} values={chartData.teeth[tooth]?.probingDepth} />
               ))}
             </div>
@@ -188,8 +197,8 @@ export default function ProfessionalDentalChart({ data, onUpdate, readOnly = tru
           
           {/* Gingival Margin Palatal */}
           <div className="mt-2 mb-1">
-            <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${upperTeeth.length}, minmax(0, 1fr))` }}>
-              {upperTeeth.map(tooth => (
+            <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${activeUpperTeeth.length}, minmax(0, 1fr))` }}>
+              {activeUpperTeeth.map(tooth => (
                 <MeasurementRow key={tooth} values={chartData.teeth[tooth]?.gingivalMarginPalatal} />
               ))}
             </div>
@@ -197,8 +206,8 @@ export default function ProfessionalDentalChart({ data, onUpdate, readOnly = tru
           
           {/* Probing Depth Palatal */}
           <div className="mb-2">
-            <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${upperTeeth.length}, minmax(0, 1fr))` }}>
-              {upperTeeth.map(tooth => (
+            <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${activeUpperTeeth.length}, minmax(0, 1fr))` }}>
+              {activeUpperTeeth.map(tooth => (
                 <MeasurementRow key={tooth} values={chartData.teeth[tooth]?.probingDepthPalatal} />
               ))}
             </div>
@@ -217,8 +226,8 @@ export default function ProfessionalDentalChart({ data, onUpdate, readOnly = tru
         {showLowerJaw && <div className="mt-6">
           {/* Gingival Margin Palatal */}
           <div className="mb-1">
-            <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${lowerTeeth.length}, minmax(0, 1fr))` }}>
-              {lowerTeeth.map(tooth => (
+            <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${activeLowerTeeth.length}, minmax(0, 1fr))` }}>
+              {activeLowerTeeth.map(tooth => (
                 <MeasurementRow key={tooth} values={chartData.teeth[tooth]?.gingivalMarginPalatal} />
               ))}
             </div>
@@ -226,8 +235,8 @@ export default function ProfessionalDentalChart({ data, onUpdate, readOnly = tru
           
           {/* Probing Depth Palatal */}
           <div className="mb-2">
-            <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${lowerTeeth.length}, minmax(0, 1fr))` }}>
-              {lowerTeeth.map(tooth => (
+            <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${activeLowerTeeth.length}, minmax(0, 1fr))` }}>
+              {activeLowerTeeth.map(tooth => (
                 <MeasurementRow key={tooth} values={chartData.teeth[tooth]?.probingDepthPalatal} />
               ))}
             </div>
@@ -244,8 +253,8 @@ export default function ProfessionalDentalChart({ data, onUpdate, readOnly = tru
           
           {/* Gingival Margin */}
           <div className="mt-2 mb-1">
-            <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${lowerTeeth.length}, minmax(0, 1fr))` }}>
-              {lowerTeeth.map(tooth => (
+            <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${activeLowerTeeth.length}, minmax(0, 1fr))` }}>
+              {activeLowerTeeth.map(tooth => (
                 <MeasurementRow key={tooth} values={chartData.teeth[tooth]?.gingivalMargin} />
               ))}
             </div>
@@ -253,8 +262,8 @@ export default function ProfessionalDentalChart({ data, onUpdate, readOnly = tru
           
           {/* Probing Depth */}
           <div className="mb-2">
-            <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${lowerTeeth.length}, minmax(0, 1fr))` }}>
-              {lowerTeeth.map(tooth => (
+            <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${activeLowerTeeth.length}, minmax(0, 1fr))` }}>
+              {activeLowerTeeth.map(tooth => (
                 <MeasurementRow key={tooth} values={chartData.teeth[tooth]?.probingDepth} />
               ))}
             </div>
@@ -262,38 +271,38 @@ export default function ProfessionalDentalChart({ data, onUpdate, readOnly = tru
           
           {/* Dolní tabulka */}
           <div className="mt-2">
-            <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${lowerTeeth.length}, minmax(0, 1fr))` }}>
+            <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${activeLowerTeeth.length}, minmax(0, 1fr))` }}>
               {/* Plaque */}
-              <div className="col-span-full grid gap-px" style={{ gridTemplateColumns: `repeat(${lowerTeeth.length}, minmax(0, 1fr))` }}>
-                {lowerTeeth.map(tooth => (
+              <div className="col-span-full grid gap-px" style={{ gridTemplateColumns: `repeat(${activeLowerTeeth.length}, minmax(0, 1fr))` }}>
+                {activeLowerTeeth.map(tooth => (
                   <TableCell key={tooth} value={chartData.teeth[tooth]?.plaque} />
                 ))}
               </div>
               
               {/* Bleeding on Probing */}
-              <div className="col-span-full grid gap-px" style={{ gridTemplateColumns: `repeat(${lowerTeeth.length}, minmax(0, 1fr))` }}>
-                {lowerTeeth.map(tooth => (
+              <div className="col-span-full grid gap-px" style={{ gridTemplateColumns: `repeat(${activeLowerTeeth.length}, minmax(0, 1fr))` }}>
+                {activeLowerTeeth.map(tooth => (
                   <TableCell key={tooth} value={chartData.teeth[tooth]?.bleedingOnProbing} />
                 ))}
               </div>
               
               {/* Furcation */}
-              <div className="col-span-full grid gap-px" style={{ gridTemplateColumns: `repeat(${lowerTeeth.length}, minmax(0, 1fr))` }}>
-                {lowerTeeth.map(tooth => (
+              <div className="col-span-full grid gap-px" style={{ gridTemplateColumns: `repeat(${activeLowerTeeth.length}, minmax(0, 1fr))` }}>
+                {activeLowerTeeth.map(tooth => (
                   <TableCell key={tooth} value={chartData.teeth[tooth]?.furcation} />
                 ))}
               </div>
               
               {/* Note */}
-              <div className="col-span-full grid gap-px" style={{ gridTemplateColumns: `repeat(${lowerTeeth.length}, minmax(0, 1fr))` }}>
-                {lowerTeeth.map(tooth => (
+              <div className="col-span-full grid gap-px" style={{ gridTemplateColumns: `repeat(${activeLowerTeeth.length}, minmax(0, 1fr))` }}>
+                {activeLowerTeeth.map(tooth => (
                   <TableCell key={tooth} value={chartData.teeth[tooth]?.note} center={false} />
                 ))}
               </div>
               
               {/* Čísla zubů */}
-              <div className="col-span-full grid gap-px" style={{ gridTemplateColumns: `repeat(${lowerTeeth.length}, minmax(0, 1fr))` }}>
-                {lowerTeeth.map(tooth => (
+              <div className="col-span-full grid gap-px" style={{ gridTemplateColumns: `repeat(${activeLowerTeeth.length}, minmax(0, 1fr))` }}>
+                {activeLowerTeeth.map(tooth => (
                   <div key={tooth} className="border border-gray-400 bg-gray-100 h-6 flex items-center justify-center text-[11px] font-semibold">
                     {tooth}
                   </div>
@@ -309,14 +318,37 @@ export default function ProfessionalDentalChart({ data, onUpdate, readOnly = tru
     <>
       {/* Normal view */}
       <div className="bg-white p-4 rounded-lg shadow-sm relative">
-        {/* Fullscreen button */}
-        <button
-          onClick={() => setIsFullscreen(true)}
-          className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg transition z-10"
-          title="Zobrazit na celou obrazovku"
-        >
-          <Maximize2 size={20} className="text-gray-600" />
-        </button>
+        {/* Controls */}
+        <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+          {/* Toggle: Dospělí / Děti */}
+          <div className="flex items-center bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => setIsChildTeeth(false)}
+              className={`px-3 py-1 text-xs font-medium rounded transition ${
+                !isChildTeeth ? 'bg-white shadow-sm text-gray-900' : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Dospělí
+            </button>
+            <button
+              onClick={() => setIsChildTeeth(true)}
+              className={`px-3 py-1 text-xs font-medium rounded transition ${
+                isChildTeeth ? 'bg-white shadow-sm text-gray-900' : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Děti
+            </button>
+          </div>
+          
+          {/* Fullscreen button */}
+          <button
+            onClick={() => setIsFullscreen(true)}
+            className="p-2 hover:bg-gray-100 rounded-lg transition"
+            title="Zobrazit na celou obrazovku"
+          >
+            <Maximize2 size={20} className="text-gray-600" />
+          </button>
+        </div>
         
         {chartContent}
       </div>
