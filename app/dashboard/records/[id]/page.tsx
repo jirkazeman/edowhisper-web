@@ -10,17 +10,31 @@ export default function RecordDetailPage() {
   const router = useRouter();
   const [record, setRecord] = useState<ParoRecord | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadRecord() {
       try {
+        console.log("🔍 Fetching record:", params.id);
         const response = await fetch("/api/records");
         const result = await response.json();
+        
+        console.log("📦 API Response:", result);
+        
         if (result.error) throw new Error(result.error);
+        
         const foundRecord = result.data?.find((r: ParoRecord) => r.id === params.id);
-        if (foundRecord) setRecord(foundRecord);
-      } catch (error) {
-        console.error("Failed to load record:", error);
+        
+        console.log("✅ Found record:", foundRecord);
+        
+        if (foundRecord) {
+          setRecord(foundRecord);
+        } else {
+          setError("Záznam nenalezen");
+        }
+      } catch (err) {
+        console.error("❌ Failed to load record:", err);
+        setError(err instanceof Error ? err.message : "Neznámá chyba");
       } finally {
         setLoading(false);
       }
@@ -28,10 +42,26 @@ export default function RecordDetailPage() {
     loadRecord();
   }, [params.id]);
 
-  if (loading || !record) {
+  if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">
-        <div className="w-6 h-6 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+          <p className="text-sm text-gray-500">Načítání záznamu...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !record) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 font-semibold mb-2">Chyba: {error || "Záznam nenalezen"}</p>
+          <button onClick={() => router.back()} className="text-blue-600 hover:underline">
+            ← Zpět na záznamy
+          </button>
+        </div>
       </div>
     );
   }
