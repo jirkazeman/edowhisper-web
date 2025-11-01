@@ -16,6 +16,7 @@ interface SimpleDentalChartProps {
   teeth?: { [key: string]: ToothData };
   notes?: string;
   isChildTeeth?: boolean;
+  fontSize?: number; // Pro propojení se zoom funkcionalitou
 }
 
 // Pozice každého zubu na obrázku (v procentech)
@@ -98,9 +99,12 @@ const toothPositions: { [key: string]: { x: number; y: number; view: 'buccal-upp
   "38": { x: 94, y: 88, view: 'buccal-lower' },
 };
 
-export default function SimpleDentalChart({ teeth = {}, notes, isChildTeeth = false }: SimpleDentalChartProps) {
+export default function SimpleDentalChart({ teeth = {}, notes, isChildTeeth = false, fontSize = 100 }: SimpleDentalChartProps) {
   const [hoveredTooth, setHoveredTooth] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  
+  // Velikost tečky podle zoom (3× větší než původní 5px = 15px)
+  const markerSize = (15 * fontSize) / 100;
 
   const getToothColor = (toothId: string) => {
     const tooth = teeth[toothId];
@@ -149,13 +153,22 @@ export default function SimpleDentalChart({ teeth = {}, notes, isChildTeeth = fa
               onMouseEnter={() => setHoveredTooth(toothId)}
               onMouseLeave={() => setHoveredTooth(null)}
             >
-              {/* Data indicator */}
+              {/* Data indicator - 3× větší, škáluje se se zoom */}
               <div
-                className="w-5 h-5 rounded-full border-2 border-white cursor-pointer transition-all hover:scale-125 shadow-lg flex items-center justify-center"
-                style={{ backgroundColor: getToothColor(toothId) }}
+                className="rounded-full border-2 border-white cursor-pointer transition-all hover:scale-125 shadow-lg flex items-center justify-center"
+                style={{ 
+                  backgroundColor: getToothColor(toothId),
+                  width: `${markerSize}px`,
+                  height: `${markerSize}px`,
+                }}
                 title={tooth.note || tooth.status || undefined}
               >
-                <span className="text-[8px] font-bold text-white">{toothId}</span>
+                <span 
+                  className="font-bold text-white"
+                  style={{ fontSize: `${markerSize * 0.5}px` }}
+                >
+                  {toothId}
+                </span>
               </div>
               
               {/* Hover tooltip */}

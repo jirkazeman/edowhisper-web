@@ -243,6 +243,7 @@ export default function RecordDetailPage() {
           <SimpleDentalChart 
             teeth={fd.dentalCross || {}}
             notes={fd.dentalCrossNotes}
+            fontSize={fontSize}
           />
 
           {/* Záznam o ošetření */}
