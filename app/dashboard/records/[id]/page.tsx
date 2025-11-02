@@ -2,18 +2,22 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, ZoomIn, ZoomOut, Eye, EyeOff, Sparkles, UserCheck } from "lucide-react";
+import { ArrowLeft, ZoomIn, ZoomOut, Eye, EyeOff, Sparkles, UserCheck, Smartphone } from "lucide-react";
 import type { ParoRecord } from "@/lib/types";
 import SimpleDentalChart from "@/components/SimpleDentalChart";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/lib/auth-context";
 
 export default function RecordDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { user } = useAuth();
   const [record, setRecord] = useState<ParoRecord | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [fontSize, setFontSize] = useState(100); // 100% = default
   const [showFieldStatus, setShowFieldStatus] = useState(true); // Zelené/korálové ohraničení
+  const [sendingToPhone, setSendingToPhone] = useState(false);
 
   useEffect(() => {
     async function loadRecord() {
@@ -44,6 +48,36 @@ export default function RecordDetailPage() {
     }
     loadRecord();
   }, [params.id]);
+
+  const sendToPhone = async () => {
+    if (!user || !record) return;
+    
+    setSendingToPhone(true);
+    
+    try {
+      const { data, error } = await supabase
+        .from('record_notifications')
+        .insert({
+          user_id: user.id,
+          record_id: record.id,
+          action: 'open_record'
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      console.log('✅ Notifikace odeslána do telefonu:', data);
+      
+      // Zobraz success feedback (můžeš přidat toast později)
+      alert('✅ Záznam odeslán do telefonu!');
+    } catch (err) {
+      console.error('❌ Chyba při odesílání do telefonu:', err);
+      alert('❌ Nepodařilo se odeslat záznam do telefonu');
+    } finally {
+      setSendingToPhone(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -116,6 +150,16 @@ export default function RecordDetailPage() {
         
         {/* Controls */}
         <div className="flex items-center gap-2 border-l pl-3">
+          {/* Odeslat do telefonu */}
+          <button
+            onClick={sendToPhone}
+            disabled={sendingToPhone}
+            className={`p-1.5 rounded transition ${sendingToPhone ? 'opacity-50 cursor-wait' : 'hover:bg-blue-50'} text-blue-600`}
+            title="Odeslat záznam do telefonu"
+          >
+            <Smartphone size={18} />
+          </button>
+          
           {/* LLM tuning (nefunkční zatím) */}
           <button
             className="p-1.5 rounded transition hover:bg-purple-50 text-purple-600 opacity-50 cursor-not-allowed"
