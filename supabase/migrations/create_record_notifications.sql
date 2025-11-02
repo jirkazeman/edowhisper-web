@@ -8,12 +8,12 @@ CREATE TABLE IF NOT EXISTS record_notifications (
   record_id UUID NOT NULL REFERENCES paro_records(id) ON DELETE CASCADE,
   action VARCHAR(50) DEFAULT 'open_record',
   opened_at TIMESTAMP,
-  created_at TIMESTAMP DEFAULT NOW(),
-  
-  -- Indexy pro rychlé dotazy
-  INDEX idx_user_notifications ON record_notifications(user_id, created_at DESC),
-  INDEX idx_record_notifications ON record_notifications(record_id)
+  created_at TIMESTAMP DEFAULT NOW()
 );
+
+-- Indexy pro rychlé dotazy
+CREATE INDEX IF NOT EXISTS idx_user_notifications ON record_notifications(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_record_notifications ON record_notifications(record_id);
 
 -- 2. RLS politiky (Row Level Security)
 ALTER TABLE record_notifications ENABLE ROW LEVEL SECURITY;
