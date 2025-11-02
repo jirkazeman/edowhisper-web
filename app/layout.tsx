@@ -15,7 +15,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="cs" suppressHydrationWarning>
-      <body className={GeistSans.className}>
+      <body className={GeistSans.className} suppressHydrationWarning>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
