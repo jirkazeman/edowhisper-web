@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Maximize2, X } from "lucide-react";
 
 interface ToothData {
-  status?: string;
+  status?: 'healthy' | 'missing' | 'crown' | 'filling' | 'root_canal' | 'implant' | 'bridge' | null;
   note?: string;
   hasCaries?: boolean;
   mobility?: number;
