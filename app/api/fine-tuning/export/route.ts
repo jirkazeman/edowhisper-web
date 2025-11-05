@@ -29,7 +29,7 @@ Buď přesná, odborná a úplná. Vyplň pouze údaje, které jsou v transkript
 
 export async function POST() {
   try {
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -140,7 +140,7 @@ export async function POST() {
  */
 export async function GET() {
   try {
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
