@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase";
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 import type { ParoRecord } from "@/lib/types";
 
 /**
@@ -28,14 +29,32 @@ Buď přesná, odborná a úplná. Vyplň pouze údaje, které jsou v transkript
 
 export async function POST() {
   try {
-    if (!supabaseAdmin) {
-      return NextResponse.json({ error: "Supabase not configured" }, { status: 500 });
+    const cookieStore = cookies()
+    
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+        },
+      }
+    )
+
+    // Získat aktuálního přihlášeného uživatele
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    
+    if (authError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 1. Načti ohodnocené záznamy s rating >= 4
-    const { data: records, error } = await supabaseAdmin
+    // 1. Načti ohodnocené záznamy s rating >= 4 POUZE tohoto uživatele
+    const { data: records, error } = await supabase
       .from("paro_records")
       .select("*")
+      .eq("user_id", user.id)  // 🔒 KRITICKÉ: Filtrovat podle user_id!
       .not("llm_original", "is", null)
       .gte("quality_rating", 4) // Pouze kvalitní záznamy
       .eq("deleted", false)
@@ -121,13 +140,31 @@ export async function POST() {
  */
 export async function GET() {
   try {
-    if (!supabaseAdmin) {
-      return NextResponse.json({ error: "Supabase not configured" }, { status: 500 });
+    const cookieStore = cookies()
+    
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+        },
+      }
+    )
+
+    // Získat aktuálního přihlášeného uživatele
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    
+    if (authError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { data: records, error } = await supabaseAdmin
+    const { data: records, error } = await supabase
       .from("paro_records")
       .select("id, quality_rating, llm_original, created_at, rated_at")
+      .eq("user_id", user.id)  // 🔒 KRITICKÉ: Filtrovat podle user_id!
       .not("llm_original", "is", null)
       .eq("deleted", false);
 

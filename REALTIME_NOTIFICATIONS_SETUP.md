@@ -269,3 +269,4 @@ DROP TABLE record_notifications CASCADE;
 git checkout v1.0-realtime-checkpoint
 ```
 
+

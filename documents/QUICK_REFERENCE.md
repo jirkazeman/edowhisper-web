@@ -266,3 +266,4 @@ Po fine-tuningu:
 
 
 
+

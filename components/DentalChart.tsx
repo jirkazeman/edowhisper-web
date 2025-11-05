@@ -185,3 +185,4 @@ export default function DentalChart({ teeth = {}, notes = "" }: DentalChartProps
   );
 }
 
+

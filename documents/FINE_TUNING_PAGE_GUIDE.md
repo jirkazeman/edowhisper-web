@@ -369,3 +369,4 @@ Správně by měla zmínit techniku Bass pro tento typ problému.
 
 
 
+

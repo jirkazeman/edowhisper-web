@@ -232,3 +232,4 @@ Teď máš v ordinaci profesionální zobrazení záznamů!
 **Verze:** 1.0  
 **Datum:** 31. října 2024
 
+

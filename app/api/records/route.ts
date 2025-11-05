@@ -1,15 +1,35 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase";
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
 export async function GET() {
   try {
-    if (!supabaseAdmin) {
-      return NextResponse.json({ error: "Supabase not configured" }, { status: 500 });
+    const cookieStore = cookies()
+    
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+        },
+      }
+    )
+
+    // Získat aktuálního přihlášeného uživatele
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    
+    if (authError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { data, error } = await supabaseAdmin
+    // Načíst POUZE záznamy tohoto uživatele
+    const { data, error } = await supabase
       .from("paro_records")
       .select("*")
+      .eq("user_id", user.id)  // 🔒 KRITICKÉ: Filtrovat podle user_id!
       .eq("deleted", false)
       .order("created_at", { ascending: false });
 
@@ -27,8 +47,25 @@ export async function GET() {
 
 export async function PATCH(request: Request) {
   try {
-    if (!supabaseAdmin) {
-      return NextResponse.json({ error: "Supabase not configured" }, { status: 500 });
+    const cookieStore = cookies()
+    
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+        },
+      }
+    )
+
+    // Získat aktuálního přihlášeného uživatele
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    
+    if (authError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
@@ -45,7 +82,8 @@ export async function PATCH(request: Request) {
       );
     }
 
-    const { data, error } = await supabaseAdmin
+    // Update POUZE záznamu, který patří tomuto uživateli
+    const { data, error } = await supabase
       .from("paro_records")
       .update({
         quality_rating,
@@ -54,6 +92,7 @@ export async function PATCH(request: Request) {
         rated_by: rated_by || null,
       })
       .eq("id", id)
+      .eq("user_id", user.id)  // 🔒 KRITICKÉ: Ověřit vlastnictví!
       .select()
       .single();
 

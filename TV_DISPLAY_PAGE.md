@@ -235,3 +235,4 @@ Zobrazení na TV
 **Datum:** 31. října 2024  
 **Status:** ✅ Připraveno k použití
 
+

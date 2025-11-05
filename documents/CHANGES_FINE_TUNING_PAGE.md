@@ -272,3 +272,4 @@ Začněte hodnotit záznamy a sledujte, jak se vaše AI zlepšuje s každým dne
 
 
 
+
