@@ -1,20 +1,23 @@
 import type { ParoRecord, RecordFormData, AIRole } from "./types";
 import { supabase } from "./supabase";
 
-// Records API (calls server-side API routes)
+// Records API (uses Supabase client with RLS)
 export const recordsAPI = {
-  // Get all records
+  // Get all records - RLS automaticky filtruje podle user_id
   getAll: async (): Promise<ParoRecord[]> => {
     try {
-      const response = await fetch("/api/records");
-      const result = await response.json();
+      const { data, error } = await supabase
+        .from("paro_records")
+        .select("*")
+        .eq("deleted", false)
+        .order("created_at", { ascending: false });
 
-      if (!response.ok || result.error) {
-        console.error("Error fetching records:", result.error);
-        throw new Error(result.error || "Failed to fetch records");
+      if (error) {
+        console.error("Error fetching records:", error);
+        throw error;
       }
 
-      return result.data || [];
+      return data || [];
     } catch (error) {
       console.error("Error in recordsAPI.getAll:", error);
       throw error;

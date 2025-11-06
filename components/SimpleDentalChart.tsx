@@ -17,6 +17,8 @@ interface SimpleDentalChartProps {
   notes?: string;
   isChildTeeth?: boolean;
   fontSize?: number; // Pro propojení se zoom funkcionalitou
+  onToothClick?: (toothId: string) => void; // Callback pro kliknutí na zub
+  readonly?: boolean; // Pokud true, nelze editovat
 }
 
 // Pozice každého zubu na obrázku (v procentech)
@@ -80,7 +82,14 @@ const toothPositions: { [key: string]: { x: number; y: number; view: 'buccal-upp
   "38": { x: 94, y: 70, view: 'buccal-lower' },
 };
 
-export default function SimpleDentalChart({ teeth = {}, notes, isChildTeeth = false, fontSize = 100 }: SimpleDentalChartProps) {
+export default function SimpleDentalChart({ 
+  teeth = {}, 
+  notes, 
+  isChildTeeth = false, 
+  fontSize = 100,
+  onToothClick,
+  readonly = false,
+}: SimpleDentalChartProps) {
   const [hoveredTooth, setHoveredTooth] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   
@@ -119,6 +128,18 @@ export default function SimpleDentalChart({ teeth = {}, notes, isChildTeeth = fa
     }
   };
 
+  // Kontrola, jestli má zub relevantní data (ne healthy)
+  const hasRelevantData = (tooth: ToothData | undefined) => {
+    if (!tooth) return false;
+    if (tooth.hasCaries) return true;
+    if (tooth.note && tooth.note.trim()) return true;
+    if (tooth.status && tooth.status !== 'healthy') return true;
+    return false;
+  };
+
+  // Zjisti, jestli má zubní kříž nějaká data
+  const hasAnyData = Object.values(teeth).some(tooth => hasRelevantData(tooth));
+
   // Počeštěné názvy stavů
   const getToothStatusLabel = (status?: string) => {
     switch (status) {
@@ -150,9 +171,9 @@ export default function SimpleDentalChart({ teeth = {}, notes, isChildTeeth = fa
           // Extrahuj číslo zubu (bez "-o" suffixu)
           const toothId = key.replace('-o', '');
           const tooth = teeth[toothId];
-          const hasData = tooth && (tooth.status || tooth.note || tooth.hasCaries);
           
-          if (!hasData) return null;
+          // Zobrazit pouze zuby s relevantními daty (ne healthy)
+          if (!hasRelevantData(tooth) && readonly) return null;
           
           return (
             <div
@@ -168,19 +189,26 @@ export default function SimpleDentalChart({ teeth = {}, notes, isChildTeeth = fa
             >
               {/* Data indicator - 3× větší, škáluje se se zoom */}
               <div
-                className="rounded-full border-2 border-gray-400 cursor-pointer transition-all hover:scale-125 shadow-lg flex items-center justify-center"
+                className={`rounded-full border-2 border-gray-400 transition-all hover:scale-125 shadow-lg flex items-center justify-center ${
+                  !readonly ? 'cursor-pointer' : ''
+                }`}
                 style={{ 
                   backgroundColor: getToothColor(toothId),
                   width: `${markerSize}px`,
                   height: `${markerSize}px`,
                 }}
-                title={tooth.note || getToothStatusLabel(tooth.status) || undefined}
+                title={tooth?.note || getToothStatusLabel(tooth?.status) || `Zub ${toothId}`}
+                onClick={() => {
+                  if (!readonly && onToothClick) {
+                    onToothClick(toothId);
+                  }
+                }}
               >
                 <span 
-                  className="font-bold"
+                  className="font-bold pointer-events-none"
                   style={{ 
                     fontSize: `${markerSize * 0.5}px`,
-                    color: tooth.hasCaries || tooth.status === 'missing' ? '#000' : '#333'
+                    color: tooth?.hasCaries || tooth?.status === 'missing' ? '#000' : '#333'
                   }}
                 >
                   {toothId}
@@ -202,37 +230,46 @@ export default function SimpleDentalChart({ teeth = {}, notes, isChildTeeth = fa
         })}
       </div>
       
-      {/* Legend - PŘESNÉ BARVY JAKO V MOBILNÍ APPCE */}
-      <div className="mt-3 flex flex-wrap gap-3 text-xs">
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FFD60A' }}></div>
-          <span>Korunka</span>
+      {/* Žádná data - zobraz zprávu */}
+      {!hasAnyData && (
+        <div className="mt-3 p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
+          <p className="text-sm text-gray-500">Nejsou data pro zubní kříž</p>
         </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#4E73DF' }}></div>
-          <span>Výplň</span>
+      )}
+
+      {/* Legend - PŘESNÉ BARVY JAKO V MOBILNÍ APPCE (zobraz pouze pokud jsou data) */}
+      {hasAnyData && (
+        <div className="mt-3 flex flex-wrap gap-3 text-xs">
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FFD60A' }}></div>
+            <span>Korunka</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#4E73DF' }}></div>
+            <span>Výplň</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#E879F9' }}></div>
+            <span>Ošetřený kořen</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#72E4AD' }}></div>
+            <span>Implantát</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#F97316' }}></div>
+            <span>Můstek</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#E5E5EA' }}></div>
+            <span>Chybí</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FF6B6B' }}></div>
+            <span>Kaz</span>
+          </div>
         </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#E879F9' }}></div>
-          <span>Ošetřený kořen</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#72E4AD' }}></div>
-          <span>Implantát</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#F97316' }}></div>
-          <span>Můstek</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#E5E5EA' }}></div>
-          <span>Chybí</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FF6B6B' }}></div>
-          <span>Kaz</span>
-        </div>
-      </div>
+      )}
       
       {/* Notes */}
       {notes && (

@@ -5,18 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, ZoomIn, ZoomOut, Eye, EyeOff, Sparkles, UserCheck, Smartphone } from "lucide-react";
 import type { ParoRecord } from "@/lib/types";
 import SimpleDentalChart from "@/components/SimpleDentalChart";
-import ToothEditor from "@/components/ToothEditor";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
-
-// Typy pro zubní kříž
-interface ToothState {
-  id: string;
-  status?: 'healthy' | 'missing' | 'crown' | 'filling' | 'root_canal' | 'implant' | 'bridge' | null;
-  note?: string;
-  hasCaries?: boolean;
-  hasNote?: boolean;
-}
 
 export default function RecordDetailPage() {
   const params = useParams();
@@ -28,11 +18,6 @@ export default function RecordDetailPage() {
   const [fontSize, setFontSize] = useState(100); // 100% = default
   const [showFieldStatus, setShowFieldStatus] = useState(true); // Zelené/korálové ohraničení
   const [sendingToPhone, setSendingToPhone] = useState(false);
-  
-  // Editace zubního kříže
-  const [editingToothId, setEditingToothId] = useState<string | null>(null);
-  const [dentalCross, setDentalCross] = useState<{ [key: string]: ToothState }>({});
-  const [isSavingDentalCross, setIsSavingDentalCross] = useState(false);
 
   useEffect(() => {
     async function loadRecord() {
@@ -58,11 +43,6 @@ export default function RecordDetailPage() {
         
         console.log("✅ Found record:", data);
         setRecord(data as ParoRecord);
-        
-        // Načíst zubní kříž (pokud existuje)
-        if (data.dental_cross) {
-          setDentalCross(data.dental_cross as { [key: string]: ToothState });
-        }
       } catch (err) {
         console.error("❌ Failed to load record:", err);
         setError(err instanceof Error ? err.message : "Neznámá chyba");
@@ -72,35 +52,6 @@ export default function RecordDetailPage() {
     }
     loadRecord();
   }, [params.id]);
-
-  // Uložit zub do zubního kříže
-  const handleSaveTooth = async (toothState: ToothState) => {
-    setIsSavingDentalCross(true);
-    
-    try {
-      // Aktualizuj local state
-      const updatedDentalCross = {
-        ...dentalCross,
-        [toothState.id]: toothState,
-      };
-      setDentalCross(updatedDentalCross);
-      
-      // Ulož do Supabase
-      const { error } = await supabase
-        .from('paro_records')
-        .update({ dental_cross: updatedDentalCross })
-        .eq('id', params.id);
-      
-      if (error) throw error;
-      
-      console.log('✅ Zubní kříž uložen:', toothState);
-    } catch (err) {
-      console.error('❌ Chyba při ukládání zubního kříže:', err);
-      alert('❌ Nepodařilo se uložit změny');
-    } finally {
-      setIsSavingDentalCross(false);
-    }
-  };
 
   const sendToPhone = async () => {
     if (!user || !record) return;
@@ -215,7 +166,6 @@ export default function RecordDetailPage() {
   };
 
   return (
-    <>
     <div className="h-screen flex flex-col bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b px-2 py-1.5 flex items-center gap-2 shrink-0">
@@ -368,11 +318,9 @@ export default function RecordDetailPage() {
         <div className="space-y-1.5">
           {/* Stav chrupu (zubní kříž) - JEDNODUCHÝ S OBRÁZKEM */}
           <SimpleDentalChart 
-            teeth={dentalCross}
+            teeth={fd.dentalCross || {}}
             notes={fd.dentalCrossNotes}
             fontSize={fontSize}
-            onToothClick={(toothId) => setEditingToothId(toothId)}
-            readonly={false}
           />
         </div>
 
@@ -464,16 +412,5 @@ export default function RecordDetailPage() {
       </div>
       </div>
     </div>
-
-    {/* Tooth Editor Modal */}
-    {editingToothId && (
-      <ToothEditor
-        toothId={editingToothId}
-        toothState={dentalCross[editingToothId]}
-        onSave={handleSaveTooth}
-        onClose={() => setEditingToothId(null)}
-      />
-    )}
-    </>
   );
 }
