@@ -93,47 +93,54 @@ export default function RecordDetailPage() {
     alert(`Oprava pole ${field} zatím není implementována. Hodnota: ${value}`);
   };
 
-  useEffect(() => {
-    async function loadRecord() {
-      try {
-        console.log("🔍 Fetching record:", params.id);
-        
-        // Přímý Supabase dotaz s RLS
-        const { data, error } = await supabase
-          .from("paro_records")
-          .select("*")
-          .eq("id", params.id)
-          .eq("deleted", false)
-          .single();
-        
-        if (error) {
-          console.error("❌ Supabase error:", error);
-          throw new Error(error.message);
-        }
-        
-        if (!data) {
-          throw new Error("Záznam nenalezen");
-        }
-        
-        console.log("✅ Found record:", data);
-        setRecord(data as ParoRecord);
-        
-        // Načíst zubní kříž (pokud existuje)
-        if (data.dental_cross) {
-          setDentalCross(data.dental_cross as { [key: string]: ToothState });
-        }
-      } catch (err) {
-        console.error("❌ Failed to load record:", err);
-        setError(err instanceof Error ? err.message : "Neznámá chyba");
-      } finally {
-        setLoading(false);
+  // Načíst záznam z DB
+  const loadRecord = async () => {
+    try {
+      console.log("🔍 Fetching record:", params.id);
+      
+      // Přímý Supabase dotaz s RLS
+      const { data, error } = await supabase
+        .from("paro_records")
+        .select("*")
+        .eq("id", params.id)
+        .eq("deleted", false)
+        .single();
+      
+      if (error) {
+        console.error("❌ Supabase error:", error);
+        throw new Error(error.message);
       }
+      
+      if (!data) {
+        throw new Error("Záznam nenalezen");
+      }
+      
+      console.log("✅ Found record:", data);
+      setRecord(data as ParoRecord);
+      
+      // Načíst zubní kříž (pokud existuje)
+      if (data.dental_cross) {
+        setDentalCross(data.dental_cross as { [key: string]: ToothState });
+      }
+    } catch (err) {
+      console.error("❌ Failed to load record:", err);
+      setError(err instanceof Error ? err.message : "Neznámá chyba");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     loadRecord();
   }, [params.id]);
 
   // Uložit zub do zubního kříže
   const handleSaveTooth = async (toothState: ToothState) => {
+    if (!user || !record) {
+      alert('❌ Nejste přihlášeni nebo záznam není načten');
+      return;
+    }
+
     setIsSavingDentalCross(true);
     
     try {
@@ -144,18 +151,42 @@ export default function RecordDetailPage() {
       };
       setDentalCross(updatedDentalCross);
       
-      // Ulož do Supabase
-      const { error } = await supabase
+      console.log('💾 Ukládám zubní kříž:', {
+        recordId: params.id,
+        userId: user.id,
+        toothId: toothState.id,
+        dentalCrossSize: Object.keys(updatedDentalCross).length
+      });
+      
+      // Ulož do Supabase s explicitní kontrolou user_id
+      const { data, error } = await supabase
         .from('paro_records')
         .update({ dental_cross: updatedDentalCross })
-        .eq('id', params.id);
+        .eq('id', params.id)
+        .eq('user_id', user.id) // Explicitní ověření vlastnictví
+        .select();
       
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Supabase error:', error);
+        throw error;
+      }
+      
+      if (!data || data.length === 0) {
+        throw new Error('Záznam nenalezen nebo nemáte oprávnění k úpravě');
+      }
       
       console.log('✅ Zubní kříž uložen:', toothState);
-    } catch (err) {
+      
+      // Aktualizuj record pro jistotu
+      await loadRecord();
+    } catch (err: any) {
       console.error('❌ Chyba při ukládání zubního kříže:', err);
-      alert('❌ Nepodařilo se uložit změny');
+      alert(`❌ Nepodařilo se uložit změny: ${err.message || err}`);
+      
+      // Rollback local state
+      if (record.dental_cross) {
+        setDentalCross(record.dental_cross as { [key: string]: ToothState });
+      }
     } finally {
       setIsSavingDentalCross(false);
     }
