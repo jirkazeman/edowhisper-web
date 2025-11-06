@@ -279,17 +279,16 @@ export default function SimpleDentalChart({
   return (
     <>
       {/* Normal view */}
-      <div className="bg-white p-4 rounded-lg shadow-sm relative">
-        {/* Fullscreen button */}
+      <div className="bg-white rounded-lg shadow-sm relative">
+        {/* Fullscreen button - absolutně pozicovaný v pravém horním rohu */}
         <button
           onClick={() => setIsFullscreen(true)}
-          className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg transition z-10"
+          className="absolute top-2 right-2 p-2 hover:bg-gray-100 rounded-lg transition z-10"
           title="Zobrazit na celou obrazovku"
         >
           <Maximize2 size={20} className="text-gray-600" />
         </button>
         
-        <h3 className="font-semibold text-sm mb-3">Zubní kříž</h3>
         {chartContent}
       </div>
       
