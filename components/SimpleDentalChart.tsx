@@ -168,6 +168,15 @@ export default function SimpleDentalChart({
           priority
         />
         
+        {/* Fullscreen button - nad obrázkem */}
+        <button
+          onClick={() => setIsFullscreen(true)}
+          className="absolute top-2 right-2 p-2 hover:bg-gray-100 rounded-lg transition z-50 bg-white/80 backdrop-blur-sm"
+          title="Zobrazit na celou obrazovku"
+        >
+          <Maximize2 size={20} className="text-gray-600" />
+        </button>
+        
         {/* Tooth Data Overlays */}
         {Object.entries(toothPositions).map(([key, pos]) => {
           // Extrahuj číslo zubu (bez "-o" suffixu)
@@ -279,16 +288,7 @@ export default function SimpleDentalChart({
   return (
     <>
       {/* Normal view */}
-      <div className="bg-white rounded-lg shadow-sm relative">
-        {/* Fullscreen button - absolutně pozicovaný v pravém horním rohu */}
-        <button
-          onClick={() => setIsFullscreen(true)}
-          className="absolute top-2 right-2 p-2 hover:bg-gray-100 rounded-lg transition z-10"
-          title="Zobrazit na celou obrazovku"
-        >
-          <Maximize2 size={20} className="text-gray-600" />
-        </button>
-        
+      <div className="bg-white rounded-lg shadow-sm">
         {chartContent}
       </div>
       
