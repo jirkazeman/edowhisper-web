@@ -178,7 +178,7 @@ export default function RecordDetailPage() {
   };
 
   // Helper pro zvýraznění nevyužitých slov v přepisu
-  const highlightUnusedWords = (transcript: string) => {
+  const highlightUnusedWords = (transcript: string | undefined) => {
     if (!transcript) return null;
 
     // Získat všechny hodnoty z formuláře jako text

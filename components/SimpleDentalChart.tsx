@@ -141,7 +141,9 @@ export default function SimpleDentalChart({
   const hasAnyData = Object.values(teeth).some(tooth => hasRelevantData(tooth));
 
   // Počeštěné názvy stavů
-  const getToothStatusLabel = (status?: string) => {
+  const getToothStatusLabel = (status?: string | null): string | undefined => {
+    if (!status) return undefined;
+    
     switch (status) {
       case 'healthy': return 'Zdravý';
       case 'missing': return 'Chybí';
