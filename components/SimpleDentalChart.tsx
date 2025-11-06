@@ -178,7 +178,7 @@ export default function SimpleDentalChart({
           return (
             <div
               key={key}
-              className="absolute"
+              className="absolute pointer-events-none"
               style={{
                 left: `${pos.x}%`,
                 top: `${pos.y}%`,
@@ -189,7 +189,7 @@ export default function SimpleDentalChart({
             >
               {/* Data indicator - 3× větší, škáluje se se zoom */}
               <div
-                className={`rounded-full border-2 border-gray-400 transition-all hover:scale-125 shadow-lg flex items-center justify-center ${
+                className={`pointer-events-auto rounded-full border-2 border-gray-400 transition-all hover:scale-125 shadow-lg flex items-center justify-center ${
                   !readonly ? 'cursor-pointer' : ''
                 }`}
                 style={{ 
