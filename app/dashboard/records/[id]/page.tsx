@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, ZoomIn, ZoomOut, Eye, EyeOff, Sparkles, UserCheck, Smartphone, Copy, Check } from "lucide-react";
+import { ArrowLeft, ZoomIn, ZoomOut, Eye, EyeOff, Sparkles, UserCheck, Smartphone, Copy, Check, Shield } from "lucide-react";
 import type { ParoRecord } from "@/lib/types";
 import SimpleDentalChart from "@/components/SimpleDentalChart";
 import ToothEditor from "@/components/ToothEditor";
+import ValidationModal from "@/components/ValidationModal";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
+import { ValidationResult } from "@/lib/services/llmValidationService";
 
 // Typy pro zubní kříž
 interface ToothState {
@@ -46,6 +48,49 @@ export default function RecordDetailPage() {
       console.error('Nepodařilo se zkopírovat:', err);
       alert('❌ Nepodařilo se zkopírovat text');
     }
+  };
+
+  // Dual-LLM Validation
+  const [isValidating, setIsValidating] = useState(false);
+  const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
+  const [showValidationModal, setShowValidationModal] = useState(false);
+
+  const handleValidateExtraction = async () => {
+    if (!record) return;
+
+    setIsValidating(true);
+    try {
+      const response = await fetch(`/api/records/${record.id}/validate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ validatorModel: 'gemini-2.0-flash-exp' }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Validace selhala');
+      }
+
+      const data = await response.json();
+      setValidationResult(data.validation);
+      setShowValidationModal(true);
+
+      // Refresh record to get updated validation status
+      await loadRecord();
+    } catch (err: any) {
+      console.error('Validation error:', err);
+      alert(`❌ Chyba validace: ${err.message}`);
+    } finally {
+      setIsValidating(false);
+    }
+  };
+
+  const handleApplyFix = async (field: string, value: any) => {
+    if (!record) return;
+
+    // TODO: Implementovat aplikaci opravy
+    console.log('Apply fix:', field, value);
+    alert(`Oprava pole ${field} zatím není implementována. Hodnota: ${value}`);
   };
 
   useEffect(() => {
@@ -242,6 +287,36 @@ export default function RecordDetailPage() {
         
         {/* Controls */}
         <div className="flex items-center gap-1.5 border-l pl-2">
+          {/* Validovat extrakci (Dual-LLM) */}
+          <button
+            onClick={handleValidateExtraction}
+            disabled={isValidating || !record.fullTranscript}
+            className={`p-1 rounded transition ${
+              isValidating 
+                ? 'opacity-50 cursor-wait' 
+                : !record.fullTranscript
+                ? 'opacity-30 cursor-not-allowed'
+                : record.validationStatus === 'validated'
+                ? 'bg-green-50 text-green-600 hover:bg-green-100'
+                : record.validationStatus === 'issues_found'
+                ? 'bg-orange-50 text-orange-600 hover:bg-orange-100'
+                : 'hover:bg-indigo-50 text-indigo-600'
+            }`}
+            title={
+              !record.fullTranscript
+                ? 'Záznam nemá přepis pro validaci'
+                : isValidating
+                ? 'Validuji...'
+                : record.validationStatus === 'validated'
+                ? `✅ Validováno (${((record.validationConfidence || 0) * 100).toFixed(0)}%)`
+                : record.validationStatus === 'issues_found'
+                ? '⚠️ Nalezeny nesrovnalosti - klikni pro detail'
+                : 'Validovat extrakci (Gemini 2.0 Flash)'
+            }
+          >
+            <Shield size={16} />
+          </button>
+
           {/* Odeslat do telefonu */}
           <button
             onClick={sendToPhone}
@@ -508,6 +583,14 @@ export default function RecordDetailPage() {
         onClose={() => setEditingToothId(null)}
       />
     )}
+
+    {/* Validation Modal */}
+    <ValidationModal
+      isOpen={showValidationModal}
+      onClose={() => setShowValidationModal(false)}
+      validation={validationResult}
+      onApplyFix={handleApplyFix}
+    />
     </>
   );
 }

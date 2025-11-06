@@ -14,6 +14,12 @@ export interface ParoRecord {
   hygienist_feedback?: string; // Textová zpětná vazba od hygienistky
   rated_at?: string; // Datum hodnocení
   rated_by?: string; // ID hygienistky, která ohodnotila
+  
+  // Dual-LLM Validation
+  validationStatus?: 'pending' | 'validated' | 'issues_found' | 'skipped';
+  validationConfidence?: number; // 0.0-1.0
+  validationTimestamp?: string;
+  fullTranscript?: string; // Pro validaci potřebujeme přepis
 }
 
 export interface RecordFormData {
