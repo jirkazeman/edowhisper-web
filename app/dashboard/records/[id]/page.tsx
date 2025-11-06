@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, ZoomIn, ZoomOut, Eye, EyeOff, Sparkles, UserCheck, Smartphone, Copy, Check, Shield } from "lucide-react";
+import { ArrowLeft, ZoomIn, ZoomOut, Eye, EyeOff, Sparkles, UserCheck, Smartphone, Copy, Check, Shield, Edit, Save, X as XIcon } from "lucide-react";
 import type { ParoRecord } from "@/lib/types";
 import SimpleDentalChart from "@/components/SimpleDentalChart";
 import ToothEditor from "@/components/ToothEditor";
@@ -47,6 +47,58 @@ export default function RecordDetailPage() {
     } catch (err) {
       console.error('Nepodařilo se zkopírovat:', err);
       alert('❌ Nepodařilo se zkopírovat text');
+    }
+  };
+
+  // Edit treatmentRecord
+  const [isEditingTreatment, setIsEditingTreatment] = useState(false);
+  const [editedTreatmentRecord, setEditedTreatmentRecord] = useState('');
+  const [originalTreatmentRecord, setOriginalTreatmentRecord] = useState('');
+  const [isSavingTreatment, setIsSavingTreatment] = useState(false);
+
+  const handleEditTreatment = () => {
+    setOriginalTreatmentRecord(record?.form_data.treatmentRecord || '');
+    setEditedTreatmentRecord(record?.form_data.treatmentRecord || '');
+    setIsEditingTreatment(true);
+  };
+
+  const handleCancelEditTreatment = () => {
+    setIsEditingTreatment(false);
+    setEditedTreatmentRecord('');
+  };
+
+  const handleSaveTreatment = async () => {
+    if (!user || !record) return;
+
+    setIsSavingTreatment(true);
+    try {
+      // Aktualizuj form_data v DB
+      const updatedFormData = {
+        ...record.form_data,
+        treatmentRecord: editedTreatmentRecord,
+      };
+
+      const { data, error } = await supabase
+        .from('paro_records')
+        .update({ form_data: updatedFormData })
+        .eq('id', params.id)
+        .eq('user_id', user.id)
+        .select();
+
+      if (error) throw error;
+      if (!data || data.length === 0) {
+        throw new Error('Záznam nenalezen nebo nemáte oprávnění k úpravě');
+      }
+
+      // Refresh record
+      await loadRecord();
+      setIsEditingTreatment(false);
+      console.log('✅ Záznam o ošetření uložen');
+    } catch (err: any) {
+      console.error('❌ Chyba při ukládání:', err);
+      alert(`❌ Nepodařilo se uložit: ${err.message || err}`);
+    } finally {
+      setIsSavingTreatment(false);
     }
   };
 
@@ -561,32 +613,84 @@ export default function RecordDetailPage() {
         {/* Záznam o ošetření - LEVÁ POLOVINA */}
         <div className="bg-white rounded shadow-sm p-3">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="font-semibold text-lg">Záznam o ošetření</h3>
-            {fd.treatmentRecord && (
-              <button
-                onClick={() => copyToClipboard(fd.treatmentRecord || "")}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors group relative"
-                title="Zkopírovat do schránky"
-              >
-                {isCopied ? (
-                  <Check size={20} className="text-green-500" />
-                ) : (
-                  <Copy size={20} className="text-blue-500" />
-                )}
-                {isCopied && (
-                  <span className="absolute -top-8 right-0 bg-green-500 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-                    Zkopírováno!
-                  </span>
-                )}
-              </button>
-            )}
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-lg">Záznam o ošetření</h3>
+              {/* Indikátor úprav */}
+              {!isEditingTreatment && originalTreatmentRecord && originalTreatmentRecord !== fd.treatmentRecord && (
+                <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">
+                  Upraveno
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {!isEditingTreatment ? (
+                <>
+                  {/* Edit button */}
+                  <button
+                    onClick={handleEditTreatment}
+                    className="p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                    title="Upravit záznam"
+                  >
+                    <Edit size={20} className="text-blue-500" />
+                  </button>
+                  {/* Copy button */}
+                  {fd.treatmentRecord && (
+                    <button
+                      onClick={() => copyToClipboard(fd.treatmentRecord || "")}
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors group relative"
+                      title="Zkopírovat do schránky"
+                    >
+                      {isCopied ? (
+                        <Check size={20} className="text-green-500" />
+                      ) : (
+                        <Copy size={20} className="text-blue-500" />
+                      )}
+                      {isCopied && (
+                        <span className="absolute -top-8 right-0 bg-green-500 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                          Zkopírováno!
+                        </span>
+                      )}
+                    </button>
+                  )}
+                </>
+              ) : (
+                <>
+                  {/* Cancel button */}
+                  <button
+                    onClick={handleCancelEditTreatment}
+                    disabled={isSavingTreatment}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                    title="Zrušit"
+                  >
+                    <XIcon size={20} className="text-gray-500" />
+                  </button>
+                  {/* Save button */}
+                  <button
+                    onClick={handleSaveTreatment}
+                    disabled={isSavingTreatment}
+                    className="p-2 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50"
+                    title="Uložit změny"
+                  >
+                    <Save size={20} className="text-green-600" />
+                  </button>
+                </>
+              )}
+            </div>
           </div>
           <textarea 
-            value={fd.treatmentRecord || ""} 
-            readOnly 
+            value={isEditingTreatment ? editedTreatmentRecord : (fd.treatmentRecord || "")}
+            onChange={(e) => isEditingTreatment && setEditedTreatmentRecord(e.target.value)}
+            readOnly={!isEditingTreatment}
             rows={6} 
-            className={getInputClass(fd.treatmentRecord, "w-full px-3 py-2 border-2 border-gray-300 rounded text-lg font-medium resize-none leading-relaxed")} 
+            className={`${getInputClass(fd.treatmentRecord, "w-full px-3 py-2 border-2 rounded text-lg font-medium resize-none leading-relaxed")} ${
+              isEditingTreatment ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+            }`}
           />
+          {isEditingTreatment && (
+            <p className="text-xs text-gray-500 mt-2">
+              💡 Upravujete záznam o ošetření. Klikněte na ✅ pro uložení nebo ✕ pro zrušení.
+            </p>
+          )}
         </div>
 
         {/* Kompletní přepis - PRAVÁ POLOVINA */}
