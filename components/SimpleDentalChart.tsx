@@ -158,13 +158,6 @@ export default function SimpleDentalChart({
 
   const chartContent = (
     <div className="relative w-full">
-      {/* Žádná data - zobraz zprávu NAD obrázkem */}
-      {!hasAnyData && (
-        <div className="mb-3 p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
-          <p className="text-sm text-gray-500">Nejsou data pro zubní kříž</p>
-        </div>
-      )}
-
       {/* Background Image */}
       <div className="relative w-full aspect-[16/9]">
         <Image
