@@ -113,7 +113,9 @@ export async function POST(
     };
 
     // Zavolat validation service
-    const validationService = getValidationService(process.env.GEMINI_API_KEY);
+    const validationService = getValidationService(
+      process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY
+    );
     const validationResult = await validationService.validateExtraction(
       record.full_transcript,
       primaryExtraction,
