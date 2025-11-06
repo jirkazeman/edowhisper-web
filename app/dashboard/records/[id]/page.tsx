@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, ZoomIn, ZoomOut, Eye, EyeOff, Sparkles, UserCheck, Smartphone } from "lucide-react";
+import { ArrowLeft, ZoomIn, ZoomOut, Eye, EyeOff, Sparkles, UserCheck, Smartphone, Copy, Check } from "lucide-react";
 import type { ParoRecord } from "@/lib/types";
 import SimpleDentalChart from "@/components/SimpleDentalChart";
 import ToothEditor from "@/components/ToothEditor";
@@ -33,6 +33,20 @@ export default function RecordDetailPage() {
   const [editingToothId, setEditingToothId] = useState<string | null>(null);
   const [dentalCross, setDentalCross] = useState<{ [key: string]: ToothState }>({});
   const [isSavingDentalCross, setIsSavingDentalCross] = useState(false);
+  
+  // Copy funkce pro treatmentRecord
+  const [isCopied, setIsCopied] = useState(false);
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error('Nepodařilo se zkopírovat:', err);
+      alert('❌ Nepodařilo se zkopírovat text');
+    }
+  };
 
   useEffect(() => {
     async function loadRecord() {
@@ -440,7 +454,27 @@ export default function RecordDetailPage() {
       <div className="grid grid-cols-2 gap-3 px-1.5 pb-1.5">
         {/* Záznam o ošetření - LEVÁ POLOVINA */}
         <div className="bg-white rounded shadow-sm p-3">
-          <h3 className="font-semibold text-lg mb-2">Záznam o ošetření</h3>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-semibold text-lg">Záznam o ošetření</h3>
+            {fd.treatmentRecord && (
+              <button
+                onClick={() => copyToClipboard(fd.treatmentRecord)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors group relative"
+                title="Zkopírovat do schránky"
+              >
+                {isCopied ? (
+                  <Check size={20} className="text-green-500" />
+                ) : (
+                  <Copy size={20} className="text-blue-500" />
+                )}
+                {isCopied && (
+                  <span className="absolute -top-8 right-0 bg-green-500 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                    Zkopírováno!
+                  </span>
+                )}
+              </button>
+            )}
+          </div>
           <textarea 
             value={fd.treatmentRecord || ""} 
             readOnly 
