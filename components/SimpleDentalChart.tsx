@@ -158,6 +158,13 @@ export default function SimpleDentalChart({
 
   const chartContent = (
     <div className="relative w-full">
+      {/* Žádná data - zobraz zprávu NAD obrázkem */}
+      {!hasAnyData && (
+        <div className="mb-3 p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
+          <p className="text-sm text-gray-500">Nejsou data pro zubní kříž</p>
+        </div>
+      )}
+
       {/* Background Image */}
       <div className="relative w-full aspect-[16/9]">
         <Image
@@ -232,13 +239,6 @@ export default function SimpleDentalChart({
         })}
       </div>
       
-      {/* Žádná data - zobraz zprávu */}
-      {!hasAnyData && (
-        <div className="mt-3 p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
-          <p className="text-sm text-gray-500">Nejsou data pro zubní kříž</p>
-        </div>
-      )}
-
       {/* Legend - PŘESNÉ BARVY JAKO V MOBILNÍ APPCE (zobraz pouze pokud jsou data) */}
       {hasAnyData && (
         <div className="mt-3 flex flex-wrap gap-3 text-xs">
