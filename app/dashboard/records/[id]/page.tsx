@@ -458,7 +458,7 @@ export default function RecordDetailPage() {
             <h3 className="font-semibold text-lg">Záznam o ošetření</h3>
             {fd.treatmentRecord && (
               <button
-                onClick={() => copyToClipboard(fd.treatmentRecord)}
+                onClick={() => copyToClipboard(fd.treatmentRecord || "")}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors group relative"
                 title="Zkopírovat do schránky"
               >
