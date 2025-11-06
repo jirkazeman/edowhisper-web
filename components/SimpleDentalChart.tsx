@@ -90,18 +90,47 @@ export default function SimpleDentalChart({ teeth = {}, notes, isChildTeeth = fa
   const effectiveZoom = Math.max(minZoom, fontSize);
   const markerSize = (30 * effectiveZoom) / 100;
 
+  // PŘESNĚ STEJNÉ BARVY JAKO V MOBILNÍ APLIKACI (Odontogram.tsx)
   const getToothColor = (toothId: string) => {
     const tooth = teeth[toothId];
-    if (!tooth) return "transparent";
+    if (!tooth) return "#FFFFFF"; // Bílá pro nedefinované (místo transparent)
     
-    if (tooth.hasCaries) return "rgba(239, 68, 68, 0.7)"; // červená
-    if (tooth.status === "missing") return "rgba(156, 163, 175, 0.7)"; // šedá
-    if (tooth.status === "crown") return "rgba(234, 179, 8, 0.7)"; // žlutá
-    if (tooth.status === "filling") return "rgba(59, 130, 246, 0.7)"; // modrá
-    if (tooth.status === "implant") return "rgba(168, 85, 247, 0.7)"; // fialová
-    if (tooth.note) return "rgba(34, 197, 94, 0.5)"; // zelená
+    const { status, hasCaries } = tooth;
     
-    return "transparent";
+    // PRIORITA: Kaz je vždy červený!
+    if (hasCaries) return "#FF6B6B"; // Červená (systemRed)
+    
+    switch (status) {
+      case 'missing':
+        return "#E5E5EA"; // Šedá (missing light)
+      case 'crown':
+        return "#FFD60A"; // Žlutá (systemYellow)
+      case 'filling':
+        return "#4E73DF"; // Modrá (systemBlue)
+      case 'root_canal':
+        return "#E879F9"; // Fialová (Purple)
+      case 'implant':
+        return "#72E4AD"; // Zelená (systemGreen)
+      case 'bridge':
+        return "#F97316"; // Oranžová (Orange)
+      case 'healthy':
+      default:
+        return "#FFFFFF"; // Bílá (cardBackground)
+    }
+  };
+
+  // Počeštěné názvy stavů
+  const getToothStatusLabel = (status?: string) => {
+    switch (status) {
+      case 'healthy': return 'Zdravý';
+      case 'missing': return 'Chybí';
+      case 'crown': return 'Korunka';
+      case 'filling': return 'Výplň';
+      case 'root_canal': return 'Ošetřený kořen';
+      case 'implant': return 'Implantát';
+      case 'bridge': return 'Můstek';
+      default: return status;
+    }
   };
 
   const chartContent = (
@@ -139,30 +168,32 @@ export default function SimpleDentalChart({ teeth = {}, notes, isChildTeeth = fa
             >
               {/* Data indicator - 3× větší, škáluje se se zoom */}
               <div
-                className="rounded-full border-2 border-white cursor-pointer transition-all hover:scale-125 shadow-lg flex items-center justify-center"
+                className="rounded-full border-2 border-gray-400 cursor-pointer transition-all hover:scale-125 shadow-lg flex items-center justify-center"
                 style={{ 
                   backgroundColor: getToothColor(toothId),
                   width: `${markerSize}px`,
                   height: `${markerSize}px`,
                 }}
-                title={tooth.note || tooth.status || undefined}
+                title={tooth.note || getToothStatusLabel(tooth.status) || undefined}
               >
                 <span 
-                  className="font-bold text-white"
-                  style={{ fontSize: `${markerSize * 0.5}px` }}
+                  className="font-bold"
+                  style={{ 
+                    fontSize: `${markerSize * 0.5}px`,
+                    color: tooth.hasCaries || tooth.status === 'missing' ? '#000' : '#333'
+                  }}
                 >
                   {toothId}
                 </span>
               </div>
               
-              {/* Hover tooltip */}
+              {/* Hover tooltip - POČEŠTĚNO */}
               {hoveredTooth === toothId && (
                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-gray-900 text-white text-xs px-3 py-2 rounded shadow-xl whitespace-nowrap z-50 min-w-[120px]">
                   <div className="font-semibold mb-1">Zub {toothId}</div>
-                  {tooth.status && <div className="text-gray-300">Status: {tooth.status}</div>}
+                  {tooth.status && <div className="text-gray-300">{getToothStatusLabel(tooth.status)}</div>}
                   {tooth.mobility && <div className="text-gray-300">Mobilita: {tooth.mobility}</div>}
-                  {tooth.implant && <div className="text-blue-300">Implantát</div>}
-                  {tooth.hasCaries && <div className="text-red-300">Kaz</div>}
+                  {tooth.hasCaries && <div className="text-red-300">⚠️ Kaz</div>}
                   {tooth.note && <div className="text-gray-400 mt-1 max-w-[200px]">{tooth.note}</div>}
                 </div>
               )}
@@ -171,31 +202,35 @@ export default function SimpleDentalChart({ teeth = {}, notes, isChildTeeth = fa
         })}
       </div>
       
-      {/* Legend */}
+      {/* Legend - PŘESNÉ BARVY JAKO V MOBILNÍ APPCE */}
       <div className="mt-3 flex flex-wrap gap-3 text-xs">
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FFD60A' }}></div>
           <span>Korunka</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#4E73DF' }}></div>
           <span>Výplň</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#E879F9' }}></div>
+          <span>Ošetřený kořen</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#72E4AD' }}></div>
           <span>Implantát</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-gray-500"></div>
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#F97316' }}></div>
+          <span>Můstek</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#E5E5EA' }}></div>
           <span>Chybí</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-red-500"></div>
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FF6B6B' }}></div>
           <span>Kaz</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-green-500"></div>
-          <span>Poznámka</span>
         </div>
       </div>
       
