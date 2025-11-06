@@ -27,9 +27,17 @@ export default function RecordDetailPage() {
   const [record, setRecord] = useState<ParoRecord | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [fontSize, setFontSize] = useState(100); // 100% = default
   const [showFieldStatus, setShowFieldStatus] = useState(true); // Zelené/korálové ohraničení
   const [sendingToPhone, setSendingToPhone] = useState(false);
+  
+  // Načíst fontSize z localStorage při načtení
+  const [fontSize, setFontSize] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('edowhisper_zoom_level');
+      return saved ? parseInt(saved, 10) : 100;
+    }
+    return 100;
+  });
   
   // Editace zubního kříže
   const [editingToothId, setEditingToothId] = useState<string | null>(null);
@@ -185,6 +193,13 @@ export default function RecordDetailPage() {
   useEffect(() => {
     loadRecord();
   }, [params.id]);
+
+  // Uložit fontSize do localStorage při změně
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('edowhisper_zoom_level', fontSize.toString());
+    }
+  }, [fontSize]);
 
   // Uložit zub do zubního kříže
   const handleSaveTooth = async (toothState: ToothState) => {
@@ -536,9 +551,8 @@ export default function RecordDetailPage() {
           </div>
         </div>
 
-        {/* CENTER COLUMN - Zubní kříž NAHOŘE */}
+        {/* CENTER COLUMN */}
         <div className="space-y-1.5">
-          {/* Stav chrupu (zubní kříž) - JEDNODUCHÝ S OBRÁZKEM */}
           <SimpleDentalChart 
             teeth={dentalCross}
             notes={fd.dentalCrossNotes}
