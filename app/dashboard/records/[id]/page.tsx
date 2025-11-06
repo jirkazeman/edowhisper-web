@@ -138,14 +138,14 @@ export default function RecordDetailPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
+    <div className="h-screen flex flex-col bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b px-4 py-3 flex items-center gap-3 shrink-0">
+      <div className="bg-white border-b px-4 py-2 flex items-center gap-3 shrink-0">
         <button onClick={() => router.back()} className="p-1 hover:bg-gray-100 rounded">
           <ArrowLeft size={20} />
         </button>
         <div className="flex-1">
-          <h1 className="text-lg font-semibold text-gray-900">{fd.lastName || "Bez jména"}</h1>
+          <h1 className="text-base font-semibold text-gray-900">{fd.lastName || "Bez jména"}</h1>
         </div>
         
         {/* Controls */}
@@ -207,46 +207,48 @@ export default function RecordDetailPage() {
           </div>
         </div>
         
-        <div className="text-sm text-gray-500">{new Date(record.created_at).toLocaleDateString("cs-CZ")}</div>
+        <div className="text-xs text-gray-500">{new Date(record.created_at).toLocaleDateString("cs-CZ")}</div>
       </div>
 
-      {/* Main content - 3 columns */}
-      <div 
-        className="flex-1 grid grid-cols-[350px_1fr_400px] gap-3 p-3 min-h-0"
-        style={{ transform: `scale(${fontSize / 100})`, transformOrigin: 'top left', width: `${100 / (fontSize / 100)}%`, height: `${100 / (fontSize / 100)}%` }}
-      >
+      {/* Main content wrapper with scroll */}
+      <div className="flex-1 overflow-y-auto">
+        {/* 3 columns content */}
+        <div 
+          className="grid grid-cols-[320px_1fr_350px] gap-2 p-2"
+          style={{ transform: `scale(${fontSize / 100})`, transformOrigin: 'top left', width: `${100 / (fontSize / 100)}%` }}
+        >
         
         {/* LEFT COLUMN */}
-        <div className="space-y-3 overflow-y-auto">
+        <div className="space-y-2">
           {/* Základní informace */}
-          <div className="bg-white rounded-lg shadow-sm p-4">
-            <h3 className="font-semibold text-sm mb-3">Základní informace</h3>
+          <div className="bg-white rounded-lg shadow-sm p-3">
+            <h3 className="font-semibold text-xs mb-2">Základní informace</h3>
             
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div>
-                <label className="block text-xs text-gray-600 mb-1">
+                <label className="block text-[10px] text-gray-600 mb-0.5">
                   Příjmení
                   <FieldStatusIcon value={fd.lastName} />
                 </label>
-                <input type="text" value={fd.lastName || ""} readOnly className={getInputClass(fd.lastName)} />
+                <input type="text" value={fd.lastName || ""} readOnly className={getInputClass(fd.lastName, "w-full px-2 py-1 border border-gray-300 rounded text-xs")} />
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">
+                <label className="block text-[10px] text-gray-600 mb-0.5">
                   Rodné číslo (RČ)
                   <FieldStatusIcon value={fd.personalIdNumber} />
                 </label>
-                <input type="text" value={fd.personalIdNumber || ""} readOnly className={getInputClass(fd.personalIdNumber)} />
+                <input type="text" value={fd.personalIdNumber || ""} readOnly className={getInputClass(fd.personalIdNumber, "w-full px-2 py-1 border border-gray-300 rounded text-xs")} />
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Kuřák</label>
-                <div className="flex gap-4">
-                  <label className="flex items-center gap-2">
-                    <input type="radio" checked={fd.isSmoker === "yes"} readOnly />
-                    <span className="text-sm">Ano</span>
+                <label className="block text-[10px] text-gray-600 mb-0.5">Kuřák</label>
+                <div className="flex gap-3">
+                  <label className="flex items-center gap-1">
+                    <input type="radio" checked={fd.isSmoker === "yes"} readOnly className="w-3 h-3" />
+                    <span className="text-xs">Ano</span>
                   </label>
-                  <label className="flex items-center gap-2">
-                    <input type="radio" checked={fd.isSmoker === "no"} readOnly />
-                    <span className="text-sm">Ne</span>
+                  <label className="flex items-center gap-1">
+                    <input type="radio" checked={fd.isSmoker === "no"} readOnly className="w-3 h-3" />
+                    <span className="text-xs">Ne</span>
                   </label>
                 </div>
               </div>
@@ -254,37 +256,37 @@ export default function RecordDetailPage() {
           </div>
 
           {/* Anamnéza */}
-          <div className="bg-white rounded-lg shadow-sm p-4">
-            <h3 className="font-semibold text-sm mb-3">Anamnéza</h3>
+          <div className="bg-white rounded-lg shadow-sm p-3">
+            <h3 className="font-semibold text-xs mb-2">Anamnéza</h3>
             
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div>
-                <label className="block text-xs text-gray-600 mb-1">
+                <label className="block text-[10px] text-gray-600 mb-0.5">
                   Všeobecná anamnéza
                   <FieldStatusIcon value={fd.generalAnamnesis} />
                 </label>
-                <textarea value={fd.generalAnamnesis || ""} readOnly rows={2} className={getInputClass(fd.generalAnamnesis, "w-full px-3 py-2 border border-gray-300 rounded text-sm resize-none")} />
+                <textarea value={fd.generalAnamnesis || ""} readOnly rows={2} className={getInputClass(fd.generalAnamnesis, "w-full px-2 py-1 border border-gray-300 rounded text-xs resize-none")} />
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">
+                <label className="block text-[10px] text-gray-600 mb-0.5">
                   Alergie
                   <FieldStatusIcon value={fd.allergies} />
                 </label>
-                <textarea value={fd.allergies || ""} readOnly rows={2} className={getInputClass(fd.generalAnamnesis, "w-full px-3 py-2 border border-gray-300 rounded text-sm resize-none")} />
+                <textarea value={fd.allergies || ""} readOnly rows={2} className={getInputClass(fd.allergies, "w-full px-2 py-1 border border-gray-300 rounded text-xs resize-none")} />
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">
+                <label className="block text-[10px] text-gray-600 mb-0.5">
                   Stomatologická anamnéza
                   <FieldStatusIcon value={fd.stomatologicalAnamnesis} />
                 </label>
-                <textarea value={fd.stomatologicalAnamnesis || ""} readOnly rows={2} className={getInputClass(fd.generalAnamnesis, "w-full px-3 py-2 border border-gray-300 rounded text-sm resize-none")} />
+                <textarea value={fd.stomatologicalAnamnesis || ""} readOnly rows={2} className={getInputClass(fd.stomatologicalAnamnesis, "w-full px-2 py-1 border border-gray-300 rounded text-xs resize-none")} />
               </div>
             </div>
           </div>
         </div>
 
         {/* CENTER COLUMN */}
-        <div className="space-y-3 overflow-y-auto">
+        <div className="space-y-2">
           {/* Stav chrupu (zubní kříž) - JEDNODUCHÝ S OBRÁZKEM */}
           <SimpleDentalChart 
             teeth={fd.dentalCross || {}}
@@ -293,17 +295,17 @@ export default function RecordDetailPage() {
           />
 
           {/* Záznam o ošetření */}
-          <div className="bg-white rounded-lg shadow-sm p-4">
-            <h3 className="font-semibold text-sm mb-3">Záznam o ošetření</h3>
-            <textarea value={fd.treatmentRecord || ""} readOnly rows={4} className={getInputClass(fd.generalAnamnesis, "w-full px-3 py-2 border border-gray-300 rounded text-sm resize-none")} />
+          <div className="bg-white rounded-lg shadow-sm p-3">
+            <h3 className="font-semibold text-xs mb-2">Záznam o ošetření</h3>
+            <textarea value={fd.treatmentRecord || ""} readOnly rows={3} className={getInputClass(fd.treatmentRecord, "w-full px-2 py-1 border border-gray-300 rounded text-xs resize-none")} />
           </div>
         </div>
 
         {/* RIGHT COLUMN */}
-        <div className="space-y-3 overflow-y-auto">
+        <div className="space-y-2">
           {/* Vyšetření */}
-          <div className="bg-white rounded-lg shadow-sm p-4">
-            <h3 className="font-semibold text-sm mb-3">Vyšetření</h3>
+          <div className="bg-white rounded-lg shadow-sm p-3">
+            <h3 className="font-semibold text-xs mb-2">Vyšetření</h3>
             
             <div className="space-y-2">
               {[
@@ -313,51 +315,62 @@ export default function RecordDetailPage() {
                 { label: "Pomůcky", value: fd.tools }
               ].map(({ label, value }) => (
                 <div key={label}>
-                  <label className="block text-xs text-gray-600 mb-1">
+                  <label className="block text-[10px] text-gray-600 mb-0.5">
                     {label}
                     <FieldStatusIcon value={value} />
                   </label>
-                  <input type="text" value={value || ""} readOnly className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm" />
+                  <input type="text" value={value || ""} readOnly className="w-full px-2 py-1 border border-gray-300 rounded text-xs" />
                 </div>
               ))}
             </div>
           </div>
 
           {/* Indexy (BOP/PBI, CPITN) */}
-          <div className="bg-white rounded-lg shadow-sm p-4">
-            <h3 className="font-semibold text-sm mb-3">Indexy (BOP/PBI, CPITN)</h3>
+          <div className="bg-white rounded-lg shadow-sm p-3">
+            <h3 className="font-semibold text-xs mb-2">Indexy (BOP/PBI, CPITN)</h3>
             
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div>
-                <label className="block text-xs text-gray-600 mb-1">BOP / PBI Protokol</label>
-                <div className="grid grid-cols-2 gap-2">
+                <label className="block text-[10px] text-gray-600 mb-0.5">BOP / PBI Protokol</label>
+                <div className="grid grid-cols-2 gap-1">
                   <div>
-                    <label className="block text-[10px] text-gray-500 mb-1">
+                    <label className="block text-[9px] text-gray-500 mb-0.5">
                       Datum
                       <FieldStatusIcon value={fd.pbiDate} />
                     </label>
-                    <input type="date" value={fd.pbiDate || ""} readOnly className="w-full px-2 py-1 border border-gray-300 rounded text-xs" />
+                    <input type="date" value={fd.pbiDate || ""} readOnly className="w-full px-1 py-0.5 border border-gray-300 rounded text-[10px]" />
                   </div>
                   <div>
-                    <label className="block text-[10px] text-gray-500 mb-1">
+                    <label className="block text-[9px] text-gray-500 mb-0.5">
                       Výsledek
                       <FieldStatusIcon value={fd.pbiResult} />
                     </label>
-                    <input type="text" value={fd.pbiResult || ""} readOnly className="w-full px-2 py-1 border border-gray-300 rounded text-xs" />
+                    <input type="text" value={fd.pbiResult || ""} readOnly className="w-full px-1 py-0.5 border border-gray-300 rounded text-[10px]" />
                   </div>
                 </div>
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">
+                <label className="block text-[10px] text-gray-600 mb-0.5">
                   Pomůcky
                   <FieldStatusIcon value={fd.pbiTools} />
                 </label>
-                <input type="text" value={fd.pbiTools || ""} readOnly className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm" />
+                <input type="text" value={fd.pbiTools || ""} readOnly className="w-full px-2 py-1 border border-gray-300 rounded text-xs" />
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* KOMPLETNÍ PŘEPIS - úplně dole přes celou šířku */}
+      <div className="bg-white border-t p-3 shrink-0">
+        <h3 className="font-semibold text-xs mb-2 text-gray-700">Kompletní přepis</h3>
+        <div className="bg-gray-50 border border-gray-200 rounded p-3 max-h-32 overflow-y-auto">
+          <p className="text-xs text-gray-800 whitespace-pre-wrap leading-relaxed">
+            {fd.fullTranscript || "Přepis není k dispozici"}
+          </p>
+        </div>
+      </div>
+    </div>
     </div>
   );
 }

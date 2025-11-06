@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const cookieStore = await cookies()
     
@@ -11,8 +11,11 @@ export async function GET() {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
+          getAll() {
+            return cookieStore.getAll()
+          },
+          setAll(cookiesToSet) {
+            // Noop - API routes jsou read-only
           },
         },
       }
@@ -22,8 +25,11 @@ export async function GET() {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {
+      console.error("Auth error:", authError);
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    console.log("✅ Authenticated user:", user.id);
 
     // Načíst POUZE záznamy tohoto uživatele
     const { data, error } = await supabase
@@ -54,8 +60,11 @@ export async function PATCH(request: Request) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
+          getAll() {
+            return cookieStore.getAll()
+          },
+          setAll(cookiesToSet) {
+            // Noop - API routes jsou read-only
           },
         },
       }
@@ -65,6 +74,7 @@ export async function PATCH(request: Request) {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {
+      console.error("Auth error:", authError);
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
