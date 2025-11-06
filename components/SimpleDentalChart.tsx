@@ -216,8 +216,8 @@ export default function SimpleDentalChart({
               </div>
               
               {/* Hover tooltip - POČEŠTĚNO */}
-              {hoveredTooth === toothId && (
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-gray-900 text-white text-xs px-3 py-2 rounded shadow-xl whitespace-nowrap z-50 min-w-[120px]">
+              {hoveredTooth === toothId && tooth && (
+                <div className="pointer-events-none absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-gray-900 text-white text-xs px-3 py-2 rounded shadow-xl whitespace-nowrap z-50 min-w-[120px]">
                   <div className="font-semibold mb-1">Zub {toothId}</div>
                   {tooth.status && <div className="text-gray-300">{getToothStatusLabel(tooth.status)}</div>}
                   {tooth.mobility && <div className="text-gray-300">Mobilita: {tooth.mobility}</div>}
