@@ -47,37 +47,71 @@ export const recordsAPI = {
     userId: string, 
     llmOriginal?: any
   ): Promise<ParoRecord | null> => {
-    const { data, error } = await supabase
-      .from("paro_records")
-      .insert({
+    try {
+      // 🔧 Příprava dat - sjednocení se schématem mobilní app
+      const insertData = {
         user_id: userId,
         form_data: formData,
+        protocol: null, // Pro konzistenci s mobilní app
         timestamp: new Date().toISOString(),
         deleted: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
         llm_original: llmOriginal || null, // Uložit původní LLM výstup pro fine-tuning
-      })
-      .select()
-      .single();
+      };
 
-    if (error) {
+      console.log("📤 Creating record:", {
+        user_id: insertData.user_id,
+        has_form_data: !!insertData.form_data,
+        timestamp: insertData.timestamp,
+      });
+
+      const { data, error } = await supabase
+        .from("paro_records")
+        .insert(insertData)
+        .select()
+        .single();
+
+      if (error) {
+        console.error("❌ Supabase error:", JSON.stringify(error, null, 2));
+        throw error;
+      }
+
+      console.log("✅ Record created:", data?.id);
+      return data;
+    } catch (error) {
       console.error("Error creating record:", error);
       throw error;
     }
-
-    return data;
   },
 
   // Update record
   update: async (id: string, formData: Partial<RecordFormData>): Promise<void> => {
-    const { error } = await supabase
-      .from("paro_records")
-      .update({
+    try {
+      // 🔧 Příprava dat pro UPDATE
+      const updateData = {
         form_data: formData,
         updated_at: new Date().toISOString(),
-      })
-      .eq("id", id);
+        timestamp: new Date().toISOString(), // Pro konzistenci
+      };
 
-    if (error) {
+      console.log("📤 Updating record:", {
+        id,
+        has_form_data: !!formData,
+      });
+
+      const { error } = await supabase
+        .from("paro_records")
+        .update(updateData)
+        .eq("id", id);
+
+      if (error) {
+        console.error("❌ Supabase error:", JSON.stringify(error, null, 2));
+        throw error;
+      }
+
+      console.log("✅ Record updated:", id);
+    } catch (error) {
       console.error("Error updating record:", error);
       throw error;
     }

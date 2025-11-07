@@ -157,9 +157,7 @@ export default function SimpleDentalChart({
   };
 
   const chartContent = (
-    <div className="relative w-full">
-      {/* Background Image */}
-      <div className="relative w-full aspect-[16/9]">
+    <div className="relative w-full aspect-[16/9]">
         <Image
           src="/images/dental-chart-bg.jpeg"
           alt="Zubní kříž"
@@ -239,7 +237,6 @@ export default function SimpleDentalChart({
             </div>
           );
         })}
-      </div>
       
       {/* Legend - PŘESNÉ BARVY JAKO V MOBILNÍ APPCE (zobraz pouze pokud jsou data) */}
       {hasAnyData && (

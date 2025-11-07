@@ -85,3 +85,5 @@ USING (auth.uid() = user_id);
 GRANT ALL ON extraction_validations TO authenticated;
 GRANT USAGE ON SEQUENCE extraction_validations_id_seq TO authenticated;
 
+
+

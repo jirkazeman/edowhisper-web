@@ -1,6 +1,357 @@
-<!-- Tento SVG bude nahrazen skutečným obrázkem -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1476 720">
-  <text x="50%" y="50%" text-anchor="middle" font-size="24" fill="#999">
-    Dental Chart Placeholder - bude nahrazeno skutečným obrázkem
-  </text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 650" fill="none">
+  <!-- Definice stylů -->
+  <defs>
+    <style>
+      .tooth-bg { 
+        fill: #E5E5EA; 
+        stroke: #9CA3AF; 
+        stroke-width: 1.5;
+      }
+      .tooth-number { 
+        font-family: -apple-system, system-ui, sans-serif;
+        font-size: 18px;
+        font-weight: 600;
+        fill: #1F2937;
+        text-anchor: middle;
+      }
+      .tooth-small-number { 
+        font-family: -apple-system, system-ui, sans-serif;
+        font-size: 11px;
+        font-weight: 500;
+        fill: #6B7280;
+        text-anchor: middle;
+      }
+      .root-lines {
+        stroke: #9CA3AF;
+        stroke-width: 1.5;
+        fill: none;
+      }
+      .caries-mark {
+        fill: #FF6B6B;
+        stroke: #DC2626;
+        stroke-width: 1;
+      }
+    </style>
+    
+    <!-- Definice tvaru horního zubu (korunka) -->
+    <path id="upper-crown" d="M 25,10 Q 15,5 10,10 Q 5,15 5,22 L 8,35 Q 10,42 15,45 L 25,50 L 35,45 Q 40,42 42,35 L 45,22 Q 45,15 40,10 Q 35,5 25,10 Z" />
+    
+    <!-- Definice kořenů pro horní zub (2 kořeny) -->
+    <path id="upper-roots" d="M 18,50 L 15,75 M 32,50 L 35,75" />
+    
+    <!-- Definice tvaru dolního zubu (korunka) -->
+    <path id="lower-crown" d="M 25,0 L 15,5 Q 10,8 8,15 L 5,28 Q 5,35 10,40 Q 15,45 25,50 Q 35,45 40,40 Q 45,35 45,28 L 42,15 Q 40,8 35,5 Z" />
+    
+    <!-- Definice kořenů pro dolní zub (2 kořeny) -->
+    <path id="lower-roots" d="M 18,0 L 15,-25 M 32,0 L 35,-25" />
+    
+    <!-- Definice značky pro kaz (červený křížek) -->
+    <g id="caries-mark">
+      <circle cx="25" cy="25" r="8" class="caries-mark" />
+      <path d="M 21,21 L 29,29 M 29,21 L 21,29" stroke="white" stroke-width="2" fill="none" />
+    </g>
+  </defs>
+
+  <!-- Horní čelist - levá polovina (18-11) -->
+  <g id="upper-left">
+    <!-- Zub 18 -->
+    <g transform="translate(50, 120)">
+      <use href="#upper-crown" class="tooth-bg" />
+      <use href="#upper-roots" class="root-lines" />
+      <circle cx="25" cy="10" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="32" class="tooth-number">18</text>
+      <text x="25" y="90" class="tooth-small-number">18</text>
+    </g>
+    
+    <!-- Zub 17 -->
+    <g transform="translate(130, 110)">
+      <use href="#upper-crown" class="tooth-bg" />
+      <use href="#upper-roots" class="root-lines" />
+      <circle cx="25" cy="10" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="32" class="tooth-number">17</text>
+      <text x="25" y="90" class="tooth-small-number">17</text>
+    </g>
+    
+    <!-- Zub 16 -->
+    <g transform="translate(210, 100)">
+      <use href="#upper-crown" class="tooth-bg" />
+      <use href="#upper-roots" class="root-lines" />
+      <circle cx="25" cy="10" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="32" class="tooth-number">16</text>
+      <text x="25" y="90" class="tooth-small-number">16</text>
+    </g>
+    
+    <!-- Zub 15 -->
+    <g transform="translate(290, 95)">
+      <use href="#upper-crown" class="tooth-bg" />
+      <use href="#upper-roots" class="root-lines" />
+      <circle cx="25" cy="10" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="32" class="tooth-number">15</text>
+      <text x="25" y="90" class="tooth-small-number">15</text>
+    </g>
+    
+    <!-- Zub 14 -->
+    <g transform="translate(370, 90)">
+      <use href="#upper-crown" class="tooth-bg" />
+      <use href="#upper-roots" class="root-lines" />
+      <circle cx="25" cy="10" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="32" class="tooth-number">14</text>
+      <text x="25" y="90" class="tooth-small-number">14</text>
+    </g>
+    
+    <!-- Zub 13 -->
+    <g transform="translate(450, 85)">
+      <use href="#upper-crown" class="tooth-bg" />
+      <use href="#upper-roots" class="root-lines" />
+      <circle cx="25" cy="10" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="32" class="tooth-number">13</text>
+      <text x="25" y="90" class="tooth-small-number">13</text>
+    </g>
+    
+    <!-- Zub 12 -->
+    <g transform="translate(530, 80)">
+      <use href="#upper-crown" class="tooth-bg" />
+      <use href="#upper-roots" class="root-lines" />
+      <circle cx="25" cy="10" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="32" class="tooth-number">12</text>
+      <text x="25" y="90" class="tooth-small-number">12</text>
+    </g>
+    
+    <!-- Zub 11 -->
+    <g transform="translate(610, 75)">
+      <use href="#upper-crown" class="tooth-bg" />
+      <use href="#upper-roots" class="root-lines" />
+      <circle cx="25" cy="10" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="32" class="tooth-number">11</text>
+      <text x="25" y="90" class="tooth-small-number">11</text>
+    </g>
+  </g>
+
+  <!-- Horní čelist - pravá polovina (21-28) -->
+  <g id="upper-right">
+    <!-- Zub 21 -->
+    <g transform="translate(730, 75)">
+      <use href="#upper-crown" class="tooth-bg" />
+      <use href="#upper-roots" class="root-lines" />
+      <circle cx="25" cy="10" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="32" class="tooth-number">21</text>
+      <text x="25" y="90" class="tooth-small-number">21</text>
+    </g>
+    
+    <!-- Zub 22 -->
+    <g transform="translate(810, 80)">
+      <use href="#upper-crown" class="tooth-bg" />
+      <use href="#upper-roots" class="root-lines" />
+      <circle cx="25" cy="10" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="32" class="tooth-number">22</text>
+      <text x="25" y="90" class="tooth-small-number">22</text>
+    </g>
+    
+    <!-- Zub 23 -->
+    <g transform="translate(890, 85)">
+      <use href="#upper-crown" class="tooth-bg" />
+      <use href="#upper-roots" class="root-lines" />
+      <circle cx="25" cy="10" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="32" class="tooth-number">23</text>
+      <text x="25" y="90" class="tooth-small-number">23</text>
+    </g>
+    
+    <!-- Zub 24 -->
+    <g transform="translate(970, 90)">
+      <use href="#upper-crown" class="tooth-bg" />
+      <use href="#upper-roots" class="root-lines" />
+      <circle cx="25" cy="10" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="32" class="tooth-number">24</text>
+      <text x="25" y="90" class="tooth-small-number">24</text>
+    </g>
+    
+    <!-- Zub 25 -->
+    <g transform="translate(1050, 95)">
+      <use href="#upper-crown" class="tooth-bg" />
+      <use href="#upper-roots" class="root-lines" />
+      <circle cx="25" cy="10" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="32" class="tooth-number">25</text>
+      <text x="25" y="90" class="tooth-small-number">25</text>
+    </g>
+    
+    <!-- Zub 26 -->
+    <g transform="translate(1130, 100)">
+      <use href="#upper-crown" class="tooth-bg" />
+      <use href="#upper-roots" class="root-lines" />
+      <circle cx="25" cy="10" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="32" class="tooth-number">26</text>
+      <text x="25" y="90" class="tooth-small-number">26</text>
+    </g>
+    
+    <!-- Zub 27 -->
+    <g transform="translate(1210, 110)">
+      <use href="#upper-crown" class="tooth-bg" />
+      <use href="#upper-roots" class="root-lines" />
+      <circle cx="25" cy="10" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="32" class="tooth-number">27</text>
+      <text x="25" y="90" class="tooth-small-number">27</text>
+    </g>
+    
+    <!-- Zub 28 -->
+    <g transform="translate(1290, 120)">
+      <use href="#upper-crown" class="tooth-bg" />
+      <use href="#upper-roots" class="root-lines" />
+      <circle cx="25" cy="10" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="32" class="tooth-number">28</text>
+      <text x="25" y="90" class="tooth-small-number">28</text>
+    </g>
+  </g>
+
+  <!-- Střední linie -->
+  <line x1="700" y1="80" x2="700" y2="570" stroke="#D1D5DB" stroke-width="2" stroke-dasharray="5,5" />
+
+  <!-- Dolní čelist - levá polovina (48-41) -->
+  <g id="lower-left">
+    <!-- Zub 48 -->
+    <g transform="translate(50, 455)">
+      <use href="#lower-crown" class="tooth-bg" />
+      <use href="#lower-roots" class="root-lines" />
+      <circle cx="25" cy="35" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="28" class="tooth-number">48</text>
+      <text x="25" y="-10" class="tooth-small-number">48</text>
+    </g>
+    
+    <!-- Zub 47 -->
+    <g transform="translate(130, 465)">
+      <use href="#lower-crown" class="tooth-bg" />
+      <use href="#lower-roots" class="root-lines" />
+      <circle cx="25" cy="35" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="28" class="tooth-number">47</text>
+      <text x="25" y="-10" class="tooth-small-number">47</text>
+    </g>
+    
+    <!-- Zub 46 -->
+    <g transform="translate(210, 475)">
+      <use href="#lower-crown" class="tooth-bg" />
+      <use href="#lower-roots" class="root-lines" />
+      <circle cx="25" cy="35" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="28" class="tooth-number">46</text>
+      <text x="25" y="-10" class="tooth-small-number">46</text>
+    </g>
+    
+    <!-- Zub 45 -->
+    <g transform="translate(290, 480)">
+      <use href="#lower-crown" class="tooth-bg" />
+      <use href="#lower-roots" class="root-lines" />
+      <circle cx="25" cy="35" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="28" class="tooth-number">45</text>
+      <text x="25" y="-10" class="tooth-small-number">45</text>
+    </g>
+    
+    <!-- Zub 44 -->
+    <g transform="translate(370, 485)">
+      <use href="#lower-crown" class="tooth-bg" />
+      <use href="#lower-roots" class="root-lines" />
+      <circle cx="25" cy="35" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="28" class="tooth-number">44</text>
+      <text x="25" y="-10" class="tooth-small-number">44</text>
+    </g>
+    
+    <!-- Zub 43 -->
+    <g transform="translate(450, 490)">
+      <use href="#lower-crown" class="tooth-bg" />
+      <use href="#lower-roots" class="root-lines" />
+      <circle cx="25" cy="35" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="28" class="tooth-number">43</text>
+      <text x="25" y="-10" class="tooth-small-number">43</text>
+    </g>
+    
+    <!-- Zub 42 -->
+    <g transform="translate(530, 495)">
+      <use href="#lower-crown" class="tooth-bg" />
+      <use href="#lower-roots" class="root-lines" />
+      <circle cx="25" cy="35" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="28" class="tooth-number">42</text>
+      <text x="25" y="-10" class="tooth-small-number">42</text>
+    </g>
+    
+    <!-- Zub 41 -->
+    <g transform="translate(610, 500)">
+      <use href="#lower-crown" class="tooth-bg" />
+      <use href="#lower-roots" class="root-lines" />
+      <circle cx="25" cy="35" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="28" class="tooth-number">41</text>
+      <text x="25" y="-10" class="tooth-small-number">41</text>
+    </g>
+  </g>
+
+  <!-- Dolní čelist - pravá polovina (31-38) -->
+  <g id="lower-right">
+    <!-- Zub 31 -->
+    <g transform="translate(730, 500)">
+      <use href="#lower-crown" class="tooth-bg" />
+      <use href="#lower-roots" class="root-lines" />
+      <circle cx="25" cy="35" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="28" class="tooth-number">31</text>
+      <text x="25" y="-10" class="tooth-small-number">31</text>
+    </g>
+    
+    <!-- Zub 32 -->
+    <g transform="translate(810, 495)">
+      <use href="#lower-crown" class="tooth-bg" />
+      <use href="#lower-roots" class="root-lines" />
+      <circle cx="25" cy="35" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="28" class="tooth-number">32</text>
+      <text x="25" y="-10" class="tooth-small-number">32</text>
+    </g>
+    
+    <!-- Zub 33 -->
+    <g transform="translate(890, 490)">
+      <use href="#lower-crown" class="tooth-bg" />
+      <use href="#lower-roots" class="root-lines" />
+      <circle cx="25" cy="35" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="28" class="tooth-number">33</text>
+      <text x="25" y="-10" class="tooth-small-number">33</text>
+    </g>
+    
+    <!-- Zub 34 -->
+    <g transform="translate(970, 485)">
+      <use href="#lower-crown" class="tooth-bg" />
+      <use href="#lower-roots" class="root-lines" />
+      <circle cx="25" cy="35" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="28" class="tooth-number">34</text>
+      <text x="25" y="-10" class="tooth-small-number">34</text>
+    </g>
+    
+    <!-- Zub 35 -->
+    <g transform="translate(1050, 480)">
+      <use href="#lower-crown" class="tooth-bg" />
+      <use href="#lower-roots" class="root-lines" />
+      <circle cx="25" cy="35" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="28" class="tooth-number">35</text>
+      <text x="25" y="-10" class="tooth-small-number">35</text>
+    </g>
+    
+    <!-- Zub 36 -->
+    <g transform="translate(1130, 475)">
+      <use href="#lower-crown" class="tooth-bg" />
+      <use href="#lower-roots" class="root-lines" />
+      <circle cx="25" cy="35" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="28" class="tooth-number">36</text>
+      <text x="25" y="-10" class="tooth-small-number">36</text>
+    </g>
+    
+    <!-- Zub 37 -->
+    <g transform="translate(1210, 465)">
+      <use href="#lower-crown" class="tooth-bg" />
+      <use href="#lower-roots" class="root-lines" />
+      <circle cx="25" cy="35" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="28" class="tooth-number">37</text>
+      <text x="25" y="-10" class="tooth-small-number">37</text>
+    </g>
+    
+    <!-- Zub 38 -->
+    <g transform="translate(1290, 455)">
+      <use href="#lower-crown" class="tooth-bg" />
+      <use href="#lower-roots" class="root-lines" />
+      <circle cx="25" cy="35" r="20" fill="white" opacity="0.3" />
+      <text x="25" y="28" class="tooth-number">38</text>
+      <text x="25" y="-10" class="tooth-small-number">38</text>
+    </g>
+  </g>
 </svg>
