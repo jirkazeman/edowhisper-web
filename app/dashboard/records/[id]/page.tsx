@@ -586,36 +586,74 @@ export default function RecordDetailPage() {
             </div>
           </div>
 
-          {/* Indexy (BOP/PBI, CPITN) */}
+          {/* Indexy (BOB/PBI/CPITN) */}
           <div className="bg-white rounded shadow-sm p-2">
-            <h3 className="font-semibold text-xs mb-2">Indexy (BOP/PBI, CPITN)</h3>
+            <h3 className="font-semibold text-xs mb-2">📊 Indexy (BOB/PBI/CPITN)</h3>
             
             <div className="space-y-2">
+              {/* BOB (Bleeding on Brushing) */}
               <div>
-                <label className="block text-xs text-gray-600 mb-1">BOP / PBI Protokol</label>
-                <div className="grid grid-cols-2 gap-2">
+                <label className="block text-xs text-gray-600 mb-1">
+                  🩸 BOB (Bleeding on Brushing)
+                  <FieldStatusIcon value={fd.bob} />
+                </label>
+                <input 
+                  type="text" 
+                  value={fd.bob || ""} 
+                  readOnly 
+                  placeholder="např. 31%"
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium" 
+                />
+              </div>
+
+              {/* PBI (Papillary Bleeding Index) */}
+              <div>
+                <label className="block text-xs text-gray-600 mb-1">🦷 PBI (Papillary Bleeding Index)</label>
+                <div className="grid grid-cols-2 gap-2 mb-1">
                   <div>
                     <label className="block text-[10px] text-gray-500 mb-1">
                       Datum
                       <FieldStatusIcon value={fd.pbiDate} />
                     </label>
-                    <input type="date" value={fd.pbiDate || ""} readOnly className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium" />
+                    <input type="date" value={fd.pbiDate || ""} readOnly className="w-full px-2 py-1 border border-gray-300 rounded text-[11px] font-medium" />
                   </div>
                   <div>
                     <label className="block text-[10px] text-gray-500 mb-1">
-                      Výsledek
-                      <FieldStatusIcon value={fd.pbiResult} />
+                      Pomůcky
+                      <FieldStatusIcon value={fd.pbiTools} />
                     </label>
-                    <input type="text" value={fd.pbiResult || ""} readOnly className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium" />
+                    <input type="text" value={fd.pbiTools || ""} readOnly placeholder="sonda" className="w-full px-2 py-1 border border-gray-300 rounded text-[11px] font-medium" />
                   </div>
                 </div>
+                <div>
+                  <label className="block text-[10px] text-gray-500 mb-1">
+                    PBI hodnoty (0-4)
+                    <FieldStatusIcon value={fd.pbiValues} />
+                  </label>
+                  <input 
+                    type="text" 
+                    value={fd.pbiValues || ""} 
+                    readOnly 
+                    placeholder="0123/2341/1234/0123"
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-[11px] font-medium font-mono" 
+                  />
+                </div>
               </div>
+
+              {/* CPITN (6 sextantů) */}
               <div>
                 <label className="block text-xs text-gray-600 mb-1">
-                  Pomůcky
-                  <FieldStatusIcon value={fd.pbiTools} />
+                  📈 CPITN (6 sextantů)
+                  <FieldStatusIcon value={fd.cpitn} />
                 </label>
-                <input type="text" value={fd.pbiTools || ""} readOnly className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium" />
+                <input 
+                  type="text" 
+                  value={fd.cpitn || ""} 
+                  readOnly 
+                  placeholder="222/222"
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium font-mono" 
+                />
+                <p className="text-[9px] text-gray-400 mt-1">Formát: ABC/DEF (6 sextantů)</p>
               </div>
             </div>
           </div>
