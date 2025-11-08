@@ -50,7 +50,6 @@ export interface RecordFormData {
   bob?: string; // Příklad: "31%", "45%"
 
   // PBI (Papillary Bleeding Index)
-  pbiDate?: string;
   pbiValues?: string; // Příklad: "0123/2341/1234/0123"
   pbiTools?: string;
 
