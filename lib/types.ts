@@ -46,9 +46,12 @@ export interface RecordFormData {
   occlusion?: string;
   orthodonticAnomaly?: string;
 
-  // PBI
+  // BOB (Bleeding on Brushing)
+  bob?: string; // Příklad: "31%", "45%"
+
+  // PBI (Papillary Bleeding Index)
   pbiDate?: string;
-  pbiResult?: string;
+  pbiValues?: string; // Příklad: "0123/2341/1234/0123"
   pbiTools?: string;
 
   // Zubní kříž
@@ -62,11 +65,8 @@ export interface RecordFormData {
     };
   };
 
-  // CPITN
-  cpitnUpperRight?: string | null;
-  cpitnUpperLeft?: string | null;
-  cpitnLowerLeft?: string | null;
-  cpitnLowerRight?: string | null;
+  // CPITN (6 sextantů)
+  cpitn?: string; // Příklad: "222/222", "234/321"
 
   // Záznamy
   treatmentRecord?: string;

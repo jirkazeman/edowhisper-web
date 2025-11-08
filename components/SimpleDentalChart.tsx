@@ -156,6 +156,18 @@ export default function SimpleDentalChart({
     }
   };
 
+  // Pokud nejsou žádná data a je readonly mode → zobraz message
+  if (!hasAnyData && readonly) {
+    return (
+      <div className="bg-gray-50 rounded-lg p-8 text-center border-2 border-dashed border-gray-300">
+        <p className="text-gray-500 text-lg">📋 Nejsou data pro zubní kříž</p>
+        <p className="text-gray-400 text-sm mt-2">
+          Zubní kříž nebyl vyplněn pro tento záznam
+        </p>
+      </div>
+    );
+  }
+
   const chartContent = (
     <div className="relative w-full aspect-[16/9]">
         <Image
