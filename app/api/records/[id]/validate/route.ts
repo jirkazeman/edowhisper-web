@@ -10,10 +10,11 @@ import { getValidationService } from '@/lib/services/llmValidationService';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const cookieStore = await cookies();
+    const resolvedParams = await params;
     
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -39,7 +40,7 @@ export async function POST(
       );
     }
 
-    const recordId = params.id;
+    const recordId = resolvedParams.id;
     const body = await request.json();
     const validatorModel = body.validatorModel || 'gemini-2.0-flash-exp';
 
