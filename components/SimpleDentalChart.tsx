@@ -169,14 +169,28 @@ export default function SimpleDentalChart({
   }
 
   const chartContent = (
-    <div className="relative w-full aspect-[16/9]">
-        <Image
-          src="/images/dental-chart-bg.jpeg"
-          alt="Zubní kříž"
-          fill
-          className="object-contain"
-          priority
-        />
+    <div className="relative w-full">
+        {/* HORNÍ ČELIST */}
+        <div className="relative w-full aspect-[8/1]">
+          <Image
+            src="/images/tooth_nahore.png"
+            alt="Horní zuby"
+            fill
+            className="object-contain"
+            priority
+          />
+        </div>
+        
+        {/* DOLNÍ ČELIST */}
+        <div className="relative w-full aspect-[8/1]">
+          <Image
+            src="/images/tooth_dole.png"
+            alt="Dolní zuby"
+            fill
+            className="object-contain"
+            priority
+          />
+        </div>
         
         {/* Fullscreen button - nad obrázkem */}
         <button
