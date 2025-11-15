@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, ZoomIn, ZoomOut, Eye, EyeOff, Sparkles, UserCheck, Smartphone, Copy, Check, Shield, Edit, Save, X as XIcon } from "lucide-react";
 import type { ParoRecord } from "@/lib/types";
 import SimpleDentalChart from "@/components/SimpleDentalChart";
+import PeriodontalChart from "@/components/PeriodontalChart";
 import ToothEditor from "@/components/ToothEditor";
 import ValidationModal from "@/components/ValidationModal";
 import { supabase } from "@/lib/supabase";
@@ -560,6 +561,17 @@ export default function RecordDetailPage() {
             onToothClick={(toothId) => setEditingToothId(toothId)}
             readonly={false}
           />
+          
+          {/* Parodontální vyšetření */}
+          {record?.formData?.periodontalProtocol && Object.keys(record.formData.periodontalProtocol).length > 0 && (
+            <div className="bg-white rounded shadow-sm p-2">
+              <h3 className="font-semibold text-xs mb-2">Parodontální vyšetření</h3>
+              <PeriodontalChart 
+                protocol={record.formData.periodontalProtocol}
+                readonly={true}
+              />
+            </div>
+          )}
         </div>
 
         {/* RIGHT COLUMN */}
