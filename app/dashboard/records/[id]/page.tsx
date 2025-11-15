@@ -563,11 +563,11 @@ export default function RecordDetailPage() {
           />
           
           {/* Parodontální vyšetření */}
-          {record?.formData?.periodontalProtocol && Object.keys(record.formData.periodontalProtocol).length > 0 && (
+          {fd.periodontalProtocol && Object.keys(fd.periodontalProtocol).length > 0 && (
             <div className="bg-white rounded shadow-sm p-2">
               <h3 className="font-semibold text-xs mb-2">Parodontální vyšetření</h3>
               <PeriodontalChart 
-                protocol={record.formData.periodontalProtocol}
+                protocol={fd.periodontalProtocol}
                 readonly={true}
               />
             </div>
