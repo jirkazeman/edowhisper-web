@@ -4,6 +4,14 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';
 
+// Check if Supabase is properly configured
+export const isSupabaseConfigured = () => {
+  return supabaseUrl !== 'https://placeholder.supabase.co' && 
+         supabaseAnonKey !== 'placeholder-key' &&
+         supabaseUrl.startsWith('https://') &&
+         supabaseAnonKey.length > 20;
+};
+
 // Client for user auth (uses anon key + RLS)
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 

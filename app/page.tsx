@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { LogIn, AlertCircle } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { isSupabaseConfigured } from "@/lib/supabase";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -97,9 +98,20 @@ export default function LoginPage() {
 
           {/* Help Text */}
           <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <p className="text-sm text-gray-600">
-              Použijte svůj Supabase účet pro přihlášení.
-            </p>
+            {!isSupabaseConfigured() ? (
+              <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-900 font-medium mb-1">
+                  ⚠️ Supabase není nakonfigurován
+                </p>
+                <p className="text-xs text-yellow-800">
+                  Nastavte proměnné prostředí NEXT_PUBLIC_SUPABASE_URL a NEXT_PUBLIC_SUPABASE_ANON_KEY
+                </p>
+              </div>
+            ) : (
+              <p className="text-sm text-gray-600">
+                Použijte svůj Supabase účet pro přihlášení.
+              </p>
+            )}
           </div>
         </div>
       </div>

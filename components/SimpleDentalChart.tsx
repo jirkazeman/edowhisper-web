@@ -210,10 +210,13 @@ export default function SimpleDentalChart({
           // Zobrazit pouze zuby s relevantními daty (ne healthy)
           if (!hasRelevantData(tooth) && readonly) return null;
           
+          // Zjisti, jestli je to dolní zub (31-38, 41-48)
+          const isLowerTooth = /^[34]/.test(toothId);
+          
           return (
             <div
               key={key}
-              className="absolute pointer-events-none"
+              className="absolute pointer-events-none flex flex-col items-center"
               style={{
                 left: `${pos.x}%`,
                 top: `${pos.y}%`,
@@ -222,15 +225,42 @@ export default function SimpleDentalChart({
               onMouseEnter={() => setHoveredTooth(toothId)}
               onMouseLeave={() => setHoveredTooth(null)}
             >
-              {/* Data indicator - 3× větší, škáluje se se zoom */}
+              {/* Pro dolní zuby: číslo NAD kruhem v šedém kruhu */}
+              {isLowerTooth && (
+                <div 
+                  className="mb-1 flex items-center justify-center rounded-full bg-gray-200 border border-gray-300"
+                  style={{ 
+                    width: `${markerSize * 0.7}px`,
+                    height: `${markerSize * 0.7}px`,
+                  }}
+                >
+                  <span 
+                    className="font-semibold pointer-events-none"
+                    style={{ 
+                      fontSize: `${markerSize * 0.35}px`,
+                      color: '#8E8E93'
+                    }}
+                  >
+                    {toothId}
+                  </span>
+                </div>
+              )}
+              
+              {/* Data indicator - zaoblený vrchol pro dolní zuby */}
               <div
-                className={`pointer-events-auto rounded-full border-2 border-gray-400 transition-all hover:scale-125 shadow-lg flex items-center justify-center ${
+                className={`pointer-events-auto border-2 border-gray-400 transition-all hover:scale-125 shadow-lg flex items-center justify-center ${
                   !readonly ? 'cursor-pointer' : ''
                 }`}
                 style={{ 
                   backgroundColor: getToothColor(toothId),
                   width: `${markerSize}px`,
                   height: `${markerSize}px`,
+                  // Zaoblený vrchol pro dolní zuby (jako v mobilní aplikaci)
+                  borderRadius: isLowerTooth ? '50% 50% 8px 8px' : '50%',
+                  borderTopLeftRadius: isLowerTooth ? '50%' : '50%',
+                  borderTopRightRadius: isLowerTooth ? '50%' : '50%',
+                  borderBottomLeftRadius: isLowerTooth ? '8px' : '50%',
+                  borderBottomRightRadius: isLowerTooth ? '8px' : '50%',
                 }}
                 title={tooth?.note || getToothStatusLabel(tooth?.status) || `Zub ${toothId}`}
                 onClick={() => {
@@ -239,15 +269,18 @@ export default function SimpleDentalChart({
                   }
                 }}
               >
-                <span 
-                  className="font-bold pointer-events-none"
-                  style={{ 
-                    fontSize: `${markerSize * 0.5}px`,
-                    color: tooth?.hasCaries || tooth?.status === 'missing' ? '#000' : '#333'
-                  }}
-                >
-                  {toothId}
-                </span>
+                {/* Pro horní zuby: číslo UVNITŘ kruhu */}
+                {!isLowerTooth && (
+                  <span 
+                    className="font-bold pointer-events-none"
+                    style={{ 
+                      fontSize: `${markerSize * 0.5}px`,
+                      color: tooth?.hasCaries || tooth?.status === 'missing' ? '#000' : '#333'
+                    }}
+                  >
+                    {toothId}
+                  </span>
+                )}
               </div>
               
               {/* Hover tooltip - POČEŠTĚNO */}
