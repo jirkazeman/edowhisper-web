@@ -88,3 +88,4 @@ GRANT USAGE ON SEQUENCE extraction_validations_id_seq TO authenticated;
 
 
 
+
