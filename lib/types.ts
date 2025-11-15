@@ -67,13 +67,20 @@ export interface RecordFormData {
   // CPITN (6 sextantů)
   cpitn?: string; // Příklad: "222/222", "234/321"
 
+  // Parodontální protokol (hloubky kapes, krvácení)
+  periodontalProtocol?: {
+    [toothNumber: string]: {
+      bleeding?: boolean;
+      depth?: number[]; // [MB, B, DB, ML, L, DL] - 6 hodnot
+    };
+  };
+
   // Záznamy
   treatmentRecord?: string;
   examinationSummary?: string;
   userNotes?: string;
   fullTranscript?: string;
   dentalCrossNotes?: string;
-  periodontalProtocol?: any;
 }
 
 export interface AIRole {
