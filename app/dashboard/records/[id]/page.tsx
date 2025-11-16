@@ -683,30 +683,118 @@ export default function RecordDetailPage() {
     );
   };
 
-  // Field Actions - tlačítka pro validaci pole
-  const FieldActions = ({ fieldName }: { fieldName: string }) => {
-    const confidence = confidenceScores[fieldName];
-    const isValidating = validatingFields.has(fieldName);
-    const isLowConfidence = confidence && confidence.value < 0.5;
+  // Editovatelné pole - hygienistka může opravit
+  const [editingFields, setEditingFields] = useState<{[key: string]: string}>({});
+  
+  const handleFieldEdit = async (fieldName: string, newValue: string) => {
+    if (!record) return;
     
-    if (!showFieldStatus || !confidence) return null;
+    try {
+      // Update local state
+      const updatedFormData = {
+        ...record.form_data,
+        [fieldName]: newValue
+      };
+      
+      // Update in DB
+      await recordsAPI.update(params.id as string, {
+        [fieldName]: newValue
+      });
+      
+      // Update record
+      setRecord(prev => prev ? {
+        ...prev,
+        form_data: updatedFormData
+      } : null);
+      
+      console.log(`✅ Pole ${fieldName} opraveno na: ${newValue}`);
+    } catch (error) {
+      console.error('Chyba při ukládání pole:', error);
+      alert('❌ Nepodařilo se uložit změnu');
+    }
+  };
+  
+  // EditableField - pole s confidence badge a možností editace
+  const EditableField = ({ 
+    fieldName, 
+    value, 
+    label, 
+    multiline = false 
+  }: { 
+    fieldName: string; 
+    value: string; 
+    label: string;
+    multiline?: boolean;
+  }) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [tempValue, setTempValue] = useState(value || '');
+    const confidence = confidenceScores[fieldName];
+    
+    const handleSave = () => {
+      if (tempValue !== value) {
+        handleFieldEdit(fieldName, tempValue);
+      }
+      setIsEditing(false);
+    };
+    
+    const handleCancel = () => {
+      setTempValue(value || '');
+      setIsEditing(false);
+    };
     
     return (
-      <div className="flex gap-1 mt-1">
-        <button
-          onClick={() => triggerGeminiValidation(fieldName)}
-          disabled={isValidating}
-          className={`px-2 py-0.5 text-[10px] rounded transition ${
-            isValidating 
-              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-              : isLowConfidence
-              ? 'bg-orange-500 text-white hover:bg-orange-600'
-              : 'bg-blue-500 text-white hover:bg-blue-600'
-          }`}
-          title="Nechat Gemini zkontrolovat toto pole"
-        >
-          {isValidating ? '⏳ Validuji...' : '🤖 Validovat'}
-        </button>
+      <div>
+        <label className="block text-xs text-gray-600 mb-1">
+          {label}
+          <FieldStatusIcon value={value} />
+          <ConfidenceBadge fieldName={fieldName} />
+        </label>
+        
+        {isEditing ? (
+          <>
+            {multiline ? (
+              <textarea
+                value={tempValue}
+                onChange={(e) => setTempValue(e.target.value)}
+                rows={2}
+                className="w-full px-2 py-1 border-2 border-blue-500 rounded text-sm resize-none"
+                autoFocus
+              />
+            ) : (
+              <input
+                type="text"
+                value={tempValue}
+                onChange={(e) => setTempValue(e.target.value)}
+                className="w-full px-2 py-1 border-2 border-blue-500 rounded text-sm"
+                autoFocus
+              />
+            )}
+            <div className="flex gap-1 mt-1">
+              <button
+                onClick={handleSave}
+                className="px-2 py-0.5 bg-green-600 text-white rounded text-[10px] hover:bg-green-700"
+              >
+                ✅ Uložit
+              </button>
+              <button
+                onClick={handleCancel}
+                className="px-2 py-0.5 bg-gray-300 text-gray-700 rounded text-[10px] hover:bg-gray-400"
+              >
+                ❌ Zrušit
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div
+              onClick={() => setIsEditing(true)}
+              className={`${getInputClass(value, fieldName, multiline ? "w-full px-2 py-1 border border-gray-300 rounded text-sm resize-none" : "w-full px-2 py-1 border border-gray-300 rounded text-sm")} cursor-pointer hover:border-blue-400`}
+              title="Klikni pro editaci"
+            >
+              {value || <span className="text-gray-400 italic">Prázdné (klikni pro vyplnění)</span>}
+            </div>
+          </>
+        )}
       </div>
     );
   };
@@ -851,26 +939,8 @@ export default function RecordDetailPage() {
             <h3 className="font-semibold text-xs mb-2">Základní informace</h3>
             
             <div className="space-y-2">
-              <div>
-                <label className="block text-xs text-gray-600 mb-1">
-                  Příjmení
-                  <FieldStatusIcon value={fd.lastName} />
-                  <ConfidenceBadge fieldName="lastName" />
-                </label>
-                <input type="text" value={fd.lastName || ""} readOnly className={getInputClass(fd.lastName, "lastName", "w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium")} />
-                <FieldActions fieldName="lastName" />
-                <GeminiSuggestion fieldName="lastName" />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-600 mb-1">
-                  Rodné číslo (RČ)
-                  <FieldStatusIcon value={fd.personalIdNumber} />
-                  <ConfidenceBadge fieldName="personalIdNumber" />
-                </label>
-                <input type="text" value={fd.personalIdNumber || ""} readOnly className={getInputClass(fd.personalIdNumber, "personalIdNumber", "w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium")} />
-                <FieldActions fieldName="personalIdNumber" />
-                <GeminiSuggestion fieldName="personalIdNumber" />
-              </div>
+              <EditableField fieldName="lastName" value={fd.lastName || ''} label="Příjmení" />
+              <EditableField fieldName="personalIdNumber" value={fd.personalIdNumber || ''} label="Rodné číslo (RČ)" />
               <div>
                 <label className="block text-xs text-gray-600 mb-1">Kuřák</label>
                 <div className="flex gap-3">
