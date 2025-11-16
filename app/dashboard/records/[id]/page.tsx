@@ -710,6 +710,19 @@ export default function RecordDetailPage() {
   const handleVerifyRecord = async () => {
     if (!record) return;
     
+    // 🛑 DOČASNĚ VYPNUTO - migrace musí být aplikována!
+    alert('⚠️ TLAČÍTKO "OVĚŘIT" JE DOČASNĚ VYPNUTO\n\n' +
+          'Důvod: Databázová migrace nebyla aplikována.\n\n' +
+          'Prosím:\n' +
+          '1. Otevři Supabase SQL Editor\n' +
+          '2. Spusť: CHECK_VERIFICATION_COLUMNS.sql\n' +
+          '3. Pokud sloupce neexistují, spusť migraci\n' +
+          '4. Refresh stránku\n\n' +
+          'Dokumentace: VERIFY_FIX_CHECKLIST.md'
+    );
+    return;
+    
+    /* COMMENTED OUT UNTIL MIGRATION IS APPLIED
     const confirmed = window.confirm(
       record.verified_by_hygienist
         ? '⚠️ Opravdu chcete zrušit ověření tohoto záznamu?\n\nZáznam nebude použit pro trénink LLM.'
@@ -725,21 +738,26 @@ export default function RecordDetailPage() {
         headers: { 'Content-Type': 'application/json' }
       });
       
-      if (!response.ok) throw new Error('Failed to verify record');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to verify record');
+      }
       
       const data = await response.json();
       
       // Reload record to get updated verification status
+      console.log('🔄 Reloading record after verification...');
       await loadRecord();
       
       alert(data.message || '✅ Stav ověření aktualizován');
       console.log('✅ Verification toggled:', data);
     } catch (error) {
       console.error('Error verifying record:', error);
-      alert('❌ Nepodařilo se změnit stav ověření');
+      alert(`❌ Nepodařilo se změnit stav ověření\n\nChyba: ${error.message}`);
     } finally {
       setIsVerifying(false);
     }
+    */
   };
 
   return (
