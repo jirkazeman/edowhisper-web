@@ -9,6 +9,7 @@ import PeriodontalStatusChart from "@/components/PeriodontalStatusChart";
 import ToothEditor from "@/components/ToothEditor";
 import ValidationModal from "@/components/ValidationModal";
 import TranscriptHighlight from "@/components/TranscriptHighlight";
+import CorrectionsModal from "@/components/CorrectionsModal";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
 import { ValidationResult } from "@/lib/services/llmValidationService";
@@ -57,6 +58,9 @@ export default function RecordDetailPage() {
   const [lowConfidenceFields, setLowConfidenceFields] = useState<string[]>([]);
   const [geminiCorrections, setGeminiCorrections] = useState<GeminiCorrections>({});
   const [validatingFields, setValidatingFields] = useState<Set<string>>(new Set());
+  
+  // Corrections Modal pro zobrazení oprav hygienistky
+  const [showCorrectionsModal, setShowCorrectionsModal] = useState(false);
   
   // Copy funkce pro treatmentRecord
   const [isCopied, setIsCopied] = useState(false);
@@ -700,20 +704,20 @@ export default function RecordDetailPage() {
             <Smartphone size={16} />
           </button>
           
-          {/* LLM tuning (nefunkční zatím) */}
+          {/* LLM tuning - Export pro fine-tuning */}
           <button
-            className="p-1 rounded transition hover:bg-purple-50 text-purple-600 opacity-50 cursor-not-allowed"
-            title="Ladění LLM (brzy k dispozici)"
-            disabled
+            onClick={() => router.push('/dashboard/fine-tuning')}
+            className={`p-1 rounded transition hover:bg-purple-50 text-purple-600 ${record?.correction_count ? '' : 'opacity-50'}`}
+            title={record?.correction_count ? `Exportovat do fine-tuning (${record.correction_count} oprav)` : 'Žádné opravy k exportu'}
           >
             <Sparkles size={16} />
           </button>
           
-          {/* Hygienist correction (nefunkční zatím) */}
+          {/* Hygienist correction - Zobrazit opravy */}
           <button
-            className="p-1 rounded transition hover:bg-blue-50 text-blue-600 opacity-50 cursor-not-allowed"
-            title="Oprava hygienistkou (brzy k dispozici)"
-            disabled
+            onClick={() => setShowCorrectionsModal(true)}
+            className={`p-1 rounded transition hover:bg-blue-50 text-blue-600 ${record?.correction_count ? '' : 'opacity-50'}`}
+            title={record?.correction_count ? `Zobrazit opravy (${record.correction_count})` : 'Žádné opravy'}
           >
             <UserCheck size={16} />
           </button>
@@ -1067,6 +1071,15 @@ export default function RecordDetailPage() {
       onClose={() => setShowValidationModal(false)}
       validation={validationResult}
       onApplyFix={handleApplyFix}
+    />
+
+    {/* Corrections Modal - Zobrazení oprav hygienistky */}
+    <CorrectionsModal
+      isOpen={showCorrectionsModal}
+      onClose={() => setShowCorrectionsModal(false)}
+      corrections={record?.human_corrections}
+      correctionCount={record?.correction_count}
+      correctedAt={record?.corrected_at}
     />
     </>
   );
