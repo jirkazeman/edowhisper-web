@@ -352,8 +352,8 @@ export default function SimpleDentalChart({
 
   return (
     <>
-      {/* Normal view */}
-      <div className="bg-white rounded-lg shadow-sm">
+      {/* Normal view - max width pro fit na obrazovku */}
+      <div className="bg-white rounded-lg shadow-sm w-full">
         {chartContent}
       </div>
       

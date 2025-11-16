@@ -20,54 +20,6 @@ export interface ParoRecord {
   validationConfidence?: number; // 0.0-1.0
   validationTimestamp?: string;
   fullTranscript?: string; // Pro validaci potřebujeme přepis
-  
-  // Confidence Scoring & Multi-Layer Validation
-  confidence_scores?: ConfidenceScores; // Confidence score pro každé pole
-  low_confidence_fields?: string[]; // Pole s confidence < 20%
-  gemini_corrections?: GeminiCorrections; // Návrhy oprav od Gemini
-  correction_history?: CorrectionHistoryItem[]; // Historie oprav pro fine-tuning
-  validation_method?: 'single' | 'dual-llm' | 'human-reviewed'; // Metoda validace
-  avg_confidence?: number; // Průměrná confidence (0.0-1.0)
-}
-
-// Confidence score pro jedno pole
-export interface FieldConfidence {
-  value: number; // 0.0-1.0 (průměrná confidence)
-  token_confidences?: number[]; // Confidence pro jednotlivé tokeny
-  logprobs?: number[]; // Raw logprobs z OpenAI
-}
-
-// Confidence scores pro všechna pole
-export interface ConfidenceScores {
-  [fieldName: string]: FieldConfidence;
-}
-
-// Gemini korekce pro jedno pole
-export interface GeminiCorrection {
-  original: string; // Původní hodnota z OpenAI
-  suggested: string; // Navržená oprava od Gemini
-  reason: string; // Vysvětlení, proč Gemini navrhuje změnu
-  confidence: number; // Confidence Gemini návrhu (0.0-1.0)
-  accepted?: boolean; // Zda hygienistka přijala návrh
-  accepted_at?: string; // Timestamp přijetí
-  accepted_by?: string; // ID hygienistky
-}
-
-// Gemini korekce pro všechna low-confidence pole
-export interface GeminiCorrections {
-  [fieldName: string]: GeminiCorrection;
-}
-
-// Jedna položka v historii oprav
-export interface CorrectionHistoryItem {
-  field: string; // Název pole
-  original: string; // Původní hodnota z OpenAI
-  gemini_suggested?: string; // Návrh od Gemini (pokud byl)
-  final: string; // Finální hodnota po korekci hygienistkou
-  timestamp: string; // Kdy byla oprava provedena
-  corrected_by: string; // ID hygienistky
-  confidence_before: number; // Confidence před opravou
-  reason?: string; // Důvod opravy od hygienistky
 }
 
 export interface RecordFormData {

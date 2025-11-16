@@ -102,10 +102,7 @@ export default function TVDisplayPage() {
           dentalCrossNotes: "Zub 26 vyžaduje ošetření, 36 korunka funkční",
           pbiValues: "0123/2341/1234/0123",
           pbiTools: "Parodontální sonda",
-          cpitnUpperRight: "1",
-          cpitnUpperLeft: "0",
-          cpitnLowerLeft: "2",
-          cpitnLowerRight: "1",
+          cpitn: "102/121",
           treatmentRecord: "Provedena profesionální hygiena:\n- Odstranění zubního kamene ultrazvukem\n- Air-Flow čištění\n- Leštění zubů\n- Fluoridace\n- Edukace o správné technice čištění\n- Doporučení kontroly za 6 měsíců",
           examinationSummary: "",
           userNotes: "",
@@ -256,10 +253,14 @@ export default function TVDisplayPage() {
               <span className="text-2xl mr-2">📈</span> CPITN
             </h3>
             <div className="grid grid-cols-2 gap-3">
-              <CPITNBox label="HP" value={formData.cpitnUpperRight} />
-              <CPITNBox label="HL" value={formData.cpitnUpperLeft} />
-              <CPITNBox label="DL" value={formData.cpitnLowerLeft} />
-              <CPITNBox label="DP" value={formData.cpitnLowerRight} />
+              {formData.cpitn ? (
+                <>
+                  <CPITNBox label="Horní" value={formData.cpitn.split('/')[0] || ''} />
+                  <CPITNBox label="Dolní" value={formData.cpitn.split('/')[1] || ''} />
+                </>
+              ) : (
+                <div className="col-span-2 text-gray-400 text-center">Žádná data</div>
+              )}
             </div>
           </div>
 

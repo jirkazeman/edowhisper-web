@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, ZoomIn, ZoomOut, Eye, EyeOff, Sparkles, UserCheck, Smartphone, Copy, Check, Shield, Edit, Save, X as XIcon, AlertTriangle } from "lucide-react";
-import type { ParoRecord, ConfidenceScores, GeminiCorrections } from "@/lib/types";
+import { ArrowLeft, ZoomIn, ZoomOut, Eye, EyeOff, Sparkles, UserCheck, Smartphone, Copy, Check, Shield, Edit, Save, X as XIcon } from "lucide-react";
+import type { ParoRecord } from "@/lib/types";
 import SimpleDentalChart from "@/components/SimpleDentalChart";
 import PeriodontalStatusChart from "@/components/PeriodontalStatusChart";
 import ToothEditor from "@/components/ToothEditor";
@@ -12,7 +12,6 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
 import { ValidationResult } from "@/lib/services/llmValidationService";
 import { recordsAPI } from "@/lib/api";
-import { getConfidenceColorClass, formatConfidence, getConfidenceEmoji } from "@/lib/confidenceCalculator";
 
 // Typy pro zubní kříž
 interface ToothState {
@@ -51,12 +50,6 @@ export default function RecordDetailPage() {
   const [periodontalProtocol, setPeriodontalProtocol] = useState<any>({});
   const [isSavingPeriodontal, setIsSavingPeriodontal] = useState(false);
   
-  // Confidence scoring & Gemini validace
-  const [confidenceScores, setConfidenceScores] = useState<ConfidenceScores>({});
-  const [lowConfidenceFields, setLowConfidenceFields] = useState<string[]>([]);
-  const [geminiCorrections, setGeminiCorrections] = useState<GeminiCorrections>({});
-  const [validatingFields, setValidatingFields] = useState<Set<string>>(new Set());
-  
   // Copy funkce pro treatmentRecord
   const [isCopied, setIsCopied] = useState(false);
 
@@ -68,95 +61,6 @@ export default function RecordDetailPage() {
     } catch (err) {
       console.error('Nepodařilo se zkopírovat:', err);
       alert('❌ Nepodařilo se zkopírovat text');
-    }
-  };
-  
-  // Trigger Gemini validation pro jedno pole
-  const triggerGeminiValidation = async (fieldName: string) => {
-    if (!record || validatingFields.has(fieldName)) return;
-    
-    setValidatingFields(prev => new Set(prev).add(fieldName));
-    
-    try {
-      const response = await fetch(`/api/records/${params.id}/validate-field`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fieldName,
-          fieldValue: (record.form_data as any)[fieldName]
-        })
-      });
-      
-      if (response.ok) {
-        const { correction } = await response.json();
-        setGeminiCorrections(prev => ({
-          ...prev,
-          [fieldName]: correction
-        }));
-        console.log(`✅ Gemini validace pro ${fieldName} dokončena`);
-      } else {
-        const errorData = await response.json();
-        console.error('Gemini validation error:', errorData);
-      }
-    } catch (error) {
-      console.error('Error triggering Gemini validation:', error);
-    } finally {
-      setValidatingFields(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(fieldName);
-        return newSet;
-      });
-    }
-  };
-  
-  // Trigger Gemini validation pro všechna low-confidence pole
-  const triggerBatchValidation = async () => {
-    if (!record || lowConfidenceFields.length === 0) return;
-    
-    const fieldsToValidate = lowConfidenceFields.filter(
-      field => !geminiCorrections[field] && !validatingFields.has(field)
-    );
-    
-    if (fieldsToValidate.length === 0) return;
-    
-    console.log(`🤖 Spouštím batch validaci pro ${fieldsToValidate.length} polí...`);
-    
-    // Set all as validating
-    setValidatingFields(prev => {
-      const newSet = new Set(prev);
-      fieldsToValidate.forEach(f => newSet.add(f));
-      return newSet;
-    });
-    
-    try {
-      const response = await fetch(`/api/records/${params.id}/validate-field`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fields: fieldsToValidate.map(fieldName => ({
-            name: fieldName,
-            value: (record.form_data as any)[fieldName]
-          }))
-        })
-      });
-      
-      if (response.ok) {
-        const { corrections } = await response.json();
-        setGeminiCorrections(prev => ({
-          ...prev,
-          ...corrections
-        }));
-        console.log(`✅ Batch validace dokončena pro ${Object.keys(corrections).length} polí`);
-      }
-    } catch (error) {
-      console.error('Error in batch validation:', error);
-    } finally {
-      // Remove all from validating
-      setValidatingFields(prev => {
-        const newSet = new Set(prev);
-        fieldsToValidate.forEach(f => newSet.delete(f));
-        return newSet;
-      });
     }
   };
 
@@ -289,12 +193,6 @@ export default function RecordDetailPage() {
       if (data.form_data?.periodontalProtocol) {
         setPeriodontalProtocol(data.form_data.periodontalProtocol);
       }
-      
-      // Načíst confidence scores & Gemini corrections
-      setConfidenceScores(data.confidence_scores || {});
-      setLowConfidenceFields(data.low_confidence_fields || []);
-      setGeminiCorrections(data.gemini_corrections || {});
-      console.log(`📊 Confidence: avg=${data.avg_confidence}, low fields=${(data.low_confidence_fields || []).length}`);
     } catch (err) {
       console.error("❌ Failed to load record:", err);
       setError(err instanceof Error ? err.message : "Neznámá chyba");
@@ -488,17 +386,8 @@ export default function RecordDetailPage() {
   };
   
   // Helper pro získání input classy s korálově ohraničením prázdných polí
-  const getInputClass = (value: any, fieldName?: string, baseClass: string = "w-full px-3 py-2 border border-gray-300 rounded text-sm") => {
+  const getInputClass = (value: any, baseClass: string = "w-full px-3 py-2 border border-gray-300 rounded text-sm") => {
     if (!showFieldStatus) return baseClass;
-    
-    // Confidence scoring má prioritu
-    if (fieldName && confidenceScores[fieldName]?.value !== undefined) {
-      const confidence = confidenceScores[fieldName].value;
-      const confidenceClass = getConfidenceColorClass(confidence);
-      return `${baseClass.replace('border-gray-300', '')} ${confidenceClass}`;
-    }
-    
-    // Fallback na původní logiku
     if (isFieldFilled(value)) return baseClass;
     // Korálová červená z mobilní app (#FF6B6B)
     return baseClass.replace('border-gray-300', 'border-[#FF6B6B]');
@@ -520,151 +409,6 @@ export default function RecordDetailPage() {
           <path d="M2.5 2.5L7.5 7.5M7.5 2.5L2.5 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
         </svg>
       </span>
-    );
-  };
-  
-  // Confidence Badge - zobrazí emoji + procenta podle confidence score
-  const ConfidenceBadge = ({ fieldName }: { fieldName: string }) => {
-    if (!showFieldStatus) return null;
-    const confidence = confidenceScores[fieldName]?.value;
-    if (confidence === undefined) return null;
-    
-    const emoji = getConfidenceEmoji(confidence);
-    const percent = formatConfidence(confidence);
-    const isLow = confidence < 0.2;
-    
-    return (
-      <span 
-        className={`inline-flex items-center gap-1 text-xs ml-2 px-1.5 py-0.5 rounded ${
-          isLow ? 'bg-red-100 text-red-700' : 
-          confidence < 0.5 ? 'bg-yellow-100 text-yellow-700' : 
-          'bg-green-100 text-green-700'
-        }`}
-        title={`Confidence score: ${percent}`}
-      >
-        {emoji} {percent}
-      </span>
-    );
-  };
-  
-  // Gemini Suggestion - návrh opravy s tlačítky
-  const GeminiSuggestion = ({ fieldName }: { fieldName: string }) => {
-    const correction = geminiCorrections[fieldName];
-    if (!correction) return null;
-    
-    const handleAccept = async () => {
-      if (!record) return;
-      
-      try {
-        // Update form_data with Gemini suggestion
-        const updatedFormData = {
-          ...record.form_data,
-          [fieldName]: correction.suggested
-        };
-        
-        // Create correction history entry
-        const historyEntry: any = {
-          field: fieldName,
-          original: correction.original,
-          gemini_suggested: correction.suggested,
-          final: correction.suggested,
-          timestamp: new Date().toISOString(),
-          corrected_by: user?.id || 'unknown',
-          confidence_before: confidenceScores[fieldName]?.value || 0,
-          reason: 'Gemini suggestion accepted'
-        };
-        
-        // Update in database
-        const { error } = await supabase
-          .from("paro_records")
-          .update({
-            form_data: updatedFormData,
-            gemini_corrections: {
-              ...geminiCorrections,
-              [fieldName]: { ...correction, accepted: true }
-            },
-            correction_history: [
-              ...(record.correction_history || []),
-              historyEntry
-            ]
-          })
-          .eq("id", params.id);
-        
-        if (error) {
-          console.error('Error accepting Gemini suggestion:', error);
-          alert('Chyba při ukládání návrhu');
-          return;
-        }
-        
-        // Update local state
-        setRecord(prev => prev ? {
-          ...prev,
-          form_data: updatedFormData,
-          correction_history: [
-            ...(prev.correction_history || []),
-            historyEntry
-          ]
-        } : null);
-        
-        // Remove from corrections UI
-        setGeminiCorrections(prev => {
-          const newCorrections = { ...prev };
-          delete newCorrections[fieldName];
-          return newCorrections;
-        });
-        
-        console.log('✅ Gemini návrh přijat pro', fieldName);
-      } catch (error) {
-        console.error('Error accepting suggestion:', error);
-      }
-    };
-    
-    const handleReject = () => {
-      setGeminiCorrections(prev => {
-        const newCorrections = { ...prev };
-        delete newCorrections[fieldName];
-        return newCorrections;
-      });
-    };
-    
-    return (
-      <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-        <div className="flex items-start gap-2">
-          <AlertTriangle className="text-blue-600 flex-shrink-0 mt-0.5" size={16} />
-          <div className="flex-1">
-            <div className="text-xs font-semibold text-blue-900 mb-1">
-              🤖 Gemini navrhuje opravu
-            </div>
-            <div className="text-xs text-gray-700 space-y-1">
-              <div>
-                <span className="font-medium">Původní:</span> 
-                <span className="ml-1 line-through">{correction.original}</span>
-              </div>
-              <div>
-                <span className="font-medium">Navrženo:</span> 
-                <span className="ml-1 font-semibold text-blue-700">{correction.suggested}</span>
-              </div>
-              <div className="text-gray-600 italic">
-                {correction.reason}
-              </div>
-            </div>
-            <div className="flex gap-2 mt-2">
-              <button
-                onClick={handleAccept}
-                className="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition"
-              >
-                ✅ Přijmout
-              </button>
-              <button
-                onClick={handleReject}
-                className="px-3 py-1 bg-gray-200 text-gray-700 rounded text-xs hover:bg-gray-300 transition"
-              >
-                ❌ Zamítnout
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
     );
   };
 
@@ -749,26 +493,6 @@ export default function RecordDetailPage() {
             {showFieldStatus ? <Eye size={16} /> : <EyeOff size={16} />}
           </button>
           
-          {/* Auto-validation button - zobrazit pouze pokud jsou low-confidence pole */}
-          {lowConfidenceFields.length > 0 && (
-            <button
-              onClick={triggerBatchValidation}
-              disabled={validatingFields.size > 0}
-              className={`px-2 py-1 rounded text-xs font-medium transition ${
-                validatingFields.size > 0
-                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                  : 'bg-orange-500 text-white hover:bg-orange-600'
-              }`}
-              title={`Automaticky validovat ${lowConfidenceFields.length} low-confidence polí pomocí Gemini`}
-            >
-              {validatingFields.size > 0 ? (
-                <>⏳ Validuji...</>
-              ) : (
-                <>🤖 Validovat ({lowConfidenceFields.length})</>
-              )}
-            </button>
-          )}
-          
           {/* Zoom controls */}
           <div className="flex items-center gap-0.5 border-l pl-1.5">
             <button 
@@ -812,19 +536,15 @@ export default function RecordDetailPage() {
                 <label className="block text-xs text-gray-600 mb-1">
                   Příjmení
                   <FieldStatusIcon value={fd.lastName} />
-                  <ConfidenceBadge fieldName="lastName" />
                 </label>
-                <input type="text" value={fd.lastName || ""} readOnly className={getInputClass(fd.lastName, "lastName", "w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium")} />
-                <GeminiSuggestion fieldName="lastName" />
+                <input type="text" value={fd.lastName || ""} readOnly className={getInputClass(fd.lastName, "w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium")} />
               </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">
                   Rodné číslo (RČ)
                   <FieldStatusIcon value={fd.personalIdNumber} />
-                  <ConfidenceBadge fieldName="personalIdNumber" />
                 </label>
-                <input type="text" value={fd.personalIdNumber || ""} readOnly className={getInputClass(fd.personalIdNumber, "personalIdNumber", "w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium")} />
-                <GeminiSuggestion fieldName="personalIdNumber" />
+                <input type="text" value={fd.personalIdNumber || ""} readOnly className={getInputClass(fd.personalIdNumber, "w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium")} />
               </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">Kuřák</label>
