@@ -710,19 +710,6 @@ export default function RecordDetailPage() {
   const handleVerifyRecord = async () => {
     if (!record) return;
     
-    // 🛑 DOČASNĚ VYPNUTO - migrace musí být aplikována!
-    alert('⚠️ TLAČÍTKO "OVĚŘIT" JE DOČASNĚ VYPNUTO\n\n' +
-          'Důvod: Databázová migrace nebyla aplikována.\n\n' +
-          'Prosím:\n' +
-          '1. Otevři Supabase SQL Editor\n' +
-          '2. Spusť: CHECK_VERIFICATION_COLUMNS.sql\n' +
-          '3. Pokud sloupce neexistují, spusť migraci\n' +
-          '4. Refresh stránku\n\n' +
-          'Dokumentace: VERIFY_FIX_CHECKLIST.md'
-    );
-    return;
-    
-    /* COMMENTED OUT UNTIL MIGRATION IS APPLIED
     const confirmed = window.confirm(
       record.verified_by_hygienist
         ? '⚠️ Opravdu chcete zrušit ověření tohoto záznamu?\n\nZáznam nebude použit pro trénink LLM.'
@@ -732,32 +719,43 @@ export default function RecordDetailPage() {
     if (!confirmed) return;
     
     setIsVerifying(true);
+    
     try {
+      console.log('📤 Sending verification request...');
+      
       const response = await fetch(`/api/records/${params.id}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
       
+      console.log('📥 Response status:', response.status);
+      
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to verify record');
+        console.error('❌ API error:', errorData);
+        throw new Error(errorData.error || errorData.details || 'Failed to verify record');
       }
       
       const data = await response.json();
+      console.log('✅ Verification response:', data);
       
-      // Reload record to get updated verification status
-      console.log('🔄 Reloading record after verification...');
-      await loadRecord();
+      // Update local state IMMEDIATELY (don't wait for reload)
+      setRecord(prev => prev ? {
+        ...prev,
+        verified_by_hygienist: data.verified,
+        verified_at: data.verified_at,
+        verified_by: data.verified ? user?.id : undefined
+      } : null);
       
       alert(data.message || '✅ Stav ověření aktualizován');
-      console.log('✅ Verification toggled:', data);
-    } catch (error) {
-      console.error('Error verifying record:', error);
-      alert(`❌ Nepodařilo se změnit stav ověření\n\nChyba: ${error.message}`);
+      console.log('✅ Verification completed successfully');
+      
+    } catch (error: any) {
+      console.error('❌ Error verifying record:', error);
+      alert(`❌ Nepodařilo se změnit stav ověření\n\nChyba: ${error.message}\n\nZkontroluj browser console (F12) pro více detailů.`);
     } finally {
       setIsVerifying(false);
     }
-    */
   };
 
   return (
