@@ -72,7 +72,10 @@ export default function FineTuningPage() {
   };
 
   const calculateStats = (data: ParoRecord[]) => {
-    const recordsWithOriginal = data.filter(r => r.llm_original);
+    // 🆕 Nový systém: filtruj podle verified_by_hygienist místo llm_original
+    const verifiedRecords = data.filter(r => r.verified_by_hygienist);
+    const recordsWithOriginal = data.filter(r => r.llm_original); // Legacy systém (pro zpětnou kompatibilitu)
+    
     const rated = recordsWithOriginal.filter(r => r.quality_rating);
     const unrated = recordsWithOriginal.filter(r => !r.quality_rating);
 
@@ -89,7 +92,9 @@ export default function FineTuningPage() {
       : 0;
 
     const withFeedback = rated.filter(r => r.hygienist_feedback && r.hygienist_feedback.trim() !== "").length;
-    const readyForExport = byRating[4] + byRating[5]; // Rating >= 4
+    
+    // 🆕 Ready for export = ověřené záznamy (nový systém) + kvalitní hodnocené (starý systém)
+    const readyForExport = verifiedRecords.length + byRating[4] + byRating[5]; // Verified + Rating >= 4
 
     setStats({
       total: recordsWithOriginal.length,
@@ -103,7 +108,8 @@ export default function FineTuningPage() {
   };
 
   const applyFilters = () => {
-    let filtered = records.filter(r => r.llm_original);
+    // 🆕 Filtruj podle verified_by_hygienist (nový systém) NEBO llm_original (starý systém)
+    let filtered = records.filter(r => r.verified_by_hygienist || r.llm_original);
 
     // Filter by rating
     if (filterRating === "unrated") {
@@ -498,7 +504,19 @@ export default function FineTuningPage() {
                       {new Date(record.created_at).toLocaleDateString("cs-CZ")}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {record.quality_rating ? (
+                      {record.verified_by_hygienist ? (
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">
+                            <CheckCircle size={12} className="mr-1" />
+                            Ověřeno
+                          </span>
+                          {record.verified_at && (
+                            <span className="text-xs text-gray-500">
+                              {new Date(record.verified_at).toLocaleDateString("cs-CZ")}
+                            </span>
+                          )}
+                        </div>
+                      ) : record.quality_rating ? (
                         <div className="flex items-center gap-2">
                           <div className="flex">
                             {Array.from({ length: record.quality_rating }).map((_, i) => (
