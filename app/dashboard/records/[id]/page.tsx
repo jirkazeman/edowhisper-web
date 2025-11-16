@@ -706,59 +706,15 @@ export default function RecordDetailPage() {
     }
   };
 
-  // Verification workflow handler
+  // Verification workflow handler - DOČASNĚ VYPNUTO!
   const handleVerifyRecord = async () => {
-    if (!record) return;
-    
-    const confirmed = window.confirm(
-      record.verified_by_hygienist
-        ? '⚠️ Opravdu chcete zrušit ověření tohoto záznamu?\n\nZáznam nebude použit pro trénink LLM.'
-        : '✅ Potvrzuji, že jsem zkontroloval/a všechna pole a záznam je 100% správný.\n\nZáznam bude použit pro trénink LLM.'
-    );
-    
-    if (!confirmed) return;
-    
-    setIsVerifying(true);
-    
-    try {
-      console.log('📤 Sending verification request...');
-      
-      const response = await fetch(`/api/records/${params.id}/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: user?.id || record.user_id
-        })
-      });
-      
-      console.log('📥 Response status:', response.status);
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('❌ API error:', errorData);
-        throw new Error(errorData.error || errorData.details || 'Failed to verify record');
-      }
-      
-      const data = await response.json();
-      console.log('✅ Verification response:', data);
-      
-      // Update local state IMMEDIATELY (don't wait for reload)
-      setRecord(prev => prev ? {
-        ...prev,
-        verified_by_hygienist: data.verified,
-        verified_at: data.verified_at,
-        verified_by: data.verified ? user?.id : undefined
-      } : null);
-      
-      alert(data.message || '✅ Stav ověření aktualizován');
-      console.log('✅ Verification completed successfully');
-      
-    } catch (error: any) {
-      console.error('❌ Error verifying record:', error);
-      alert(`❌ Nepodařilo se změnit stav ověření\n\nChyba: ${error.message}\n\nZkontroluj browser console (F12) pro více detailů.`);
-    } finally {
-      setIsVerifying(false);
-    }
+    alert('🚨 TLAČÍTKO DOČASNĚ VYPNUTO!\n\n' +
+          '⚠️ DŮVOD: Mazání dat při ověření!\n\n' +
+          'Po kliknutí na Ověřit se všechna pole smazala.\n' +
+          'Tlačítko je vypnuté aby se zabránilo další ztrátě dat.\n\n' +
+          '❌ NEPOUŽÍVEJ dokud nebude opraveno!\n\n' +
+          'Data JSOU stále v databázi - refresh stránku pro obnovení.');
+    return;
   };
 
   return (
