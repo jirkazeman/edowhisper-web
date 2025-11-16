@@ -195,8 +195,8 @@ export default function SimpleDentalChart({
             const toothId = key.replace('-o', '');
             const tooth = teeth[toothId];
             
-            // Zobrazit pouze zuby s relevantními daty (ne healthy)
-            if (!hasRelevantData(tooth) && readonly) return null;
+            // Zobrazit zuby s relevantními daty nebo chybějící zuby (i v readonly módu)
+            if (!hasRelevantData(tooth) && readonly && tooth?.status !== 'missing') return null;
             
             // Zjisti, jestli je to dolní zub (31-38, 41-48)
             const isLowerTooth = /^[34]/.test(toothId);
@@ -258,7 +258,18 @@ export default function SimpleDentalChart({
                     }
                   }}
                 >
-                  {/* Kruh je prázdný - čísla jsou mimo */}
+                  {/* Pro chybějící zuby: zobraz křížek */}
+                  {tooth?.status === 'missing' && (
+                    <span 
+                      className="text-gray-600 font-bold"
+                      style={{ 
+                        fontSize: `${markerSize * 0.6}px`,
+                        lineHeight: 1,
+                      }}
+                    >
+                      ✕
+                    </span>
+                  )}
                 </div>
                 
                 {/* Pro horní zuby: číslo POD kruhem v šedém kruhu */}
@@ -299,15 +310,15 @@ export default function SimpleDentalChart({
       
       {/* Notes - mimo relative kontejner */}
       {notes && (
-        <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-200 text-xs">
+        <div className="mt-1 p-1.5 bg-blue-50 rounded border border-blue-200 text-xs">
           <span className="font-semibold text-blue-900">Poznámky: </span>
           <span className="text-blue-800">{notes}</span>
         </div>
       )}
       
       {/* Legend - VYSVĚTLIVKY - mimo relative kontejner */}
-      <div className="mt-2 pt-2 border-t border-gray-200">
-        <h4 className="text-xs font-semibold text-gray-700 mb-2">Vysvětlivky:</h4>
+      <div className="mt-1 pt-1.5 border-t border-gray-200">
+        <h4 className="text-xs font-semibold text-gray-700 mb-1">Vysvětlivky:</h4>
         <div className="flex flex-wrap gap-3 text-xs">
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-full border border-gray-300" style={{ backgroundColor: '#FFFFFF' }}></div>
