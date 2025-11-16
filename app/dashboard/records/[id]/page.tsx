@@ -296,10 +296,43 @@ export default function RecordDetailPage() {
       }
       
       // Načíst confidence scores & Gemini corrections
-      setConfidenceScores(data.confidence_scores || {});
-      setLowConfidenceFields(data.low_confidence_fields || []);
-      setGeminiCorrections(data.gemini_corrections || {});
-      console.log(`📊 Confidence: avg=${data.avg_confidence}, low fields=${(data.low_confidence_fields || []).length}`);
+      const scores = data.confidence_scores || {};
+      const lowFields = data.low_confidence_fields || [];
+      const corrections = data.gemini_corrections || {};
+      
+      // 🎯 DEMO: Pokud nejsou confidence scores, vytvoř mock data pro testování
+      if (Object.keys(scores).length === 0 && data.form_data) {
+        const mockScores: ConfidenceScores = {};
+        const mockLowFields: string[] = [];
+        
+        // Simuluj confidence pro vyplněná pole
+        Object.entries(data.form_data).forEach(([key, value]) => {
+          if (value && typeof value === 'string' && value.length > 0) {
+            // Náhodná confidence mezi 0.3 a 0.95
+            const randomConfidence = 0.3 + Math.random() * 0.65;
+            mockScores[key] = {
+              value: randomConfidence,
+              token_confidences: [],
+              logprobs: []
+            };
+            
+            // Pokud je confidence < 0.5, přidej do low confidence
+            if (randomConfidence < 0.5) {
+              mockLowFields.push(key);
+            }
+          }
+        });
+        
+        setConfidenceScores(mockScores);
+        setLowConfidenceFields(mockLowFields);
+        console.log(`📊 MOCK Confidence: ${Object.keys(mockScores).length} fields, ${mockLowFields.length} low confidence`);
+      } else {
+        setConfidenceScores(scores);
+        setLowConfidenceFields(lowFields);
+        console.log(`📊 Confidence: avg=${data.avg_confidence}, low fields=${lowFields.length}`);
+      }
+      
+      setGeminiCorrections(corrections);
     } catch (err) {
       console.error("❌ Failed to load record:", err);
       setError(err instanceof Error ? err.message : "Neznámá chyba");
@@ -650,6 +683,34 @@ export default function RecordDetailPage() {
     );
   };
 
+  // Field Actions - tlačítka pro validaci pole
+  const FieldActions = ({ fieldName }: { fieldName: string }) => {
+    const confidence = confidenceScores[fieldName];
+    const isValidating = validatingFields.has(fieldName);
+    const isLowConfidence = confidence && confidence.value < 0.5;
+    
+    if (!showFieldStatus || !confidence) return null;
+    
+    return (
+      <div className="flex gap-1 mt-1">
+        <button
+          onClick={() => triggerGeminiValidation(fieldName)}
+          disabled={isValidating}
+          className={`px-2 py-0.5 text-[10px] rounded transition ${
+            isValidating 
+              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+              : isLowConfidence
+              ? 'bg-orange-500 text-white hover:bg-orange-600'
+              : 'bg-blue-500 text-white hover:bg-blue-600'
+          }`}
+          title="Nechat Gemini zkontrolovat toto pole"
+        >
+          {isValidating ? '⏳ Validuji...' : '🤖 Validovat'}
+        </button>
+      </div>
+    );
+  };
+
   return (
     <>
     <div className="h-screen flex flex-col bg-gray-50">
@@ -797,6 +858,7 @@ export default function RecordDetailPage() {
                   <ConfidenceBadge fieldName="lastName" />
                 </label>
                 <input type="text" value={fd.lastName || ""} readOnly className={getInputClass(fd.lastName, "lastName", "w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium")} />
+                <FieldActions fieldName="lastName" />
                 <GeminiSuggestion fieldName="lastName" />
               </div>
               <div>
@@ -806,6 +868,7 @@ export default function RecordDetailPage() {
                   <ConfidenceBadge fieldName="personalIdNumber" />
                 </label>
                 <input type="text" value={fd.personalIdNumber || ""} readOnly className={getInputClass(fd.personalIdNumber, "personalIdNumber", "w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium")} />
+                <FieldActions fieldName="personalIdNumber" />
                 <GeminiSuggestion fieldName="personalIdNumber" />
               </div>
               <div>
