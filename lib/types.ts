@@ -28,6 +28,11 @@ export interface ParoRecord {
   correction_history?: CorrectionHistoryItem[]; // Historie oprav pro fine-tuning
   validation_method?: 'single' | 'dual-llm' | 'human-reviewed'; // Metoda validace
   avg_confidence?: number; // Průměrná confidence (0.0-1.0)
+  
+  // 🆕 Fine-Tuning: Opravy hygienistky
+  human_corrections?: HumanCorrections; // Diff mezi LLM a hygienistkou
+  correction_count?: number; // Počet opravených polí
+  corrected_at?: string; // Kdy byly provedeny opravy
 }
 
 // Confidence score pro jedno pole
@@ -68,6 +73,16 @@ export interface CorrectionHistoryItem {
   corrected_by: string; // ID hygienistky
   confidence_before: number; // Confidence před opravou
   reason?: string; // Důvod opravy od hygienistky
+}
+
+// 🆕 Human Corrections - Opravy hygienistek pro fine-tuning
+export interface HumanCorrections {
+  [fieldName: string]: {
+    llm: any;  // Původní hodnota z LLM
+    human: any;  // Opravená hodnota od hygienistky
+    action: 'added' | 'removed' | 'corrected';
+    fieldType?: string;
+  };
 }
 
 export interface RecordFormData {
