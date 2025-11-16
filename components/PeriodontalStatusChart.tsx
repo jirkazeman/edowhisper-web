@@ -35,6 +35,7 @@ export default function PeriodontalStatusChart({
   onChange,
 }: PeriodontalStatusChartProps) {
   const [editingToothId, setEditingToothId] = useState<string | null>(null);
+  const [isExporting, setIsExporting] = useState(false); // Pro dočasné odstranění scrollu
   const chartRef = useRef<HTMLDivElement>(null);
   
   // Horní a dolní řady zubů
@@ -56,15 +57,29 @@ export default function PeriodontalStatusChart({
     if (!chartRef.current) return;
 
     try {
-      // Dynamický import html2canvas
+      // 1. Dočasně odstranit scroll a zobrazit všechny zuby
+      setIsExporting(true);
+      
+      // Počkat na re-render
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // 2. Dynamický import html2canvas
       const html2canvas = (await import('html2canvas')).default;
       
+      // 3. Vytvořit screenshot
       const canvas = await html2canvas(chartRef.current, {
         backgroundColor: '#ffffff',
         scale: 2, // Vyšší kvalita
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: chartRef.current.scrollWidth,
+        windowHeight: chartRef.current.scrollHeight,
       });
       
-      // Stáhnout jako PNG
+      // 4. Vrátit scroll zpět
+      setIsExporting(false);
+      
+      // 5. Stáhnout jako PNG
       const link = document.createElement('a');
       link.download = `parodontalni-status-${new Date().toISOString().split('T')[0]}.png`;
       link.href = canvas.toDataURL('image/png');
@@ -72,6 +87,7 @@ export default function PeriodontalStatusChart({
     } catch (error) {
       console.error('Chyba při exportu PNG:', error);
       alert('Nepodařilo se exportovat jako PNG');
+      setIsExporting(false);
     }
   };
 
@@ -283,9 +299,9 @@ export default function PeriodontalStatusChart({
           </div>
         )}
         
-        {/* Scrollovací kontejner - horizontální scroll */}
-        <div className="overflow-x-auto w-full">
-          <div className="inline-block min-w-full">
+        {/* Scrollovací kontejner - horizontální scroll (při exportu zobrazit vše) */}
+        <div className={isExporting ? "w-full" : "overflow-x-auto w-full"}>
+          <div className={isExporting ? "w-max" : "inline-block min-w-full"}>
             <div className="space-y-4">
               {/* Horní čelist */}
               <div>
