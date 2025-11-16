@@ -11,6 +11,7 @@ import ValidationModal from "@/components/ValidationModal";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
 import { ValidationResult } from "@/lib/services/llmValidationService";
+import { recordsAPI } from "@/lib/api";
 
 // Typy pro zubní kříž
 interface ToothState {
@@ -179,9 +180,9 @@ export default function RecordDetailPage() {
       console.log("✅ Found record:", data);
       setRecord(data as ParoRecord);
       
-      // Načíst zubní kříž (pokud existuje)
-      if (data.dental_cross) {
-        setDentalCross(data.dental_cross as { [key: string]: ToothState });
+      // Načíst zubní kříž (pokud existuje) z form_data
+      if (data.form_data?.dentalCross) {
+        setDentalCross(data.form_data.dentalCross as { [key: string]: ToothState });
       }
     } catch (err) {
       console.error("❌ Failed to load record:", err);
@@ -226,22 +227,10 @@ export default function RecordDetailPage() {
         dentalCrossSize: Object.keys(updatedDentalCross).length
       });
       
-      // Ulož do Supabase s explicitní kontrolou user_id
-      const { data, error } = await supabase
-        .from('paro_records')
-        .update({ dental_cross: updatedDentalCross })
-        .eq('id', params.id)
-        .eq('user_id', user.id) // Explicitní ověření vlastnictví
-        .select();
-      
-      if (error) {
-        console.error('❌ Supabase error:', error);
-        throw error;
-      }
-      
-      if (!data || data.length === 0) {
-        throw new Error('Záznam nenalezen nebo nemáte oprávnění k úpravě');
-      }
+      // Ulož přes API - aktualizuj form_data.dentalCross
+      await recordsAPI.update(params.id as string, {
+        dentalCross: updatedDentalCross,
+      });
       
       console.log('✅ Zubní kříž uložen:', toothState);
       
@@ -252,8 +241,8 @@ export default function RecordDetailPage() {
       alert(`❌ Nepodařilo se uložit změny: ${err.message || err}`);
       
       // Rollback local state
-      if (record.dental_cross) {
-        setDentalCross(record.dental_cross as { [key: string]: ToothState });
+      if (record?.form_data?.dentalCross) {
+        setDentalCross(record.form_data.dentalCross as { [key: string]: ToothState });
       }
     } finally {
       setIsSavingDentalCross(false);

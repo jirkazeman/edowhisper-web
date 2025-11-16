@@ -295,9 +295,22 @@ export default function SimpleDentalChart({
           );
         })}
       
-      {/* Legend - PŘESNÉ BARVY JAKO V MOBILNÍ APPCE (zobraz pouze pokud jsou data) */}
-      {hasAnyData && (
-        <div className="mt-3 flex flex-wrap gap-3 text-xs">
+      {/* Notes */}
+      {notes && (
+        <div className="mt-3 p-3 bg-blue-50 rounded border border-blue-200 text-sm">
+          <span className="font-semibold text-blue-900">Poznámky: </span>
+          <span className="text-blue-800">{notes}</span>
+        </div>
+      )}
+      
+      {/* Legend - VYSVĚTLIVKY - vždy zobrazené pod zubním křížem */}
+      <div className="mt-4 pt-4 border-t border-gray-200">
+        <h4 className="text-xs font-semibold text-gray-700 mb-2">Vysvětlivky:</h4>
+        <div className="flex flex-wrap gap-3 text-xs">
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full border border-gray-300" style={{ backgroundColor: '#FFFFFF' }}></div>
+            <span>Zdravý</span>
+          </div>
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FFD60A' }}></div>
             <span>Korunka</span>
@@ -327,15 +340,7 @@ export default function SimpleDentalChart({
             <span>Kaz</span>
           </div>
         </div>
-      )}
-      
-      {/* Notes */}
-      {notes && (
-        <div className="mt-3 p-3 bg-blue-50 rounded border border-blue-200 text-sm">
-          <span className="font-semibold text-blue-900">Poznámky: </span>
-          <span className="text-blue-800">{notes}</span>
-        </div>
-      )}
+      </div>
     </div>
   );
 
@@ -365,4 +370,5 @@ export default function SimpleDentalChart({
     </>
   );
 }
+
 
