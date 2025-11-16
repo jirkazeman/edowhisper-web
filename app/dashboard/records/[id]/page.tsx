@@ -64,6 +64,9 @@ export default function RecordDetailPage() {
   
   // Copy funkce pro treatmentRecord
   const [isCopied, setIsCopied] = useState(false);
+  
+  // Editace polí - hygienistka může ručně opravit
+  const [editingFields, setEditingFields] = useState<{[key: string]: string}>({});
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -683,9 +686,7 @@ export default function RecordDetailPage() {
     );
   };
 
-  // Editovatelné pole - hygienistka může opravit
-  const [editingFields, setEditingFields] = useState<{[key: string]: string}>({});
-  
+  // Funkce pro ruční editaci pole hygienistkou
   const handleFieldEdit = async (fieldName: string, newValue: string) => {
     if (!record) return;
     
