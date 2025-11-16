@@ -406,7 +406,7 @@ export default function FineTuningEditPage() {
               PBI (Papilla Bleeding Index)
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <EditableField label="PBI Výsledek" field="pbiResult" placeholder="Výsledek měření" />
+              <EditableField label="PBI Hodnoty" field="pbiValues" placeholder="Příklad: 0123/2341/1234/0123" />
               <EditableField
                 label="PBI Nástroje"
                 field="pbiTools"

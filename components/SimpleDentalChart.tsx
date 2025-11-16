@@ -230,14 +230,14 @@ export default function SimpleDentalChart({
                 <div 
                   className="mb-1 flex items-center justify-center rounded-full bg-gray-200 border border-gray-300"
                   style={{ 
-                    width: `${markerSize * 0.7}px`,
-                    height: `${markerSize * 0.7}px`,
+                    width: `${markerSize * 0.85}px`,
+                    height: `${markerSize * 0.85}px`,
                   }}
                 >
                   <span 
                     className="font-semibold pointer-events-none"
                     style={{ 
-                      fontSize: `${markerSize * 0.35}px`,
+                      fontSize: `${markerSize * 0.45}px`,
                       color: '#8E8E93'
                     }}
                   >
@@ -269,19 +269,29 @@ export default function SimpleDentalChart({
                   }
                 }}
               >
-                {/* Pro horní zuby: číslo UVNITŘ kruhu */}
-                {!isLowerTooth && (
+                {/* Kruh je prázdný - čísla jsou mimo */}
+              </div>
+              
+              {/* Pro horní zuby: číslo POD kruhem v šedém kruhu */}
+              {!isLowerTooth && (
+                <div 
+                  className="mt-1 flex items-center justify-center rounded-full bg-gray-200 border border-gray-300"
+                  style={{ 
+                    width: `${markerSize * 0.85}px`,
+                    height: `${markerSize * 0.85}px`,
+                  }}
+                >
                   <span 
-                    className="font-bold pointer-events-none"
+                    className="font-semibold pointer-events-none"
                     style={{ 
-                      fontSize: `${markerSize * 0.5}px`,
-                      color: tooth?.hasCaries || tooth?.status === 'missing' ? '#000' : '#333'
+                      fontSize: `${markerSize * 0.45}px`,
+                      color: '#8E8E93'
                     }}
                   >
                     {toothId}
                   </span>
-                )}
-              </div>
+                </div>
+              )}
               
               {/* Hover tooltip - POČEŠTĚNO */}
               {hoveredTooth === toothId && tooth && (

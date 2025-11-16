@@ -100,7 +100,7 @@ export default function TVDisplayPage() {
             "48": { id: "48", status: "implant", note: "Implantát + korunka" },
           },
           dentalCrossNotes: "Zub 26 vyžaduje ošetření, 36 korunka funkční",
-          pbiResult: "0.5",
+          pbiValues: "0123/2341/1234/0123",
           pbiTools: "Parodontální sonda",
           cpitnUpperRight: "1",
           cpitnUpperLeft: "0",
@@ -245,7 +245,7 @@ export default function TVDisplayPage() {
               <span className="text-2xl mr-2">📊</span> PBI Index
             </h3>
             <div className="space-y-2">
-              <InfoRow label="Výsledek" value={formData.pbiResult} bold />
+              <InfoRow label="Hodnoty" value={formData.pbiValues} bold />
               <InfoRow label="Pomůcky" value={formData.pbiTools} />
             </div>
           </div>
