@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { Download, FileJson } from 'lucide-react';
 import PeriodontalToothEditor from './PeriodontalToothEditor';
 
 interface PeriodontalProtocol {
@@ -34,6 +35,7 @@ export default function PeriodontalStatusChart({
   onChange,
 }: PeriodontalStatusChartProps) {
   const [editingToothId, setEditingToothId] = useState<string | null>(null);
+  const chartRef = useRef<HTMLDivElement>(null);
   
   // Horní a dolní řady zubů
   const upperTeeth = ["18", "17", "16", "15", "14", "13", "12", "11", "21", "22", "23", "24", "25", "26", "27", "28"];
@@ -47,6 +49,67 @@ export default function PeriodontalStatusChart({
     };
     onChange?.(newProtocol);
     setEditingToothId(null);
+  };
+
+  // Export jako PNG (screenshot)
+  const handleExportPNG = async () => {
+    if (!chartRef.current) return;
+
+    try {
+      // Dynamický import html2canvas
+      const html2canvas = (await import('html2canvas')).default;
+      
+      const canvas = await html2canvas(chartRef.current, {
+        backgroundColor: '#ffffff',
+        scale: 2, // Vyšší kvalita
+      });
+      
+      // Stáhnout jako PNG
+      const link = document.createElement('a');
+      link.download = `parodontalni-status-${new Date().toISOString().split('T')[0]}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (error) {
+      console.error('Chyba při exportu PNG:', error);
+      alert('Nepodařilo se exportovat jako PNG');
+    }
+  };
+
+  // Export jako JSON
+  const handleExportJSON = () => {
+    try {
+      const exportData = {
+        exportedAt: new Date().toISOString(),
+        protocol: protocol,
+        metadata: {
+          totalTeeth: Object.keys(protocol).length,
+          teethWithBleeding: Object.values(protocol).filter(t => t.bleeding).length,
+          averageDepth: calculateAverageDepth(),
+        }
+      };
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const link = document.createElement('a');
+      link.download = `parodontalni-status-${new Date().toISOString().split('T')[0]}.json`;
+      link.href = URL.createObjectURL(blob);
+      link.click();
+      URL.revokeObjectURL(link.href);
+    } catch (error) {
+      console.error('Chyba při exportu JSON:', error);
+      alert('Nepodařilo se exportovat jako JSON');
+    }
+  };
+
+  // Vypočítat průměrnou hloubku
+  const calculateAverageDepth = (): number => {
+    const allDepths: number[] = [];
+    Object.values(protocol).forEach(tooth => {
+      if (tooth.depth) {
+        allDepths.push(...tooth.depth);
+      }
+    });
+    if (allDepths.length === 0) return 0;
+    return Math.round((allDepths.reduce((a, b) => a + b, 0) / allDepths.length) * 10) / 10;
   };
 
   // Renderovat jeden zub - vizuální graf hloubky kapes
@@ -189,9 +252,29 @@ export default function PeriodontalStatusChart({
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200 w-full">
+      <div ref={chartRef} className="bg-white rounded-lg shadow-sm p-4 border border-gray-200 w-full">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold text-sm text-gray-800">Parodontální status</h3>
+          
+          {/* Export tlačítka */}
+          <div className="flex gap-2">
+            <button
+              onClick={handleExportPNG}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition"
+              title="Stáhnout jako PNG obrázek"
+            >
+              <Download size={14} />
+              PNG
+            </button>
+            <button
+              onClick={handleExportJSON}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded-lg transition"
+              title="Stáhnout jako JSON data"
+            >
+              <FileJson size={14} />
+              JSON
+            </button>
+          </div>
         </div>
 
         {!readonly && (
