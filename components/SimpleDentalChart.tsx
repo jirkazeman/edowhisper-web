@@ -169,14 +169,14 @@ export default function SimpleDentalChart({
 
   const chartContent = (
     <>
-      <div className="relative w-full py-8">
+      <div className="relative w-full py-16 min-h-[400px]">
           {/* Tenká linka pro dolní čelist (nyní nahoře) */}
-          <div className="relative w-full h-1 mb-16">
+          <div className="relative w-full h-1 mb-24">
             <div className="absolute inset-0 border-t border-gray-300"></div>
           </div>
           
           {/* Tenká linka pro horní čelist (nyní dole) */}
-          <div className="relative w-full h-1 mt-16">
+          <div className="relative w-full h-1 mt-24">
             <div className="absolute inset-0 border-t border-gray-300"></div>
           </div>
           
