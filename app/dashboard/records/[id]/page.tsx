@@ -725,7 +725,10 @@ export default function RecordDetailPage() {
       
       const response = await fetch(`/api/records/${params.id}/verify`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user?.id || record.user_id
+        })
       });
       
       console.log('📥 Response status:', response.status);
