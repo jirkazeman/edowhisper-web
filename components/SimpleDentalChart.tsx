@@ -170,15 +170,8 @@ export default function SimpleDentalChart({
   const chartContent = (
     <>
       <div className="relative w-full py-4 min-h-[250px]">
-          {/* Tenká linka pro dolní čelist (nyní nahoře) */}
-          <div className="relative w-full h-1 mb-10">
-            <div className="absolute inset-0 border-t border-gray-300"></div>
-          </div>
-          
-          {/* Tenká linka pro horní čelist (nyní dole) */}
-          <div className="relative w-full h-1 mt-10">
-            <div className="absolute inset-0 border-t border-gray-300"></div>
-          </div>
+          {/* Jedna linka mezi horní a dolní čelistí */}
+          <div className="absolute left-0 right-0 top-1/2 transform -translate-y-1/2 w-full h-px bg-gray-300"></div>
           
           {/* Fullscreen button */}
           <button
@@ -310,15 +303,15 @@ export default function SimpleDentalChart({
       
       {/* Notes - mimo relative kontejner */}
       {notes && (
-        <div className="mt-1 p-1.5 bg-blue-50 rounded border border-blue-200 text-xs">
+        <div className="mt-0.5 p-1 bg-blue-50 rounded border border-blue-200 text-xs">
           <span className="font-semibold text-blue-900">Poznámky: </span>
           <span className="text-blue-800">{notes}</span>
         </div>
       )}
       
       {/* Legend - VYSVĚTLIVKY - mimo relative kontejner */}
-      <div className="mt-1 pt-1.5 border-t border-gray-200">
-        <h4 className="text-xs font-semibold text-gray-700 mb-1">Vysvětlivky:</h4>
+      <div className="mt-0.5 pt-1 border-t border-gray-200">
+        <h4 className="text-xs font-semibold text-gray-700 mb-0.5">Vysvětlivky:</h4>
         <div className="flex flex-wrap gap-3 text-xs">
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-full border border-gray-300" style={{ backgroundColor: '#FFFFFF' }}></div>
