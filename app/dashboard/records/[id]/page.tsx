@@ -1191,11 +1191,22 @@ export default function RecordDetailPage() {
             <span className="text-xs font-normal text-gray-500 ml-2">(žlutě = nevyužito)</span>
           </h3>
           <div className="h-[calc(100%-3rem)] overflow-y-auto">
-            <TranscriptHighlight
-              transcript={fd.fullTranscript || ''}
-              extractedData={fd}
-              showStats={true}
-            />
+            {fd.fullTranscript ? (
+              <TranscriptHighlight
+                transcript={fd.fullTranscript}
+                extractedData={fd}
+                showStats={true}
+              />
+            ) : (
+              <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg text-center">
+                <p className="text-sm text-gray-500">
+                  📝 Přepis není k dispozici
+                </p>
+                <p className="text-xs text-gray-400 mt-2">
+                  Přepis se ukládá automaticky po nahrání záznamu z mobilní aplikace.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
