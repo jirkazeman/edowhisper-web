@@ -64,9 +64,6 @@ export default function RecordDetailPage() {
   
   // Copy funkce pro treatmentRecord
   const [isCopied, setIsCopied] = useState(false);
-  
-  // Editace polí - hygienistka může ručně opravit
-  const [editingFields, setEditingFields] = useState<{[key: string]: string}>({});
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -686,118 +683,24 @@ export default function RecordDetailPage() {
     );
   };
 
-  // Funkce pro ruční editaci pole hygienistkou
-  const handleFieldEdit = async (fieldName: string, newValue: string) => {
+  // Funkce pro update pole v DB
+  const handleFieldUpdate = async (fieldName: string, newValue: string) => {
     if (!record) return;
     
     try {
-      // Update local state
-      const updatedFormData = {
-        ...record.form_data,
-        [fieldName]: newValue
-      };
-      
-      // Update in DB
       await recordsAPI.update(params.id as string, {
         [fieldName]: newValue
       });
       
-      // Update record
       setRecord(prev => prev ? {
         ...prev,
-        form_data: updatedFormData
+        form_data: { ...prev.form_data, [fieldName]: newValue }
       } : null);
       
-      console.log(`✅ Pole ${fieldName} opraveno na: ${newValue}`);
+      console.log(`✅ Pole ${fieldName} uloženo`);
     } catch (error) {
-      console.error('Chyba při ukládání pole:', error);
-      alert('❌ Nepodařilo se uložit změnu');
+      console.error('Chyba při ukládání:', error);
     }
-  };
-  
-  // EditableField - pole s confidence badge a možností editace
-  const EditableField = ({ 
-    fieldName, 
-    value, 
-    label, 
-    multiline = false 
-  }: { 
-    fieldName: string; 
-    value: string; 
-    label: string;
-    multiline?: boolean;
-  }) => {
-    const [isEditing, setIsEditing] = useState(false);
-    const [tempValue, setTempValue] = useState(value || '');
-    const confidence = confidenceScores[fieldName];
-    
-    const handleSave = () => {
-      if (tempValue !== value) {
-        handleFieldEdit(fieldName, tempValue);
-      }
-      setIsEditing(false);
-    };
-    
-    const handleCancel = () => {
-      setTempValue(value || '');
-      setIsEditing(false);
-    };
-    
-    return (
-      <div>
-        <label className="block text-xs text-gray-600 mb-1">
-          {label}
-          <FieldStatusIcon value={value} />
-          <ConfidenceBadge fieldName={fieldName} />
-        </label>
-        
-        {isEditing ? (
-          <>
-            {multiline ? (
-              <textarea
-                value={tempValue}
-                onChange={(e) => setTempValue(e.target.value)}
-                rows={2}
-                className="w-full px-2 py-1 border-2 border-blue-500 rounded text-sm resize-none"
-                autoFocus
-              />
-            ) : (
-              <input
-                type="text"
-                value={tempValue}
-                onChange={(e) => setTempValue(e.target.value)}
-                className="w-full px-2 py-1 border-2 border-blue-500 rounded text-sm"
-                autoFocus
-              />
-            )}
-            <div className="flex gap-1 mt-1">
-              <button
-                onClick={handleSave}
-                className="px-2 py-0.5 bg-green-600 text-white rounded text-[10px] hover:bg-green-700"
-              >
-                ✅ Uložit
-              </button>
-              <button
-                onClick={handleCancel}
-                className="px-2 py-0.5 bg-gray-300 text-gray-700 rounded text-[10px] hover:bg-gray-400"
-              >
-                ❌ Zrušit
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            <div
-              onClick={() => setIsEditing(true)}
-              className={`${getInputClass(value, fieldName, multiline ? "w-full px-2 py-1 border border-gray-300 rounded text-sm resize-none" : "w-full px-2 py-1 border border-gray-300 rounded text-sm")} cursor-pointer hover:border-blue-400`}
-              title="Klikni pro editaci"
-            >
-              {value || <span className="text-gray-400 italic">Prázdné (klikni pro vyplnění)</span>}
-            </div>
-          </>
-        )}
-      </div>
-    );
   };
 
   return (
@@ -940,8 +843,46 @@ export default function RecordDetailPage() {
             <h3 className="font-semibold text-xs mb-2">Základní informace</h3>
             
             <div className="space-y-2">
-              <EditableField fieldName="lastName" value={fd.lastName || ''} label="Příjmení" />
-              <EditableField fieldName="personalIdNumber" value={fd.personalIdNumber || ''} label="Rodné číslo (RČ)" />
+              <div>
+                <label className="block text-xs text-gray-600 mb-1">
+                  Příjmení
+                  <FieldStatusIcon value={fd.lastName} />
+                  <ConfidenceBadge fieldName="lastName" />
+                </label>
+                <input 
+                  type="text" 
+                  value={fd.lastName || ""} 
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    setRecord(prev => prev ? {
+                      ...prev,
+                      form_data: { ...prev.form_data, lastName: newValue }
+                    } : null);
+                  }}
+                  onBlur={(e) => handleFieldUpdate('lastName', e.target.value)}
+                  className={getInputClass(fd.lastName, "lastName", "w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium")} 
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-600 mb-1">
+                  Rodné číslo (RČ)
+                  <FieldStatusIcon value={fd.personalIdNumber} />
+                  <ConfidenceBadge fieldName="personalIdNumber" />
+                </label>
+                <input 
+                  type="text" 
+                  value={fd.personalIdNumber || ""} 
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    setRecord(prev => prev ? {
+                      ...prev,
+                      form_data: { ...prev.form_data, personalIdNumber: newValue }
+                    } : null);
+                  }}
+                  onBlur={(e) => handleFieldUpdate('personalIdNumber', e.target.value)}
+                  className={getInputClass(fd.personalIdNumber, "personalIdNumber", "w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium")} 
+                />
+              </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">Kuřák</label>
                 <div className="flex gap-3">
