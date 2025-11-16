@@ -294,51 +294,51 @@ export default function SimpleDentalChart({
             </div>
           );
         })}
-      
-      {/* Notes */}
-      {notes && (
-        <div className="mt-3 p-3 bg-blue-50 rounded border border-blue-200 text-sm">
-          <span className="font-semibold text-blue-900">Poznámky: </span>
-          <span className="text-blue-800">{notes}</span>
+    </div>
+    
+    {/* Notes - mimo relative kontejner */}
+    {notes && (
+      <div className="mt-3 p-3 bg-blue-50 rounded border border-blue-200 text-sm">
+        <span className="font-semibold text-blue-900">Poznámky: </span>
+        <span className="text-blue-800">{notes}</span>
+      </div>
+    )}
+    
+    {/* Legend - VYSVĚTLIVKY - mimo relative kontejner */}
+    <div className="mt-4 pt-4 border-t border-gray-200">
+      <h4 className="text-xs font-semibold text-gray-700 mb-2">Vysvětlivky:</h4>
+      <div className="flex flex-wrap gap-3 text-xs">
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-full border border-gray-300" style={{ backgroundColor: '#FFFFFF' }}></div>
+          <span>Zdravý</span>
         </div>
-      )}
-      
-      {/* Legend - VYSVĚTLIVKY - vždy zobrazené pod zubním křížem */}
-      <div className="mt-4 pt-4 border-t border-gray-200">
-        <h4 className="text-xs font-semibold text-gray-700 mb-2">Vysvětlivky:</h4>
-        <div className="flex flex-wrap gap-3 text-xs">
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full border border-gray-300" style={{ backgroundColor: '#FFFFFF' }}></div>
-            <span>Zdravý</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FFD60A' }}></div>
-            <span>Korunka</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#4E73DF' }}></div>
-            <span>Výplň</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#E879F9' }}></div>
-            <span>Ošetřený kořen</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#72E4AD' }}></div>
-            <span>Implantát</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#F97316' }}></div>
-            <span>Můstek</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#E5E5EA' }}></div>
-            <span>Chybí</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FF6B6B' }}></div>
-            <span>Kaz</span>
-          </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FFD60A' }}></div>
+          <span>Korunka</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#4E73DF' }}></div>
+          <span>Výplň</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#E879F9' }}></div>
+          <span>Ošetřený kořen</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#72E4AD' }}></div>
+          <span>Implantát</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#F97316' }}></div>
+          <span>Můstek</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#E5E5EA' }}></div>
+          <span>Chybí</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FF6B6B' }}></div>
+          <span>Kaz</span>
         </div>
       </div>
     </div>
