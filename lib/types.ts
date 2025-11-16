@@ -33,6 +33,11 @@ export interface ParoRecord {
   human_corrections?: HumanCorrections; // Diff mezi LLM a hygienistkou
   correction_count?: number; // Počet opravených polí
   corrected_at?: string; // Kdy byly provedeny opravy
+  
+  // 🆕 Hygienist Verification (pro fine-tuning)
+  verified_by_hygienist?: boolean; // TRUE = Hygienistka zkontrolovala a ověřila
+  verified_at?: string; // Kdy byl záznam ověřen
+  verified_by?: string; // User ID hygienistky, která ověřila
 }
 
 // Confidence score pro jedno pole

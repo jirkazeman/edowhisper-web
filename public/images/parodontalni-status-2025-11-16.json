@@ -1,0 +1,54 @@
+{
+  "exportedAt": "2025-11-16T18:49:27.565Z",
+  "protocol": {
+    "17": {
+      "depth": [
+        3,
+        3,
+        3,
+        2,
+        2,
+        2
+      ],
+      "bleeding": true
+    },
+    "21": {
+      "depth": [
+        3,
+        3,
+        3,
+        2,
+        2,
+        2
+      ],
+      "bleeding": false
+    },
+    "34": {
+      "depth": [
+        3,
+        4,
+        3,
+        3,
+        3,
+        3
+      ],
+      "bleeding": false
+    },
+    "43": {
+      "depth": [
+        3,
+        4,
+        3,
+        2,
+        2,
+        2
+      ],
+      "bleeding": false
+    }
+  },
+  "metadata": {
+    "totalTeeth": 4,
+    "teethWithBleeding": 1,
+    "averageDepth": 2.7
+  }
+}

@@ -54,15 +54,15 @@ export async function POST() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 1. Načti ohodnocené záznamy s rating >= 4 POUZE tohoto uživatele
+    // 1. Načti POUZE ověřené záznamy (verified_by_hygienist = true)
     const { data: records, error } = await supabase
       .from("paro_records")
       .select("*")
       .eq("user_id", user.id)  // 🔒 KRITICKÉ: Filtrovat podle user_id!
+      .eq("verified_by_hygienist", true) // 🆕 POUZE ověřené záznamy
       .not("llm_original", "is", null)
-      .gte("quality_rating", 4) // Pouze kvalitní záznamy
       .eq("deleted", false)
-      .order("rated_at", { ascending: false });
+      .order("verified_at", { ascending: false });
 
     if (error) {
       console.error("Error fetching records:", error);
@@ -71,7 +71,7 @@ export async function POST() {
 
     if (!records || records.length === 0) {
       return NextResponse.json(
-        { error: "Žádné kvalitní záznamy k exportu. Ohodnoťte záznamy hodnocením 4 nebo 5." },
+        { error: "Žádné ověřené záznamy k exportu. Označte záznamy jako '✅ Ověřeno' pro fine-tuning." },
         { status: 400 }
       );
     }

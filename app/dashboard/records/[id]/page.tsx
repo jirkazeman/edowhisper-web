@@ -64,6 +64,9 @@ export default function RecordDetailPage() {
   
   // Copy funkce pro treatmentRecord
   const [isCopied, setIsCopied] = useState(false);
+  
+  // Verification workflow state
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -703,6 +706,42 @@ export default function RecordDetailPage() {
     }
   };
 
+  // Verification workflow handler
+  const handleVerifyRecord = async () => {
+    if (!record) return;
+    
+    const confirmed = window.confirm(
+      record.verified_by_hygienist
+        ? '⚠️ Opravdu chcete zrušit ověření tohoto záznamu?\n\nZáznam nebude použit pro trénink LLM.'
+        : '✅ Potvrzuji, že jsem zkontroloval/a všechna pole a záznam je 100% správný.\n\nZáznam bude použit pro trénink LLM.'
+    );
+    
+    if (!confirmed) return;
+    
+    setIsVerifying(true);
+    try {
+      const response = await fetch(`/api/records/${params.id}/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (!response.ok) throw new Error('Failed to verify record');
+      
+      const data = await response.json();
+      
+      // Reload record to get updated verification status
+      await loadRecord();
+      
+      alert(data.message || '✅ Stav ověření aktualizován');
+      console.log('✅ Verification toggled:', data);
+    } catch (error) {
+      console.error('Error verifying record:', error);
+      alert('❌ Nepodařilo se změnit stav ověření');
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
   return (
     <>
     <div className="h-screen flex flex-col bg-gray-50">
@@ -717,6 +756,39 @@ export default function RecordDetailPage() {
         
         {/* Controls */}
         <div className="flex items-center gap-1.5 border-l pl-2">
+          {/* Ověřit záznam (Hygienist Verification) */}
+          {!record.verified_by_hygienist ? (
+            <button
+              onClick={handleVerifyRecord}
+              disabled={isVerifying}
+              className={`px-2 py-1 rounded text-xs font-medium transition ${
+                isVerifying
+                  ? 'bg-gray-200 text-gray-500 cursor-wait'
+                  : 'bg-green-600 text-white hover:bg-green-700'
+              }`}
+              title="Ověřit záznam jako 100% správný (pro fine-tuning LLM)"
+            >
+              {isVerifying ? '⏳ Ověřuji...' : '✅ Ověřit'}
+            </button>
+          ) : (
+            <div className="flex items-center gap-1">
+              <div className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium flex items-center gap-1">
+                ✅ Ověřeno
+                <span className="text-[10px] opacity-70">
+                  {new Date(record.verified_at!).toLocaleDateString('cs-CZ')}
+                </span>
+              </div>
+              <button
+                onClick={handleVerifyRecord}
+                disabled={isVerifying}
+                className="p-1 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition text-xs"
+                title="Odebrat ověření"
+              >
+                ❌
+              </button>
+            </div>
+          )}
+          
           {/* Validovat extrakci (Dual-LLM) */}
           <button
             onClick={handleValidateExtraction}
