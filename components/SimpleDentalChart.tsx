@@ -23,62 +23,62 @@ interface SimpleDentalChartProps {
 // Pozice každého zubu na obrázku (v procentech)
 // Tyto pozice jsou odhadnuté a budou se muset přesně doladit podle skutečného obrázku
 const toothPositions: { [key: string]: { x: number; y: number; view: 'buccal-upper' | 'occlusal-upper' | 'occlusal-lower' | 'buccal-lower' } } = {
-  // HORNÍ ČELIST - Buccal view (korunky) - řada 1 (zobrazujeme jen tuto řadu nahoře)
-  "18": { x: 6, y: 30, view: 'buccal-upper' },
-  "17": { x: 12, y: 30, view: 'buccal-upper' },
-  "16": { x: 18, y: 30, view: 'buccal-upper' },
-  "15": { x: 24, y: 30, view: 'buccal-upper' },
-  "14": { x: 30, y: 30, view: 'buccal-upper' },
-  "13": { x: 36, y: 30, view: 'buccal-upper' },
-  "12": { x: 42, y: 30, view: 'buccal-upper' },
-  "11": { x: 47, y: 30, view: 'buccal-upper' },
+  // HORNÍ ČELIST - Buccal view (korunky) - PROHOZENO: nyní dole (y: 70)
+  "18": { x: 6, y: 70, view: 'buccal-upper' },
+  "17": { x: 12, y: 70, view: 'buccal-upper' },
+  "16": { x: 18, y: 70, view: 'buccal-upper' },
+  "15": { x: 24, y: 70, view: 'buccal-upper' },
+  "14": { x: 30, y: 70, view: 'buccal-upper' },
+  "13": { x: 36, y: 70, view: 'buccal-upper' },
+  "12": { x: 42, y: 70, view: 'buccal-upper' },
+  "11": { x: 47, y: 70, view: 'buccal-upper' },
   
-  "21": { x: 53, y: 30, view: 'buccal-upper' },
-  "22": { x: 58, y: 30, view: 'buccal-upper' },
-  "23": { x: 64, y: 30, view: 'buccal-upper' },
-  "24": { x: 70, y: 30, view: 'buccal-upper' },
-  "25": { x: 76, y: 30, view: 'buccal-upper' },
-  "26": { x: 82, y: 30, view: 'buccal-upper' },
-  "27": { x: 88, y: 30, view: 'buccal-upper' },
-  "28": { x: 94, y: 30, view: 'buccal-upper' },
+  "21": { x: 53, y: 70, view: 'buccal-upper' },
+  "22": { x: 58, y: 70, view: 'buccal-upper' },
+  "23": { x: 64, y: 70, view: 'buccal-upper' },
+  "24": { x: 70, y: 70, view: 'buccal-upper' },
+  "25": { x: 76, y: 70, view: 'buccal-upper' },
+  "26": { x: 82, y: 70, view: 'buccal-upper' },
+  "27": { x: 88, y: 70, view: 'buccal-upper' },
+  "28": { x: 94, y: 70, view: 'buccal-upper' },
   
   // HORNÍ ČELIST - Occlusal view (žvýkací plochy) - řada 2
-  "18-o": { x: 6, y: 30, view: 'occlusal-upper' },
-  "17-o": { x: 12, y: 30, view: 'occlusal-upper' },
-  "16-o": { x: 18, y: 30, view: 'occlusal-upper' },
-  "15-o": { x: 24, y: 30, view: 'occlusal-upper' },
-  "14-o": { x: 30, y: 30, view: 'occlusal-upper' },
-  "13-o": { x: 36, y: 30, view: 'occlusal-upper' },
-  "12-o": { x: 42, y: 30, view: 'occlusal-upper' },
-  "11-o": { x: 47, y: 30, view: 'occlusal-upper' },
+  "18-o": { x: 6, y: 70, view: 'occlusal-upper' },
+  "17-o": { x: 12, y: 70, view: 'occlusal-upper' },
+  "16-o": { x: 18, y: 70, view: 'occlusal-upper' },
+  "15-o": { x: 24, y: 70, view: 'occlusal-upper' },
+  "14-o": { x: 30, y: 70, view: 'occlusal-upper' },
+  "13-o": { x: 36, y: 70, view: 'occlusal-upper' },
+  "12-o": { x: 42, y: 70, view: 'occlusal-upper' },
+  "11-o": { x: 47, y: 70, view: 'occlusal-upper' },
   
-  "21-o": { x: 53, y: 30, view: 'occlusal-upper' },
-  "22-o": { x: 58, y: 30, view: 'occlusal-upper' },
-  "23-o": { x: 64, y: 30, view: 'occlusal-upper' },
-  "24-o": { x: 70, y: 30, view: 'occlusal-upper' },
-  "25-o": { x: 76, y: 30, view: 'occlusal-upper' },
-  "26-o": { x: 82, y: 30, view: 'occlusal-upper' },
-  "27-o": { x: 88, y: 30, view: 'occlusal-upper' },
-  "28-o": { x: 94, y: 30, view: 'occlusal-upper' },
+  "21-o": { x: 53, y: 70, view: 'occlusal-upper' },
+  "22-o": { x: 58, y: 70, view: 'occlusal-upper' },
+  "23-o": { x: 64, y: 70, view: 'occlusal-upper' },
+  "24-o": { x: 70, y: 70, view: 'occlusal-upper' },
+  "25-o": { x: 76, y: 70, view: 'occlusal-upper' },
+  "26-o": { x: 82, y: 70, view: 'occlusal-upper' },
+  "27-o": { x: 88, y: 70, view: 'occlusal-upper' },
+  "28-o": { x: 94, y: 70, view: 'occlusal-upper' },
   
-  // DOLNÍ ČELIST - Buccal view (kořeny) - řada 4 (zobrazujeme jen tuto řadu dole, posunuto o 3× kolečko dolů)
-  "48": { x: 6, y: 70, view: 'buccal-lower' },
-  "47": { x: 12, y: 70, view: 'buccal-lower' },
-  "46": { x: 18, y: 70, view: 'buccal-lower' },
-  "45": { x: 24, y: 70, view: 'buccal-lower' },
-  "44": { x: 30, y: 70, view: 'buccal-lower' },
-  "43": { x: 36, y: 70, view: 'buccal-lower' },
-  "42": { x: 42, y: 70, view: 'buccal-lower' },
-  "41": { x: 47, y: 70, view: 'buccal-lower' },
+  // DOLNÍ ČELIST - Buccal view (kořeny) - PROHOZENO: nyní nahoře (y: 30)
+  "48": { x: 6, y: 30, view: 'buccal-lower' },
+  "47": { x: 12, y: 30, view: 'buccal-lower' },
+  "46": { x: 18, y: 30, view: 'buccal-lower' },
+  "45": { x: 24, y: 30, view: 'buccal-lower' },
+  "44": { x: 30, y: 30, view: 'buccal-lower' },
+  "43": { x: 36, y: 30, view: 'buccal-lower' },
+  "42": { x: 42, y: 30, view: 'buccal-lower' },
+  "41": { x: 47, y: 30, view: 'buccal-lower' },
   
-  "31": { x: 53, y: 70, view: 'buccal-lower' },
-  "32": { x: 58, y: 70, view: 'buccal-lower' },
-  "33": { x: 64, y: 70, view: 'buccal-lower' },
-  "34": { x: 70, y: 70, view: 'buccal-lower' },
-  "35": { x: 76, y: 70, view: 'buccal-lower' },
-  "36": { x: 82, y: 70, view: 'buccal-lower' },
-  "37": { x: 88, y: 70, view: 'buccal-lower' },
-  "38": { x: 94, y: 70, view: 'buccal-lower' },
+  "31": { x: 53, y: 30, view: 'buccal-lower' },
+  "32": { x: 58, y: 30, view: 'buccal-lower' },
+  "33": { x: 64, y: 30, view: 'buccal-lower' },
+  "34": { x: 70, y: 30, view: 'buccal-lower' },
+  "35": { x: 76, y: 30, view: 'buccal-lower' },
+  "36": { x: 82, y: 30, view: 'buccal-lower' },
+  "37": { x: 88, y: 30, view: 'buccal-lower' },
+  "38": { x: 94, y: 30, view: 'buccal-lower' },
 };
 
 export default function SimpleDentalChart({ 
@@ -169,12 +169,12 @@ export default function SimpleDentalChart({
 
   const chartContent = (
     <div className="relative w-full py-8">
-        {/* Tenká linka pro horní čelist */}
+        {/* Tenká linka pro dolní čelist (nyní nahoře) */}
         <div className="relative w-full h-1 mb-16">
           <div className="absolute inset-0 border-t border-gray-300"></div>
         </div>
         
-        {/* Tenká linka pro dolní čelist */}
+        {/* Tenká linka pro horní čelist (nyní dole) */}
         <div className="relative w-full h-1 mt-16">
           <div className="absolute inset-0 border-t border-gray-300"></div>
         </div>
