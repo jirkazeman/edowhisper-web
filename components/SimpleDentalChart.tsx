@@ -169,14 +169,14 @@ export default function SimpleDentalChart({
 
   const chartContent = (
     <>
-      <div className="relative w-full py-8 min-h-[300px]">
+      <div className="relative w-full py-4 min-h-[250px]">
           {/* Tenká linka pro dolní čelist (nyní nahoře) */}
-          <div className="relative w-full h-1 mb-16">
+          <div className="relative w-full h-1 mb-10">
             <div className="absolute inset-0 border-t border-gray-300"></div>
           </div>
           
           {/* Tenká linka pro horní čelist (nyní dole) */}
-          <div className="relative w-full h-1 mt-16">
+          <div className="relative w-full h-1 mt-10">
             <div className="absolute inset-0 border-t border-gray-300"></div>
           </div>
           
@@ -216,7 +216,7 @@ export default function SimpleDentalChart({
                 {/* Pro dolní zuby: číslo NAD kruhem v šedém kruhu */}
                 {isLowerTooth && (
                   <div 
-                    className="mb-1 flex items-center justify-center rounded-full bg-gray-200 border border-gray-300"
+                    className="mb-0.5 flex items-center justify-center rounded-full bg-gray-200 border border-gray-300"
                     style={{ 
                       width: `${markerSize * 0.85}px`,
                       height: `${markerSize * 0.85}px`,
@@ -264,7 +264,7 @@ export default function SimpleDentalChart({
                 {/* Pro horní zuby: číslo POD kruhem v šedém kruhu */}
                 {!isLowerTooth && (
                   <div 
-                    className="mt-1 flex items-center justify-center rounded-full bg-gray-200 border border-gray-300"
+                    className="mt-0.5 flex items-center justify-center rounded-full bg-gray-200 border border-gray-300"
                     style={{ 
                       width: `${markerSize * 0.85}px`,
                       height: `${markerSize * 0.85}px`,
@@ -299,14 +299,14 @@ export default function SimpleDentalChart({
       
       {/* Notes - mimo relative kontejner */}
       {notes && (
-        <div className="mt-3 p-3 bg-blue-50 rounded border border-blue-200 text-sm">
+        <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-200 text-xs">
           <span className="font-semibold text-blue-900">Poznámky: </span>
           <span className="text-blue-800">{notes}</span>
         </div>
       )}
       
       {/* Legend - VYSVĚTLIVKY - mimo relative kontejner */}
-      <div className="mt-4 pt-4 border-t border-gray-200">
+      <div className="mt-2 pt-2 border-t border-gray-200">
         <h4 className="text-xs font-semibold text-gray-700 mb-2">Vysvětlivky:</h4>
         <div className="flex flex-wrap gap-3 text-xs">
           <div className="flex items-center gap-1.5">
