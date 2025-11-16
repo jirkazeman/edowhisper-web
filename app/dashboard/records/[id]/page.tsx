@@ -8,6 +8,7 @@ import SimpleDentalChart from "@/components/SimpleDentalChart";
 import PeriodontalStatusChart from "@/components/PeriodontalStatusChart";
 import ToothEditor from "@/components/ToothEditor";
 import ValidationModal from "@/components/ValidationModal";
+import TranscriptHighlight from "@/components/TranscriptHighlight";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
 import { ValidationResult } from "@/lib/services/llmValidationService";
@@ -463,29 +464,6 @@ export default function RecordDetailPage() {
     return value !== null && value !== undefined && value !== '' && value !== 'N/A';
   };
 
-  // Helper pro zvýraznění nevyužitých slov v přepisu
-  const highlightUnusedWords = (transcript: string | undefined) => {
-    if (!transcript) return null;
-
-    // Získat všechny hodnoty z formuláře jako text
-    const formValues = Object.values(fd).filter(v => v && typeof v === 'string').join(' ').toLowerCase();
-    
-    // Rozdělit přepis na slova
-    const words = transcript.split(/(\s+)/); // Zachovat mezery
-    
-    return words.map((word, idx) => {
-      // Ignorovat mezery a interpunkci
-      const cleanWord = word.replace(/[.,;:!?()]/g, '').toLowerCase();
-      if (!cleanWord || cleanWord.length < 3) return word; // Ignorovat krátká slova
-      
-      // Zkontrolovat jestli je slovo v formuláři
-      const isUsed = formValues.includes(cleanWord);
-      
-      return isUsed ? word : (
-        <mark key={idx} className="bg-yellow-200 px-0.5">{word}</mark>
-      );
-    });
-  };
   
   // Helper pro získání input classy s korálově ohraničením prázdných polí
   const getInputClass = (value: any, fieldName?: string, baseClass: string = "w-full px-3 py-2 border border-gray-300 rounded text-sm") => {
@@ -1061,10 +1039,12 @@ export default function RecordDetailPage() {
             Kompletní přepis
             <span className="text-xs font-normal text-gray-500 ml-2">(žlutě = nevyužito)</span>
           </h3>
-          <div className="bg-gray-50 border-2 border-gray-200 rounded px-3 py-2 h-[calc(100%-3rem)] overflow-y-auto">
-            <p className="text-lg font-medium text-gray-800 whitespace-pre-wrap leading-relaxed">
-              {highlightUnusedWords(fd.fullTranscript)}
-            </p>
+          <div className="h-[calc(100%-3rem)] overflow-y-auto">
+            <TranscriptHighlight
+              transcript={fd.fullTranscript || ''}
+              extractedData={fd}
+              showStats={true}
+            />
           </div>
         </div>
       </div>
