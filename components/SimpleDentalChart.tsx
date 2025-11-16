@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { Maximize2, X } from "lucide-react";
 
 interface ToothData {
@@ -93,11 +92,11 @@ export default function SimpleDentalChart({
   const [hoveredTooth, setHoveredTooth] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   
-  // Velikost tečky podle zoom (30px pro optimální viditelnost)
+  // Velikost tečky podle zoom (zvětšeno z 30px na 36px)
   // Minimální zoom pro prvky - při 70% zoom jsou prvky stále 85%
   const minZoom = 85;
   const effectiveZoom = Math.max(minZoom, fontSize);
-  const markerSize = (30 * effectiveZoom) / 100;
+  const markerSize = (36 * effectiveZoom) / 100;
 
   // PŘESNĚ STEJNÉ BARVY JAKO V MOBILNÍ APLIKACI (Odontogram.tsx)
   const getToothColor = (toothId: string) => {
@@ -169,30 +168,18 @@ export default function SimpleDentalChart({
   }
 
   const chartContent = (
-    <div className="relative w-full">
-        {/* HORNÍ ČELIST */}
-        <div className="relative w-full aspect-[8/1]">
-          <Image
-            src="/images/tooth_nahore.png"
-            alt="Horní zuby"
-            fill
-            className="object-contain"
-            priority
-          />
+    <div className="relative w-full py-8">
+        {/* Tenká linka pro horní čelist */}
+        <div className="relative w-full h-1 mb-16">
+          <div className="absolute inset-0 border-t border-gray-300"></div>
         </div>
         
-        {/* DOLNÍ ČELIST */}
-        <div className="relative w-full aspect-[8/1]">
-          <Image
-            src="/images/tooth_dole.png"
-            alt="Dolní zuby"
-            fill
-            className="object-contain"
-            priority
-          />
+        {/* Tenká linka pro dolní čelist */}
+        <div className="relative w-full h-1 mt-16">
+          <div className="absolute inset-0 border-t border-gray-300"></div>
         </div>
         
-        {/* Fullscreen button - nad obrázkem */}
+        {/* Fullscreen button */}
         <button
           onClick={() => setIsFullscreen(true)}
           className="absolute top-2 right-2 p-2 hover:bg-gray-100 rounded-lg transition z-50 bg-white/80 backdrop-blur-sm"
@@ -246,19 +233,20 @@ export default function SimpleDentalChart({
                 </div>
               )}
               
-              {/* Data indicator - zaoblený vrchol pro dolní zuby */}
+              {/* Data indicator - zaoblený vrchol pro dolní zuby, zaoblený spodek pro horní zuby */}
               <div
-                className={`pointer-events-auto border-2 border-gray-400 transition-all hover:scale-125 shadow-lg flex items-center justify-center ${
+                className={`pointer-events-auto border border-gray-400 transition-all hover:scale-125 shadow-lg flex items-center justify-center ${
                   !readonly ? 'cursor-pointer' : ''
                 }`}
                 style={{ 
                   backgroundColor: getToothColor(toothId),
                   width: `${markerSize}px`,
                   height: `${markerSize}px`,
-                  // Zaoblený vrchol pro dolní zuby (jako v mobilní aplikaci)
-                  borderRadius: isLowerTooth ? '50% 50% 8px 8px' : '50%',
-                  borderTopLeftRadius: isLowerTooth ? '50%' : '50%',
-                  borderTopRightRadius: isLowerTooth ? '50%' : '50%',
+                  // Dolní zuby: zaoblený vrchol (50% nahoře, 8px dole)
+                  // Horní zuby: zaoblený spodek (8px nahoře, 50% dole) - zrcadlově
+                  borderRadius: isLowerTooth ? '50% 50% 8px 8px' : '8px 8px 50% 50%',
+                  borderTopLeftRadius: isLowerTooth ? '50%' : '8px',
+                  borderTopRightRadius: isLowerTooth ? '50%' : '8px',
                   borderBottomLeftRadius: isLowerTooth ? '8px' : '50%',
                   borderBottomRightRadius: isLowerTooth ? '8px' : '50%',
                 }}
