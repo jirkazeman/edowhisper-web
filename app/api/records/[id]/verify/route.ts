@@ -12,23 +12,63 @@ export async function POST(
   try {
     const { id } = await params;
     
-    // Create Supabase client
-    const supabase = createClient(
+    // Get auth token from cookie or header
+    const authHeader = request.headers.get('authorization');
+    const cookieHeader = request.headers.get('cookie');
+    
+    // Extract access token
+    let accessToken = null;
+    if (authHeader?.startsWith('Bearer ')) {
+      accessToken = authHeader.substring(7);
+    } else if (cookieHeader) {
+      const match = cookieHeader.match(/sb-[^-]+-auth-token=([^;]+)/);
+      if (match) {
+        try {
+          const tokenData = JSON.parse(decodeURIComponent(match[1]));
+          accessToken = tokenData.access_token;
+        } catch (e) {
+          console.error('Error parsing cookie token:', e);
+        }
+      }
+    }
+    
+    if (!accessToken) {
+      return NextResponse.json(
+        { error: 'Unauthorized - No access token' },
+        { status: 401 }
+      );
+    }
+    
+    // Create Supabase client with service role for admin operations
+    const supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
+    
+    // Create Supabase client with user token for auth
+    const supabaseUser = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        global: {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        }
+      }
+    );
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabaseUser.auth.getUser();
     if (authError || !user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized - Invalid token' },
         { status: 401 }
       );
     }
 
     // Verify record exists and belongs to user
-    const { data: record, error: fetchError } = await supabase
+    const { data: record, error: fetchError } = await supabaseAdmin
       .from('paro_records')
       .select('id, user_id, verified_by_hygienist')
       .eq('id', id)
@@ -36,8 +76,9 @@ export async function POST(
       .single();
 
     if (fetchError || !record) {
+      console.error('Fetch error:', fetchError);
       return NextResponse.json(
-        { error: 'Record not found or access denied' },
+        { error: 'Record not found or access denied', details: fetchError?.message },
         { status: 404 }
       );
     }
@@ -45,8 +86,8 @@ export async function POST(
     // Toggle verification status
     const newVerifiedStatus = !record.verified_by_hygienist;
 
-    // Update record
-    const { error: updateError } = await supabase
+    // Update record using admin client (bypasses RLS)
+    const { error: updateError } = await supabaseAdmin
       .from('paro_records')
       .update({
         verified_by_hygienist: newVerifiedStatus,
