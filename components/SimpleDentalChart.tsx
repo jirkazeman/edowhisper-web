@@ -168,180 +168,182 @@ export default function SimpleDentalChart({
   }
 
   const chartContent = (
-    <div className="relative w-full py-8">
-        {/* Tenká linka pro dolní čelist (nyní nahoře) */}
-        <div className="relative w-full h-1 mb-16">
-          <div className="absolute inset-0 border-t border-gray-300"></div>
-        </div>
-        
-        {/* Tenká linka pro horní čelist (nyní dole) */}
-        <div className="relative w-full h-1 mt-16">
-          <div className="absolute inset-0 border-t border-gray-300"></div>
-        </div>
-        
-        {/* Fullscreen button */}
-        <button
-          onClick={() => setIsFullscreen(true)}
-          className="absolute top-2 right-2 p-2 hover:bg-gray-100 rounded-lg transition z-50 bg-white/80 backdrop-blur-sm"
-          title="Zobrazit na celou obrazovku"
-        >
-          <Maximize2 size={20} className="text-gray-600" />
-        </button>
-        
-        {/* Tooth Data Overlays */}
-        {Object.entries(toothPositions).map(([key, pos]) => {
-          // Extrahuj číslo zubu (bez "-o" suffixu)
-          const toothId = key.replace('-o', '');
-          const tooth = teeth[toothId];
+    <>
+      <div className="relative w-full py-8">
+          {/* Tenká linka pro dolní čelist (nyní nahoře) */}
+          <div className="relative w-full h-1 mb-16">
+            <div className="absolute inset-0 border-t border-gray-300"></div>
+          </div>
           
-          // Zobrazit pouze zuby s relevantními daty (ne healthy)
-          if (!hasRelevantData(tooth) && readonly) return null;
+          {/* Tenká linka pro horní čelist (nyní dole) */}
+          <div className="relative w-full h-1 mt-16">
+            <div className="absolute inset-0 border-t border-gray-300"></div>
+          </div>
           
-          // Zjisti, jestli je to dolní zub (31-38, 41-48)
-          const isLowerTooth = /^[34]/.test(toothId);
+          {/* Fullscreen button */}
+          <button
+            onClick={() => setIsFullscreen(true)}
+            className="absolute top-2 right-2 p-2 hover:bg-gray-100 rounded-lg transition z-50 bg-white/80 backdrop-blur-sm"
+            title="Zobrazit na celou obrazovku"
+          >
+            <Maximize2 size={20} className="text-gray-600" />
+          </button>
           
-          return (
-            <div
-              key={key}
-              className="absolute pointer-events-none flex flex-col items-center"
-              style={{
-                left: `${pos.x}%`,
-                top: `${pos.y}%`,
-                transform: "translate(-50%, -50%)",
-              }}
-              onMouseEnter={() => setHoveredTooth(toothId)}
-              onMouseLeave={() => setHoveredTooth(null)}
-            >
-              {/* Pro dolní zuby: číslo NAD kruhem v šedém kruhu */}
-              {isLowerTooth && (
-                <div 
-                  className="mb-1 flex items-center justify-center rounded-full bg-gray-200 border border-gray-300"
-                  style={{ 
-                    width: `${markerSize * 0.85}px`,
-                    height: `${markerSize * 0.85}px`,
-                  }}
-                >
-                  <span 
-                    className="font-semibold pointer-events-none"
-                    style={{ 
-                      fontSize: `${markerSize * 0.45}px`,
-                      color: '#8E8E93'
-                    }}
-                  >
-                    {toothId}
-                  </span>
-                </div>
-              )}
-              
-              {/* Data indicator - zaoblený vrchol pro dolní zuby, zaoblený spodek pro horní zuby */}
+          {/* Tooth Data Overlays */}
+          {Object.entries(toothPositions).map(([key, pos]) => {
+            // Extrahuj číslo zubu (bez "-o" suffixu)
+            const toothId = key.replace('-o', '');
+            const tooth = teeth[toothId];
+            
+            // Zobrazit pouze zuby s relevantními daty (ne healthy)
+            if (!hasRelevantData(tooth) && readonly) return null;
+            
+            // Zjisti, jestli je to dolní zub (31-38, 41-48)
+            const isLowerTooth = /^[34]/.test(toothId);
+            
+            return (
               <div
-                className={`pointer-events-auto border border-gray-400 transition-all hover:scale-125 shadow-lg flex items-center justify-center ${
-                  !readonly ? 'cursor-pointer' : ''
-                }`}
-                style={{ 
-                  backgroundColor: getToothColor(toothId),
-                  width: `${markerSize}px`,
-                  height: `${markerSize}px`,
-                  // Dolní zuby: zaoblený vrchol (50% nahoře, 8px dole)
-                  // Horní zuby: zaoblený spodek (8px nahoře, 50% dole) - zrcadlově
-                  borderRadius: isLowerTooth ? '50% 50% 8px 8px' : '8px 8px 50% 50%',
-                  borderTopLeftRadius: isLowerTooth ? '50%' : '8px',
-                  borderTopRightRadius: isLowerTooth ? '50%' : '8px',
-                  borderBottomLeftRadius: isLowerTooth ? '8px' : '50%',
-                  borderBottomRightRadius: isLowerTooth ? '8px' : '50%',
+                key={key}
+                className="absolute pointer-events-none flex flex-col items-center"
+                style={{
+                  left: `${pos.x}%`,
+                  top: `${pos.y}%`,
+                  transform: "translate(-50%, -50%)",
                 }}
-                title={tooth?.note || getToothStatusLabel(tooth?.status) || `Zub ${toothId}`}
-                onClick={() => {
-                  if (!readonly && onToothClick) {
-                    onToothClick(toothId);
-                  }
-                }}
+                onMouseEnter={() => setHoveredTooth(toothId)}
+                onMouseLeave={() => setHoveredTooth(null)}
               >
-                {/* Kruh je prázdný - čísla jsou mimo */}
-              </div>
-              
-              {/* Pro horní zuby: číslo POD kruhem v šedém kruhu */}
-              {!isLowerTooth && (
-                <div 
-                  className="mt-1 flex items-center justify-center rounded-full bg-gray-200 border border-gray-300"
-                  style={{ 
-                    width: `${markerSize * 0.85}px`,
-                    height: `${markerSize * 0.85}px`,
-                  }}
-                >
-                  <span 
-                    className="font-semibold pointer-events-none"
+                {/* Pro dolní zuby: číslo NAD kruhem v šedém kruhu */}
+                {isLowerTooth && (
+                  <div 
+                    className="mb-1 flex items-center justify-center rounded-full bg-gray-200 border border-gray-300"
                     style={{ 
-                      fontSize: `${markerSize * 0.45}px`,
-                      color: '#8E8E93'
+                      width: `${markerSize * 0.85}px`,
+                      height: `${markerSize * 0.85}px`,
                     }}
                   >
-                    {toothId}
-                  </span>
+                    <span 
+                      className="font-semibold pointer-events-none"
+                      style={{ 
+                        fontSize: `${markerSize * 0.45}px`,
+                        color: '#8E8E93'
+                      }}
+                    >
+                      {toothId}
+                    </span>
+                  </div>
+                )}
+                
+                {/* Data indicator - zaoblený vrchol pro dolní zuby, zaoblený spodek pro horní zuby */}
+                <div
+                  className={`pointer-events-auto border border-gray-400 transition-all hover:scale-125 shadow-lg flex items-center justify-center ${
+                    !readonly ? 'cursor-pointer' : ''
+                  }`}
+                  style={{ 
+                    backgroundColor: getToothColor(toothId),
+                    width: `${markerSize}px`,
+                    height: `${markerSize}px`,
+                    // Dolní zuby: zaoblený vrchol (50% nahoře, 8px dole)
+                    // Horní zuby: zaoblený spodek (8px nahoře, 50% dole) - zrcadlově
+                    borderRadius: isLowerTooth ? '50% 50% 8px 8px' : '8px 8px 50% 50%',
+                    borderTopLeftRadius: isLowerTooth ? '50%' : '8px',
+                    borderTopRightRadius: isLowerTooth ? '50%' : '8px',
+                    borderBottomLeftRadius: isLowerTooth ? '8px' : '50%',
+                    borderBottomRightRadius: isLowerTooth ? '8px' : '50%',
+                  }}
+                  title={tooth?.note || getToothStatusLabel(tooth?.status) || `Zub ${toothId}`}
+                  onClick={() => {
+                    if (!readonly && onToothClick) {
+                      onToothClick(toothId);
+                    }
+                  }}
+                >
+                  {/* Kruh je prázdný - čísla jsou mimo */}
                 </div>
-              )}
-              
-              {/* Hover tooltip - POČEŠTĚNO */}
-              {hoveredTooth === toothId && tooth && (
-                <div className="pointer-events-none absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-gray-900 text-white text-xs px-3 py-2 rounded shadow-xl whitespace-nowrap z-50 min-w-[120px]">
-                  <div className="font-semibold mb-1">Zub {toothId}</div>
-                  {tooth.status && <div className="text-gray-300">{getToothStatusLabel(tooth.status)}</div>}
-                  {tooth.mobility && <div className="text-gray-300">Mobilita: {tooth.mobility}</div>}
-                  {tooth.hasCaries && <div className="text-red-300">⚠️ Kaz</div>}
-                  {tooth.note && <div className="text-gray-400 mt-1 max-w-[200px]">{tooth.note}</div>}
-                </div>
-              )}
-            </div>
-          );
-        })}
-    </div>
-    
-    {/* Notes - mimo relative kontejner */}
-    {notes && (
-      <div className="mt-3 p-3 bg-blue-50 rounded border border-blue-200 text-sm">
-        <span className="font-semibold text-blue-900">Poznámky: </span>
-        <span className="text-blue-800">{notes}</span>
+                
+                {/* Pro horní zuby: číslo POD kruhem v šedém kruhu */}
+                {!isLowerTooth && (
+                  <div 
+                    className="mt-1 flex items-center justify-center rounded-full bg-gray-200 border border-gray-300"
+                    style={{ 
+                      width: `${markerSize * 0.85}px`,
+                      height: `${markerSize * 0.85}px`,
+                    }}
+                  >
+                    <span 
+                      className="font-semibold pointer-events-none"
+                      style={{ 
+                        fontSize: `${markerSize * 0.45}px`,
+                        color: '#8E8E93'
+                      }}
+                    >
+                      {toothId}
+                    </span>
+                  </div>
+                )}
+                
+                {/* Hover tooltip - POČEŠTĚNO */}
+                {hoveredTooth === toothId && tooth && (
+                  <div className="pointer-events-none absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-gray-900 text-white text-xs px-3 py-2 rounded shadow-xl whitespace-nowrap z-50 min-w-[120px]">
+                    <div className="font-semibold mb-1">Zub {toothId}</div>
+                    {tooth.status && <div className="text-gray-300">{getToothStatusLabel(tooth.status)}</div>}
+                    {tooth.mobility && <div className="text-gray-300">Mobilita: {tooth.mobility}</div>}
+                    {tooth.hasCaries && <div className="text-red-300">⚠️ Kaz</div>}
+                    {tooth.note && <div className="text-gray-400 mt-1 max-w-[200px]">{tooth.note}</div>}
+                  </div>
+                )}
+              </div>
+            );
+          })}
       </div>
-    )}
-    
-    {/* Legend - VYSVĚTLIVKY - mimo relative kontejner */}
-    <div className="mt-4 pt-4 border-t border-gray-200">
-      <h4 className="text-xs font-semibold text-gray-700 mb-2">Vysvětlivky:</h4>
-      <div className="flex flex-wrap gap-3 text-xs">
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full border border-gray-300" style={{ backgroundColor: '#FFFFFF' }}></div>
-          <span>Zdravý</span>
+      
+      {/* Notes - mimo relative kontejner */}
+      {notes && (
+        <div className="mt-3 p-3 bg-blue-50 rounded border border-blue-200 text-sm">
+          <span className="font-semibold text-blue-900">Poznámky: </span>
+          <span className="text-blue-800">{notes}</span>
         </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FFD60A' }}></div>
-          <span>Korunka</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#4E73DF' }}></div>
-          <span>Výplň</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#E879F9' }}></div>
-          <span>Ošetřený kořen</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#72E4AD' }}></div>
-          <span>Implantát</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#F97316' }}></div>
-          <span>Můstek</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#E5E5EA' }}></div>
-          <span>Chybí</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FF6B6B' }}></div>
-          <span>Kaz</span>
+      )}
+      
+      {/* Legend - VYSVĚTLIVKY - mimo relative kontejner */}
+      <div className="mt-4 pt-4 border-t border-gray-200">
+        <h4 className="text-xs font-semibold text-gray-700 mb-2">Vysvětlivky:</h4>
+        <div className="flex flex-wrap gap-3 text-xs">
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full border border-gray-300" style={{ backgroundColor: '#FFFFFF' }}></div>
+            <span>Zdravý</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FFD60A' }}></div>
+            <span>Korunka</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#4E73DF' }}></div>
+            <span>Výplň</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#E879F9' }}></div>
+            <span>Ošetřený kořen</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#72E4AD' }}></div>
+            <span>Implantát</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#F97316' }}></div>
+            <span>Můstek</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#E5E5EA' }}></div>
+            <span>Chybí</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FF6B6B' }}></div>
+            <span>Kaz</span>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 
   return (
