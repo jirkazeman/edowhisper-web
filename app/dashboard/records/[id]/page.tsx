@@ -1307,8 +1307,8 @@ export default function RecordDetailPage() {
         </div>
       </div>
       
-      {/* Záznam ošetření + Přehled + Přepis DOLE - ROZTAŽENÉ PŘES CELOU ŠÍŘKU */}
-      <div className="grid grid-cols-3 gap-3 px-1.5 pb-1.5">
+      {/* Přehled + Přepis DOLE - 50% - 50% */}
+      <div className="grid grid-cols-2 gap-3 px-1.5 pb-1.5">
         {/* Přehled o ošetření - LEVÁ ČÁST */}
         <div className="bg-white rounded shadow-sm p-3">
           <div className="flex items-center justify-between mb-2">
