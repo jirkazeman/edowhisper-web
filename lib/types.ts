@@ -92,6 +92,7 @@ export interface HumanCorrections {
 
 export interface RecordFormData {
   // Základní info
+  firstName?: string;
   lastName: string;
   personalIdNumber: string;
 
@@ -144,7 +145,6 @@ export interface RecordFormData {
   };
 
   // Záznamy
-  treatmentRecord?: string;
   examinationSummary?: string;
   userNotes?: string;
   fullTranscript?: string;

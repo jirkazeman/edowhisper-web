@@ -421,12 +421,6 @@ export default function FineTuningEditPage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">
               Záznam o léčbě
             </h2>
-            <EditableField
-              label="Záznam o léčbě"
-              field="treatmentRecord"
-              multiline
-              placeholder="Popište průběh léčby"
-            />
             <div className="mt-4">
               <EditableField
                 label="Poznámky uživatele"

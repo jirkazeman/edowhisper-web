@@ -103,7 +103,6 @@ export default function TVDisplayPage() {
           pbiValues: "0123/2341/1234/0123",
           pbiTools: "Parodontální sonda",
           cpitn: "102/121",
-          treatmentRecord: "Provedena profesionální hygiena:\n- Odstranění zubního kamene ultrazvukem\n- Air-Flow čištění\n- Leštění zubů\n- Fluoridace\n- Edukace o správné technice čištění\n- Doporučení kontroly za 6 měsíců",
           examinationSummary: "",
           userNotes: "",
           fullTranscript: "",
@@ -267,11 +266,11 @@ export default function TVDisplayPage() {
           {/* Záznam o ošetření */}
           <div className="bg-white rounded-2xl shadow-lg p-6 border-2 border-indigo-100">
             <h3 className="text-xl font-bold text-indigo-900 mb-4 flex items-center">
-              <span className="text-2xl mr-2">✍️</span> Ošetření
+              <span className="text-2xl mr-2">✍️</span> Přehled o ošetření
             </h3>
-            {formData.treatmentRecord ? (
+            {formData.examinationSummary ? (
               <div className="text-sm text-gray-700 whitespace-pre-wrap max-h-48 overflow-y-auto">
-                {formData.treatmentRecord}
+                {formData.examinationSummary}
               </div>
             ) : (
               <p className="text-gray-400 text-sm italic">Žádný záznam</p>
