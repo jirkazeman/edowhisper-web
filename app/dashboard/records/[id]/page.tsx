@@ -64,11 +64,18 @@ export default function RecordDetailPage() {
   
   // Copy funkce pro treatmentRecord
   const [isCopied, setIsCopied] = useState(false);
+  const [isSummaryCopied, setIsSummaryCopied] = useState(false); // 🆕 Pro Přehled o ošetření
   
   // 🆕 Edit Mode workflow
   const [isEditMode, setIsEditMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [originalFormData, setOriginalFormData] = useState<any>(null);
+  
+  // 🆕 Editace Přehledu o ošetření
+  const [isEditingSummary, setIsEditingSummary] = useState(false);
+  const [editedSummary, setEditedSummary] = useState<string>('');
+  const [originalSummary, setOriginalSummary] = useState<string>('');
+  const [isSavingSummary, setIsSavingSummary] = useState(false);
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -78,6 +85,64 @@ export default function RecordDetailPage() {
     } catch (err) {
       console.error('Nepodařilo se zkopírovat:', err);
       alert('❌ Nepodařilo se zkopírovat text');
+    }
+  };
+  
+  const copySummaryToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setIsSummaryCopied(true);
+      setTimeout(() => setIsSummaryCopied(false), 2000);
+    } catch (err) {
+      console.error('Nepodařilo se zkopírovat:', err);
+      alert('❌ Nepodařilo se zkopírovat text');
+    }
+  };
+  
+  // 🆕 Editace Přehledu o ošetření
+  const handleEditSummary = () => {
+    if (!record) return;
+    setOriginalSummary(record.form_data.examinationSummary || '');
+    setEditedSummary(record.form_data.examinationSummary || '');
+    setIsEditingSummary(true);
+  };
+  
+  const handleCancelEditSummary = () => {
+    setEditedSummary(originalSummary);
+    setIsEditingSummary(false);
+  };
+  
+  const handleSaveSummary = async () => {
+    if (!record || !user) return;
+    
+    setIsSavingSummary(true);
+    try {
+      const updatedFormData = {
+        ...record.form_data,
+        examinationSummary: editedSummary
+      };
+      
+      const { data, error } = await supabase
+        .from('paro_records')
+        .update({ form_data: updatedFormData })
+        .eq('id', params.id)
+        .eq('user_id', user.id)
+        .select();
+
+      if (error) throw error;
+      if (!data || data.length === 0) {
+        throw new Error('Záznam nenalezen nebo nemáte oprávnění k úpravě');
+      }
+
+      // Refresh record
+      await loadRecord();
+      setIsEditingSummary(false);
+      console.log('✅ Přehled o ošetření uložen');
+    } catch (err: any) {
+      console.error('❌ Chyba při ukládání:', err);
+      alert(`❌ Nepodařilo se uložit: ${err.message || err}`);
+    } finally {
+      setIsSavingSummary(false);
     }
   };
   
@@ -1284,9 +1349,98 @@ export default function RecordDetailPage() {
         </div>
       </div>
       
-      {/* Záznam ošetření + Kompletní přepis DOLE - ROZTAŽENÉ PŘES CELOU ŠÍŘKU */}
-      <div className="grid grid-cols-2 gap-3 px-1.5 pb-1.5">
-        {/* Záznam o ošetření - LEVÁ POLOVINA */}
+      {/* Záznam ošetření + Přehled + Přepis DOLE - ROZTAŽENÉ PŘES CELOU ŠÍŘKU */}
+      <div className="grid grid-cols-3 gap-3 px-1.5 pb-1.5">
+        {/* Přehled o ošetření - LEVÁ ČÁST */}
+        <div className="bg-white rounded shadow-sm p-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-lg">📋 Přehled o ošetření</h3>
+              {!isEditingSummary && originalSummary && originalSummary !== fd.examinationSummary && (
+                <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">
+                  Upraveno
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {!isEditingSummary ? (
+                <>
+                  {/* Edit button */}
+                  <button
+                    onClick={handleEditSummary}
+                    className="p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                    title="Upravit přehled"
+                  >
+                    <Edit size={20} className="text-blue-500" />
+                  </button>
+                  {/* Copy button */}
+                  {fd.examinationSummary && (
+                    <button
+                      onClick={() => copySummaryToClipboard(fd.examinationSummary || "")}
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors group relative"
+                      title="Zkopírovat do schránky"
+                    >
+                      {isSummaryCopied ? (
+                        <Check size={20} className="text-green-500" />
+                      ) : (
+                        <Copy size={20} className="text-blue-500" />
+                      )}
+                      {isSummaryCopied && (
+                        <span className="absolute -top-8 right-0 bg-green-500 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                          Zkopírováno!
+                        </span>
+                      )}
+                    </button>
+                  )}
+                </>
+              ) : (
+                <>
+                  {/* Cancel button */}
+                  <button
+                    onClick={handleCancelEditSummary}
+                    disabled={isSavingSummary}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                    title="Zrušit"
+                  >
+                    <XIcon size={20} className="text-gray-500" />
+                  </button>
+                  {/* Save button */}
+                  <button
+                    onClick={handleSaveSummary}
+                    disabled={isSavingSummary}
+                    className="p-2 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50"
+                    title="Uložit"
+                  >
+                    {isSavingSummary ? (
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-500"></div>
+                    ) : (
+                      <Save size={20} className="text-green-500" />
+                    )}
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+          
+          {!isEditingSummary ? (
+            <div 
+              className="text-xs font-mono bg-gray-50 p-3 rounded whitespace-pre-wrap h-[calc(100vh-450px)] overflow-y-auto leading-relaxed border border-gray-200"
+              style={{ fontSize: `${fontSize}%` }}
+            >
+              {fd.examinationSummary || "Žádný přehled o ošetření"}
+            </div>
+          ) : (
+            <textarea
+              value={editedSummary}
+              onChange={(e) => setEditedSummary(e.target.value)}
+              className="w-full text-xs font-mono bg-white p-3 rounded h-[calc(100vh-450px)] overflow-y-auto leading-relaxed border border-blue-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none"
+              style={{ fontSize: `${fontSize}%` }}
+              placeholder="Strukturovaný přehled pro export..."
+            />
+          )}
+        </div>
+        
+        {/* Záznam o ošetření - STŘEDNÍ ČÁST */}
         <div className="bg-white rounded shadow-sm p-3">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
@@ -1369,7 +1523,7 @@ export default function RecordDetailPage() {
           )}
         </div>
 
-        {/* Kompletní přepis - PRAVÁ POLOVINA */}
+        {/* Kompletní přepis - PRAVÁ ČÁST */}
         <div className="bg-white rounded shadow-sm p-3">
           <h3 className="font-semibold text-lg mb-2">
             Kompletní přepis
