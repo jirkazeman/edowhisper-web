@@ -47,7 +47,9 @@ export default function LoginPage() {
     setForgotLoading(true);
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail);
+      const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
       if (error) throw error;
       setForgotSuccess(true);
     } catch (err: any) {
