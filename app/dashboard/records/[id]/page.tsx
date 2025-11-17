@@ -65,8 +65,10 @@ export default function RecordDetailPage() {
   // Copy funkce pro treatmentRecord
   const [isCopied, setIsCopied] = useState(false);
   
-  // Verification workflow state
-  const [isVerifying, setIsVerifying] = useState(false);
+  // 🆕 Edit Mode workflow
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [originalFormData, setOriginalFormData] = useState<any>(null);
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -76,6 +78,95 @@ export default function RecordDetailPage() {
     } catch (err) {
       console.error('Nepodařilo se zkopírovat:', err);
       alert('❌ Nepodařilo se zkopírovat text');
+    }
+  };
+  
+  // 🆕 Zapnout Edit Mode
+  const handleEnterEditMode = () => {
+    if (!record) return;
+    setOriginalFormData(JSON.parse(JSON.stringify(record.form_data))); // Deep copy
+    setIsEditMode(true);
+    console.log('✏️ Edit Mode zapnut');
+  };
+  
+  // 🆕 Zrušit Edit Mode
+  const handleCancelEditMode = () => {
+    if (originalFormData) {
+      setRecord(prev => prev ? { ...prev, form_data: originalFormData } : null);
+    }
+    setIsEditMode(false);
+    setOriginalFormData(null);
+    console.log('❌ Edit Mode zrušen');
+  };
+  
+  // 🆕 Uložit a ověřit
+  const handleSaveAndVerify = async () => {
+    if (!record || !user) return;
+    
+    setIsSaving(true);
+    try {
+      // 1. Calculate diff (original vs edited)
+      const llmOriginal = record.llm_original?.form_data || originalFormData;
+      const humanEdited = record.form_data;
+      
+      const humanCorrections: any = {};
+      let correctionCount = 0;
+      
+      if (llmOriginal) {
+        Object.keys(humanEdited).forEach(fieldName => {
+          const llmValue = (llmOriginal as any)[fieldName];
+          const humanValue = (humanEdited as any)[fieldName];
+          
+          // Porovnat hodnoty (ignorovat dentalCross a periodontalProtocol)
+          if (fieldName !== 'dentalCross' && fieldName !== 'periodontalProtocol') {
+            if (JSON.stringify(llmValue) !== JSON.stringify(humanValue)) {
+              humanCorrections[fieldName] = {
+                llm: llmValue,
+                human: humanValue,
+                action: !llmValue ? 'added' : !humanValue ? 'removed' : 'corrected'
+              };
+              correctionCount++;
+            }
+          }
+        });
+      }
+      
+      console.log(`📊 Diff: ${correctionCount} corrections`, humanCorrections);
+      
+      // 2. Save to DB
+      const { error } = await supabase
+        .from('paro_records')
+        .update({
+          form_data: humanEdited,
+          human_corrections: humanCorrections,
+          correction_count: correctionCount,
+          corrected_at: new Date().toISOString(),
+          verified_by_hygienist: true,
+          verified_at: new Date().toISOString(),
+          verified_by: user.id,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', params.id)
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+      
+      // 3. Success
+      console.log('✅ Záznam uložen a ověřen');
+      alert(`✅ Záznam úspěšně uložen a ověřen!\n\n📊 Opraveno polí: ${correctionCount}\n\n✨ Záznam je připraven pro učení AI.`);
+      
+      // 4. Reload record
+      await loadRecord();
+      
+      // 5. Exit edit mode
+      setIsEditMode(false);
+      setOriginalFormData(null);
+      
+    } catch (error: any) {
+      console.error('❌ Chyba při ukládání:', error);
+      alert(`❌ Nepodařilo se uložit záznam:\n\n${error.message || error}`);
+    } finally {
+      setIsSaving(false);
     }
   };
   
@@ -507,19 +598,26 @@ export default function RecordDetailPage() {
   
   // Helper pro získání input classy s korálově ohraničením prázdných polí
   const getInputClass = (value: any, fieldName?: string, baseClass: string = "w-full px-3 py-2 border border-gray-300 rounded text-sm") => {
-    if (!showFieldStatus) return baseClass;
+    let classes = baseClass;
+    
+    // Add disabled styles if not in edit mode
+    if (!isEditMode) {
+      classes += ' bg-gray-50 cursor-not-allowed';
+    }
+    
+    if (!showFieldStatus) return classes;
     
     // Confidence scoring má prioritu
     if (fieldName && confidenceScores[fieldName]?.value !== undefined) {
       const confidence = confidenceScores[fieldName].value;
       const confidenceClass = getConfidenceColorClass(confidence);
-      return `${baseClass.replace('border-gray-300', '')} ${confidenceClass}`;
+      return `${classes.replace('border-gray-300', '')} ${confidenceClass}`;
     }
     
     // Fallback na původní logiku
-    if (isFieldFilled(value)) return baseClass;
+    if (isFieldFilled(value)) return classes;
     // Korálová červená z mobilní app (#FF6B6B)
-    return baseClass.replace('border-gray-300', 'border-[#FF6B6B]');
+    return classes.replace('border-gray-300', 'border-[#FF6B6B]');
   };
   
   // Komponenta pro status ikonu u labelu - inverzní (kruh barevný, symbol bílý)
@@ -687,35 +785,21 @@ export default function RecordDetailPage() {
   };
 
   // Funkce pro update pole v DB
-  const handleFieldUpdate = async (fieldName: string, newValue: string) => {
-    if (!record) return;
+  // 🆕 Field update handler - POUZE pro local state, NEUKLÁ DO DB!
+  // DB update se provede až v handleSaveAndVerify
+  const handleFieldUpdate = (fieldName: string, newValue: string) => {
+    if (!record || !isEditMode) return; // Pouze v Edit Mode
     
-    try {
-      await recordsAPI.update(params.id as string, {
-        [fieldName]: newValue
-      });
-      
-      setRecord(prev => prev ? {
-        ...prev,
-        form_data: { ...prev.form_data, [fieldName]: newValue }
-      } : null);
-      
-      console.log(`✅ Pole ${fieldName} uloženo`);
-    } catch (error) {
-      console.error('Chyba při ukládání:', error);
-    }
+    setRecord(prev => prev ? {
+      ...prev,
+      form_data: { ...prev.form_data, [fieldName]: newValue }
+    } : null);
+    
+    console.log(`✏️ Pole ${fieldName} změněno (local)`);
   };
 
   // Verification workflow handler - DOČASNĚ VYPNUTO!
-  const handleVerifyRecord = async () => {
-    alert('🚨 TLAČÍTKO DOČASNĚ VYPNUTO!\n\n' +
-          '⚠️ DŮVOD: Mazání dat při ověření!\n\n' +
-          'Po kliknutí na Ověřit se všechna pole smazala.\n' +
-          'Tlačítko je vypnuté aby se zabránilo další ztrátě dat.\n\n' +
-          '❌ NEPOUŽÍVEJ dokud nebude opraveno!\n\n' +
-          'Data JSOU stále v databázi - refresh stránku pro obnovení.');
-    return;
-  };
+  // 🗑️ SMAZÁNO - nahrazeno handleSaveAndVerify
 
   return (
     <>
@@ -731,37 +815,63 @@ export default function RecordDetailPage() {
         
         {/* Controls */}
         <div className="flex items-center gap-1.5 border-l pl-2">
-          {/* Ověřit záznam (Hygienist Verification) */}
-          {!record.verified_by_hygienist ? (
-            <button
-              onClick={handleVerifyRecord}
-              disabled={isVerifying}
-              className={`px-2 py-1 rounded text-xs font-medium transition ${
-                isVerifying
-                  ? 'bg-gray-200 text-gray-500 cursor-wait'
-                  : 'bg-green-600 text-white hover:bg-green-700'
-              }`}
-              title="Ověřit záznam jako 100% správný (pro fine-tuning LLM)"
-            >
-              {isVerifying ? '⏳ Ověřuji...' : '✅ Ověřit'}
-            </button>
+          {/* 🆕 NEW WORKFLOW: Edit Mode & Verification */}
+          {!isEditMode ? (
+            <>
+              {/* Not in edit mode - show status and edit button */}
+              {!record.verified_by_hygienist ? (
+                <button
+                  onClick={handleEnterEditMode}
+                  className="px-2 py-1 rounded text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 transition flex items-center gap-1"
+                  title="Zapnout editační mód - všechna pole budou editovatelná"
+                >
+                  <Edit size={14} />
+                  ✏️ Opravit záznam
+                </button>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <div className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium flex items-center gap-1">
+                    <Shield size={14} />
+                    ✅ Ověřeno
+                    <span className="text-[10px] opacity-70">
+                      {new Date(record.verified_at!).toLocaleDateString('cs-CZ')}
+                    </span>
+                  </div>
+                  <button
+                    onClick={handleEnterEditMode}
+                    className="p-1 text-blue-600 hover:bg-blue-50 rounded transition text-xs"
+                    title="Upravit a znovu ověřit"
+                  >
+                    <Edit size={14} />
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
-            <div className="flex items-center gap-1">
-              <div className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium flex items-center gap-1">
-                ✅ Ověřeno
-                <span className="text-[10px] opacity-70">
-                  {new Date(record.verified_at!).toLocaleDateString('cs-CZ')}
-                </span>
-              </div>
+            <>
+              {/* In edit mode - show save and cancel buttons */}
               <button
-                onClick={handleVerifyRecord}
-                disabled={isVerifying}
-                className="p-1 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition text-xs"
-                title="Odebrat ověření"
+                onClick={handleCancelEditMode}
+                className="px-2 py-1 rounded text-xs font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 transition flex items-center gap-1"
+                title="Zrušit změny a vrátit se"
               >
-                ❌
+                <XIcon size={14} />
+                ❌ Zrušit
               </button>
-            </div>
+              <button
+                onClick={handleSaveAndVerify}
+                disabled={isSaving}
+                className={`px-2 py-1 rounded text-xs font-medium transition flex items-center gap-1 ${
+                  isSaving
+                    ? 'bg-gray-200 text-gray-500 cursor-wait'
+                    : 'bg-green-600 text-white hover:bg-green-700'
+                }`}
+                title="Uložit všechny změny a ověřit záznam jako 100% správný (pro fine-tuning LLM)"
+              >
+                <Shield size={14} />
+                {isSaving ? '⏳ Ukládám...' : '🛡️ Uložit a ověřit'}
+              </button>
+            </>
           )}
           
           {/* Validovat extrakci (Dual-LLM) */}
@@ -907,6 +1017,7 @@ export default function RecordDetailPage() {
                     } : null);
                   }}
                   onBlur={(e) => handleFieldUpdate('lastName', e.target.value)}
+                  disabled={!isEditMode}
                   className={getInputClass(fd.lastName, "lastName", "w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium")} 
                 />
               </div>
@@ -927,6 +1038,7 @@ export default function RecordDetailPage() {
                     } : null);
                   }}
                   onBlur={(e) => handleFieldUpdate('personalIdNumber', e.target.value)}
+                  disabled={!isEditMode}
                   className={getInputClass(fd.personalIdNumber, "personalIdNumber", "w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium")} 
                 />
               </div>
@@ -934,11 +1046,33 @@ export default function RecordDetailPage() {
                 <label className="block text-xs text-gray-600 mb-1">Kuřák</label>
                 <div className="flex gap-3">
                   <label className="flex items-center gap-1">
-                    <input type="radio" checked={fd.isSmoker === "yes"} readOnly className="w-4 h-4" />
+                    <input 
+                      type="radio" 
+                      checked={fd.isSmoker === "yes"} 
+                      onChange={() => {
+                        setRecord(prev => prev ? {
+                          ...prev,
+                          form_data: { ...prev.form_data, isSmoker: "yes" }
+                        } : null);
+                      }}
+                      disabled={!isEditMode}
+                      className="w-4 h-4" 
+                    />
                     <span className="text-sm font-medium">Ano</span>
                   </label>
                   <label className="flex items-center gap-1">
-                    <input type="radio" checked={fd.isSmoker === "no"} readOnly className="w-4 h-4" />
+                    <input 
+                      type="radio" 
+                      checked={fd.isSmoker === "no"} 
+                      onChange={() => {
+                        setRecord(prev => prev ? {
+                          ...prev,
+                          form_data: { ...prev.form_data, isSmoker: "no" }
+                        } : null);
+                      }}
+                      disabled={!isEditMode}
+                      className="w-4 h-4" 
+                    />
                     <span className="text-sm font-medium">Ne</span>
                   </label>
                 </div>
@@ -956,21 +1090,57 @@ export default function RecordDetailPage() {
                   Všeobecná anamnéza
                   <FieldStatusIcon value={fd.generalAnamnesis} />
                 </label>
-                <textarea value={fd.generalAnamnesis || ""} readOnly rows={2} className={getInputClass(fd.generalAnamnesis, "w-full px-2 py-1 border border-gray-300 rounded text-sm resize-none leading-relaxed")} />
+                <textarea 
+                  value={fd.generalAnamnesis || ""} 
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    setRecord(prev => prev ? {
+                      ...prev,
+                      form_data: { ...prev.form_data, generalAnamnesis: newValue }
+                    } : null);
+                  }}
+                  disabled={!isEditMode}
+                  rows={2} 
+                  className={getInputClass(fd.generalAnamnesis, "w-full px-2 py-1 border border-gray-300 rounded text-sm resize-none leading-relaxed")} 
+                />
               </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">
                   Alergie
                   <FieldStatusIcon value={fd.allergies} />
                 </label>
-                <textarea value={fd.allergies || ""} readOnly rows={2} className={getInputClass(fd.allergies, "w-full px-2 py-1 border border-gray-300 rounded text-sm resize-none leading-relaxed")} />
+                <textarea 
+                  value={fd.allergies || ""} 
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    setRecord(prev => prev ? {
+                      ...prev,
+                      form_data: { ...prev.form_data, allergies: newValue }
+                    } : null);
+                  }}
+                  disabled={!isEditMode}
+                  rows={2} 
+                  className={getInputClass(fd.allergies, "w-full px-2 py-1 border border-gray-300 rounded text-sm resize-none leading-relaxed")} 
+                />
               </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">
                   Stomatologická anamnéza
                   <FieldStatusIcon value={fd.stomatologicalAnamnesis} />
                 </label>
-                <textarea value={fd.stomatologicalAnamnesis || ""} readOnly rows={2} className={getInputClass(fd.stomatologicalAnamnesis, "w-full px-2 py-1 border border-gray-300 rounded text-sm resize-none leading-relaxed")} />
+                <textarea 
+                  value={fd.stomatologicalAnamnesis || ""} 
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    setRecord(prev => prev ? {
+                      ...prev,
+                      form_data: { ...prev.form_data, stomatologicalAnamnesis: newValue }
+                    } : null);
+                  }}
+                  disabled={!isEditMode}
+                  rows={2} 
+                  className={getInputClass(fd.stomatologicalAnamnesis, "w-full px-2 py-1 border border-gray-300 rounded text-sm resize-none leading-relaxed")} 
+                />
               </div>
             </div>
           </div>
@@ -1006,17 +1176,29 @@ export default function RecordDetailPage() {
             
             <div className="space-y-2">
               {[
-                { label: "Hygiena", value: fd.hygiene },
-                { label: "Gingiva", value: fd.gingiva },
-                { label: "Zubní kámen", value: fd.tartar },
-                { label: "Pomůcky", value: fd.tools }
-              ].map(({ label, value }) => (
+                { label: "Hygiena", value: fd.hygiene, fieldName: "hygiene" },
+                { label: "Gingiva", value: fd.gingiva, fieldName: "gingiva" },
+                { label: "Zubní kámen", value: fd.tartar, fieldName: "tartar" },
+                { label: "Pomůcky", value: fd.tools, fieldName: "tools" }
+              ].map(({ label, value, fieldName }) => (
                 <div key={label}>
                   <label className="block text-xs text-gray-600 mb-1">
                     {label}
                     <FieldStatusIcon value={value} />
                   </label>
-                  <input type="text" value={value || ""} readOnly className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium" />
+                  <input 
+                    type="text" 
+                    value={value || ""} 
+                    onChange={(e) => {
+                      const newValue = e.target.value;
+                      setRecord(prev => prev ? {
+                        ...prev,
+                        form_data: { ...prev.form_data, [fieldName]: newValue }
+                      } : null);
+                    }}
+                    disabled={!isEditMode}
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium" 
+                  />
                 </div>
               ))}
             </div>
@@ -1033,7 +1215,14 @@ export default function RecordDetailPage() {
                 <input 
                   type="text" 
                   value={fd.bob || ""} 
-                  readOnly 
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    setRecord(prev => prev ? {
+                      ...prev,
+                      form_data: { ...prev.form_data, bob: newValue }
+                    } : null);
+                  }}
+                  disabled={!isEditMode}
                   className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium" 
                 />
               </div>
@@ -1044,7 +1233,14 @@ export default function RecordDetailPage() {
                 <input 
                   type="text" 
                   value={fd.pbiValues || ""} 
-                  readOnly 
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    setRecord(prev => prev ? {
+                      ...prev,
+                      form_data: { ...prev.form_data, pbiValues: newValue }
+                    } : null);
+                  }}
+                  disabled={!isEditMode}
                   className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium font-mono" 
                 />
               </div>
@@ -1054,7 +1250,14 @@ export default function RecordDetailPage() {
                 <input 
                   type="text" 
                   value={fd.pbiTools || ""} 
-                  readOnly 
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    setRecord(prev => prev ? {
+                      ...prev,
+                      form_data: { ...prev.form_data, pbiTools: newValue }
+                    } : null);
+                  }}
+                  disabled={!isEditMode}
                   className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium" 
                 />
               </div>
@@ -1065,7 +1268,14 @@ export default function RecordDetailPage() {
                 <input 
                   type="text" 
                   value={fd.cpitn || ""} 
-                  readOnly 
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    setRecord(prev => prev ? {
+                      ...prev,
+                      form_data: { ...prev.form_data, cpitn: newValue }
+                    } : null);
+                  }}
+                  disabled={!isEditMode}
                   className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium font-mono" 
                 />
               </div>
