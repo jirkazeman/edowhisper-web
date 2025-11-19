@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from 'react';
-import { Download, FileJson } from 'lucide-react';
+import { Download, FileJson, Maximize2, X } from 'lucide-react';
 import PeriodontalToothEditor from './PeriodontalToothEditor';
 
 interface PeriodontalProtocol {
@@ -36,6 +36,7 @@ export default function PeriodontalStatusChart({
 }: PeriodontalStatusChartProps) {
   const [editingToothId, setEditingToothId] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false); // Pro dočasné odstranění scrollu
+  const [isFullscreen, setIsFullscreen] = useState(false); // Fullscreen mód
   const chartRef = useRef<HTMLDivElement>(null);
   
   // Horní a dolní řady zubů
@@ -266,14 +267,24 @@ export default function PeriodontalStatusChart({
     );
   };
 
-  return (
-    <>
-      <div ref={chartRef} className="bg-white rounded-lg shadow-sm p-4 border border-gray-200 w-full">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-sm text-gray-800">Parodontální status</h3>
-          
-          {/* Export tlačítka */}
-          <div className="flex gap-2">
+  const chartContent = (
+    <div ref={chartRef} className="bg-white rounded-lg shadow-sm p-4 border border-gray-200 w-full relative">
+      {/* Fullscreen button - absolutní pozice vpravo nahoře */}
+      {!isFullscreen && (
+        <button
+          onClick={() => setIsFullscreen(true)}
+          className="absolute top-2 right-2 p-2 hover:bg-gray-100 rounded-lg transition z-50 bg-white/80 backdrop-blur-sm"
+          title="Zobrazit na celou obrazovku"
+        >
+          <Maximize2 size={20} className="text-gray-600" />
+        </button>
+      )}
+
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-semibold text-sm text-gray-800">Parodontální status</h3>
+        
+        {/* Export tlačítka */}
+        <div className="flex gap-2">
             <button
               onClick={handleExportPNG}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition"
@@ -349,7 +360,38 @@ export default function PeriodontalStatusChart({
             <strong>Horní řada:</strong> Vnější plocha bukální (MB, B, DB zleva doprava) | <strong>Dolní řada:</strong> Vnitřní plocha lingvální/palatinální (ML, L, DL zleva doprava)
           </p>
         </div>
-      </div>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Normální zobrazení */}
+      {!isFullscreen && chartContent}
+
+      {/* Fullscreen modal */}
+      {isFullscreen && (
+        <div
+          className="fixed inset-0 z-[9999] bg-white flex flex-col"
+          style={{ margin: 0, padding: 0 }}
+        >
+          {/* Header s tlačítkem zavřít */}
+          <div className="flex justify-between items-center p-4 border-b bg-white">
+            <h2 className="text-xl font-bold">Parodontální status - Celá obrazovka</h2>
+            <button
+              onClick={() => setIsFullscreen(false)}
+              className="p-2 hover:bg-gray-100 rounded-lg transition"
+              title="Zavřít"
+            >
+              <X size={24} className="text-gray-600" />
+            </button>
+          </div>
+
+          {/* Content - scrollovatelný */}
+          <div className="flex-1 overflow-auto p-4">
+            {chartContent}
+          </div>
+        </div>
+      )}
 
       {/* Modal pro editaci */}
       {editingToothId && (

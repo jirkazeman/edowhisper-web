@@ -1282,11 +1282,11 @@ export default function RecordDetailPage() {
             </div>
           </div>
 
-          {/* Indexy (BOB/PBI/CPITN) */}
+          {/* Indexy (BOB/PBI/CPITN) - 2 sloupce */}
           <div className="bg-white rounded shadow-sm p-2">
             <h3 className="font-semibold text-xs mb-2">📊 Indexy (BOB/PBI/CPITN)</h3>
             
-            <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
               {/* BOB */}
               <div>
                 <label className="block text-xs text-gray-600 mb-1">BOB</label>
@@ -1305,7 +1305,7 @@ export default function RecordDetailPage() {
                 />
               </div>
 
-              {/* PBI */}
+              {/* PBI datum */}
               <div>
                 <label className="block text-xs text-gray-600 mb-1">PBI datum</label>
                 <input 
@@ -1324,6 +1324,7 @@ export default function RecordDetailPage() {
                 />
               </div>
 
+              {/* PBI výsledek */}
               <div>
                 <label className="block text-xs text-gray-600 mb-1">PBI výsledek</label>
                 <input 
@@ -1341,6 +1342,7 @@ export default function RecordDetailPage() {
                 />
               </div>
 
+              {/* PBI hodnoty */}
               <div>
                 <label className="block text-xs text-gray-600 mb-1">PBI hodnoty</label>
                 <input 
@@ -1358,6 +1360,7 @@ export default function RecordDetailPage() {
                 />
               </div>
 
+              {/* PBI pomůcky */}
               <div>
                 <label className="block text-xs text-gray-600 mb-1">PBI pomůcky</label>
                 <input 
