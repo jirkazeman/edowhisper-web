@@ -1165,6 +1165,25 @@ export default function RecordDetailPage() {
                   className={getInputClass(fd.stomatologicalAnamnesis, "w-full px-2 py-1 border border-gray-300 rounded text-sm resize-none leading-relaxed")} 
                 />
               </div>
+              <div>
+                <label className="block text-xs text-gray-600 mb-1">
+                  Trvalá medikace
+                  <FieldStatusIcon value={fd.permanentMedication} />
+                </label>
+                <textarea 
+                  value={fd.permanentMedication || ""} 
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    setRecord(prev => prev ? {
+                      ...prev,
+                      form_data: { ...prev.form_data, permanentMedication: newValue }
+                    } : null);
+                  }}
+                  disabled={!isEditMode}
+                  rows={2} 
+                  className={getInputClass(fd.permanentMedication, "w-full px-2 py-1 border border-gray-300 rounded text-sm resize-none leading-relaxed")} 
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -1193,6 +1212,31 @@ export default function RecordDetailPage() {
 
         {/* RIGHT COLUMN */}
         <div className="space-y-2">
+          {/* Volné poznámky */}
+          <div className="bg-white rounded shadow-sm p-2">
+            <h3 className="font-semibold text-xs mb-2">📝 Volné poznámky</h3>
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">
+                Osobní poznámky
+                <FieldStatusIcon value={fd.userNotes} />
+              </label>
+              <textarea
+                value={fd.userNotes || ""}
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  setRecord(prev => prev ? {
+                    ...prev,
+                    form_data: { ...prev.form_data, userNotes: newValue }
+                  } : null);
+                }}
+                disabled={!isEditMode}
+                placeholder="Zde můžete psát své osobní poznámky..."
+                rows={4}
+                className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium resize-none" 
+              />
+            </div>
+          </div>
+
           {/* Vyšetření */}
           <div className="bg-white rounded shadow-sm p-2">
             <h3 className="font-semibold text-xs mb-2">Vyšetření</h3>
@@ -1203,6 +1247,42 @@ export default function RecordDetailPage() {
                 { label: "Gingiva", value: fd.gingiva, fieldName: "gingiva" },
                 { label: "Zubní kámen", value: fd.tartar, fieldName: "tartar" },
                 { label: "Pomůcky", value: fd.tools, fieldName: "tools" }
+              ].map(({ label, value, fieldName }) => (
+                <div key={label}>
+                  <label className="block text-xs text-gray-600 mb-1">
+                    {label}
+                    <FieldStatusIcon value={value} />
+                  </label>
+                  <input 
+                    type="text" 
+                    value={value || ""} 
+                    onChange={(e) => {
+                      const newValue = e.target.value;
+                      setRecord(prev => prev ? {
+                        ...prev,
+                        form_data: { ...prev.form_data, [fieldName]: newValue }
+                      } : null);
+                    }}
+                    disabled={!isEditMode}
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium" 
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Doplňující položky */}
+          <div className="bg-white rounded shadow-sm p-2">
+            <h3 className="font-semibold text-xs mb-2">➕ Doplňující položky</h3>
+            
+            <div className="space-y-2">
+              {[
+                { label: "Zubní kaz", value: fd.caries, fieldName: "caries" },
+                { label: "Sliznice", value: fd.mucosa, fieldName: "mucosa" },
+                { label: "Jazyk", value: fd.tongue, fieldName: "tongue" },
+                { label: "Úpon frenula", value: fd.frenulum, fieldName: "frenulum" },
+                { label: "Okluze", value: fd.occlusion, fieldName: "occlusion" },
+                { label: "Ortodontická anomálie", value: fd.orthodonticAnomaly, fieldName: "orthodonticAnomaly" }
               ].map(({ label, value, fieldName }) => (
                 <div key={label}>
                   <label className="block text-xs text-gray-600 mb-1">
@@ -1251,6 +1331,41 @@ export default function RecordDetailPage() {
               </div>
 
               {/* PBI */}
+              <div>
+                <label className="block text-xs text-gray-600 mb-1">PBI datum</label>
+                <input 
+                  type="text" 
+                  value={fd.pbiDate || ""} 
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    setRecord(prev => prev ? {
+                      ...prev,
+                      form_data: { ...prev.form_data, pbiDate: newValue }
+                    } : null);
+                  }}
+                  disabled={!isEditMode}
+                  placeholder="DD.MM.RRRR"
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium" 
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs text-gray-600 mb-1">PBI výsledek</label>
+                <input 
+                  type="text" 
+                  value={fd.pbiResult || ""} 
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    setRecord(prev => prev ? {
+                      ...prev,
+                      form_data: { ...prev.form_data, pbiResult: newValue }
+                    } : null);
+                  }}
+                  disabled={!isEditMode}
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium" 
+                />
+              </div>
+
               <div>
                 <label className="block text-xs text-gray-600 mb-1">PBI hodnoty</label>
                 <input 
