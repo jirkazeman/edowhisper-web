@@ -876,6 +876,14 @@ export default function RecordDetailPage() {
             </>
           )}
           
+          {/* 🆕 Edit Mode indikátor - viditelný banner */}
+          {isEditMode && (
+            <div className="absolute left-0 right-0 top-full mt-1 bg-yellow-100 border border-yellow-300 text-yellow-800 px-3 py-1.5 text-xs font-medium flex items-center gap-2 rounded shadow-sm z-40">
+              <Edit size={14} />
+              <span>✏️ <strong>Edit Mode aktivní</strong> - Všechna pole můžete upravovat</span>
+            </div>
+          )}
+          
           {/* Validovat extrakci (Dual-LLM) */}
           <button
             onClick={handleValidateExtraction}
@@ -1066,9 +1074,12 @@ export default function RecordDetailPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Kuřák</label>
+                <label className="block text-xs text-gray-600 mb-1">
+                  Kuřák
+                  <FieldStatusIcon value={fd.isSmoker} />
+                </label>
                 <div className="flex gap-3">
-                  <label className="flex items-center gap-1">
+                  <label className={`flex items-center gap-1 ${!isEditMode ? 'opacity-60' : 'cursor-pointer'}`}>
                     <input 
                       type="radio" 
                       checked={fd.isSmoker === "yes"} 
@@ -1079,11 +1090,11 @@ export default function RecordDetailPage() {
                         } : null);
                       }}
                       disabled={!isEditMode}
-                      className="w-4 h-4" 
+                      className="w-4 h-4 cursor-pointer" 
                     />
                     <span className="text-sm font-medium">Ano</span>
                   </label>
-                  <label className="flex items-center gap-1">
+                  <label className={`flex items-center gap-1 ${!isEditMode ? 'opacity-60' : 'cursor-pointer'}`}>
                     <input 
                       type="radio" 
                       checked={fd.isSmoker === "no"} 
@@ -1094,9 +1105,24 @@ export default function RecordDetailPage() {
                         } : null);
                       }}
                       disabled={!isEditMode}
-                      className="w-4 h-4" 
+                      className="w-4 h-4 cursor-pointer" 
                     />
                     <span className="text-sm font-medium">Ne</span>
+                  </label>
+                  <label className={`flex items-center gap-1 ${!isEditMode ? 'opacity-60' : 'cursor-pointer'}`}>
+                    <input 
+                      type="radio" 
+                      checked={fd.isSmoker === null} 
+                      onChange={() => {
+                        setRecord(prev => prev ? {
+                          ...prev,
+                          form_data: { ...prev.form_data, isSmoker: null }
+                        } : null);
+                      }}
+                      disabled={!isEditMode}
+                      className="w-4 h-4 cursor-pointer" 
+                    />
+                    <span className="text-sm font-medium text-gray-500">Neuvedeno</span>
                   </label>
                 </div>
               </div>
