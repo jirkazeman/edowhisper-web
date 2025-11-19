@@ -1212,31 +1212,6 @@ export default function RecordDetailPage() {
 
         {/* RIGHT COLUMN */}
         <div className="space-y-2">
-          {/* Volné poznámky */}
-          <div className="bg-white rounded shadow-sm p-2">
-            <h3 className="font-semibold text-xs mb-2">📝 Volné poznámky</h3>
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">
-                Osobní poznámky
-                <FieldStatusIcon value={fd.userNotes} />
-              </label>
-              <textarea
-                value={fd.userNotes || ""}
-                onChange={(e) => {
-                  const newValue = e.target.value;
-                  setRecord(prev => prev ? {
-                    ...prev,
-                    form_data: { ...prev.form_data, userNotes: newValue }
-                  } : null);
-                }}
-                disabled={!isEditMode}
-                placeholder="Zde můžete psát své osobní poznámky..."
-                rows={4}
-                className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-medium resize-none" 
-              />
-            </div>
-          </div>
-
           {/* Vyšetření */}
           <div className="bg-white rounded shadow-sm p-2">
             <h3 className="font-semibold text-xs mb-2">Vyšetření</h3>
@@ -1271,11 +1246,11 @@ export default function RecordDetailPage() {
             </div>
           </div>
 
-          {/* Doplňující položky */}
+          {/* Doplňující položky - 2 sloupce */}
           <div className="bg-white rounded shadow-sm p-2">
             <h3 className="font-semibold text-xs mb-2">➕ Doplňující položky</h3>
             
-            <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
               {[
                 { label: "Zubní kaz", value: fd.caries, fieldName: "caries" },
                 { label: "Sliznice", value: fd.mucosa, fieldName: "mucosa" },
@@ -1537,6 +1512,34 @@ export default function RecordDetailPage() {
                 </p>
               </div>
             )}
+          </div>
+        </div>
+      </div>
+
+      {/* Volné poznámky - celá šířka pod Přehledem a Přepisem */}
+      <div className="px-1.5 pb-1.5">
+        <div className="bg-white rounded shadow-sm p-3">
+          <h3 className="font-semibold text-lg mb-2">📝 Volné poznámky</h3>
+          <div>
+            <label className="block text-xs text-gray-600 mb-1">
+              Osobní poznámky (uloží se lokálně)
+              <FieldStatusIcon value={fd.userNotes} />
+            </label>
+            <textarea
+              value={fd.userNotes || ""}
+              onChange={(e) => {
+                const newValue = e.target.value;
+                setRecord(prev => prev ? {
+                  ...prev,
+                  form_data: { ...prev.form_data, userNotes: newValue }
+                } : null);
+              }}
+              disabled={!isEditMode}
+              placeholder="Zde můžete psát své osobní poznámky..."
+              rows={6}
+              className="w-full px-3 py-2 border border-gray-300 rounded text-sm font-medium resize-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" 
+              style={{ fontSize: `${fontSize}%` }}
+            />
           </div>
         </div>
       </div>
