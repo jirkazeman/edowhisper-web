@@ -152,8 +152,6 @@ export interface RecordFormData {
   userNotes?: string;
   fullTranscript?: string;
   dentalCrossNotes?: string;
-  
-  // 📷 FOTOGRAFIE (lokální URI na mobilu)
   photos?: string[];
 }
 
