@@ -119,8 +119,8 @@ export interface RecordFormData {
   bob?: string; // Příklad: "31%", "45%"
 
   // PBI (Papillary Bleeding Index)
-  pbiDate?: string; // Datum PBI vyšetření (DD.MM.RRRR)
-  pbiResult?: string; // Výsledek PBI
+  pbiDate?: string;
+  pbiResult?: string;
   pbiValues?: string; // Příklad: "0123/2341/1234/0123"
   pbiTools?: string;
 
@@ -147,10 +147,14 @@ export interface RecordFormData {
   };
 
   // Záznamy
+  treatmentRecord?: string;
   examinationSummary?: string;
   userNotes?: string;
   fullTranscript?: string;
   dentalCrossNotes?: string;
+  
+  // 📷 FOTOGRAFIE (lokální URI na mobilu)
+  photos?: string[];
 }
 
 export interface AIRole {
